@@ -1,97 +1,33 @@
 import {
-  Anchor,
   Avatar,
-  Badge,
   Box,
   Burger,
   Button,
-  Center,
   Divider,
   Drawer,
   Group,
   Header,
-  HoverCard,
   Indicator,
   Loader,
   Menu,
   ScrollArea,
-  SimpleGrid,
   Text,
-  ThemeIcon,
   UnstyledButton,
   rem,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconChevronDown,
-  IconHeart,
   IconLogout,
-  IconNotification,
-  IconPlus,
   IconSettings,
-  IconTags,
   IconUser,
 } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { navbarStyles } from "./Navbar.styles";
-
-import { Notification } from "@prisma/client";
-import {
-  IconBriefcase,
-  IconCar,
-  IconHome,
-  IconTag,
-  IconTools,
-  IconUsers,
-} from "@tabler/icons-react";
-import axios from "axios";
-
-export const dropdownMenuData = [
-  {
-    icon: IconTag,
-    title: "Buy and sell",
-    description: "Browse and purchase from a wide range of products",
-    slug: "electronics",
-  },
-  {
-    icon: IconCar,
-    title: "Cars and vehicles",
-    description: "Discover new and used cars, motorcycles, and other vehicles",
-    slug: "electronics",
-  },
-  {
-    icon: IconHome,
-    title: "Real estate",
-    description:
-      "Explore properties for sale or rent, including houses, apartments, and commercial spaces",
-    slug: "real-estate",
-  },
-  {
-    icon: IconBriefcase,
-    title: "Jobs",
-    description:
-      "Find job listings, part-time opportunities, and freelance work",
-    slug: "jobs",
-  },
-  {
-    icon: IconTools,
-    title: "Services",
-    description:
-      "Browse professional services, including repairs, cleaning, and tutoring",
-    slug: "services",
-  },
-  {
-    icon: IconUsers,
-    title: "Community",
-    description:
-      "Browse professional services, including repairs, cleaning, and tutoring",
-    slug: "community",
-  },
-];
 
 export interface INavbar {}
 
@@ -110,47 +46,6 @@ const Navbar: FC<INavbar> = () => {
   const { data, status } = useSession();
   const user = data?.user;
   const router = useRouter();
-
-  // GET notifications from '/api/notifications/getUnreadNotifications'
-  useEffect(() => {
-    async function getUnreadNotifications() {
-      const unreadNotifications: Notification[] = (
-        await axios.get(
-          // @ts-expect-error
-          `/api/notifications/getUnreadNotifications?userId=${user.id}`
-        )
-      ).data;
-
-      setUnreadNotifications(unreadNotifications);
-      setUnreadNotificationsCount(unreadNotifications.length);
-    }
-
-    // Only run if there's a user
-    if (status === "authenticated") {
-      getUnreadNotifications();
-    }
-  }, [status]);
-
-  const links = dropdownMenuData.map((item) => (
-    <UnstyledButton className={classes.subLink} key={item.title}>
-      <Group noWrap align="flex-start">
-        <ThemeIcon size={34} variant="default" radius="md">
-          <item.icon size={rem(22)} color={theme.fn.primaryColor()} />
-        </ThemeIcon>
-        <Link
-          href={`categories/${item.slug}`}
-          className="text-decoration-none no-underline"
-        >
-          <Text size="sm" fw={500} className="text-slate-900">
-            {item.title}
-          </Text>
-          <Text size="xs" color="dimmed">
-            {item.description}
-          </Text>
-        </Link>
-      </Group>
-    </UnstyledButton>
-  ));
 
   // User menu: menu | loader | "Log in"
   let userMenu;
@@ -211,53 +106,6 @@ const Navbar: FC<INavbar> = () => {
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
-          <Link href="/profile/my-listings" className="no-underline">
-            <Menu.Item
-              icon={
-                <IconTags
-                  size="0.9rem"
-                  color={theme.colors.blue[6]}
-                  stroke={1.5}
-                />
-              }
-            >
-              My listings
-            </Menu.Item>
-          </Link>
-
-          <Link href="/profile/favourites" className="no-underline">
-            <Menu.Item
-              icon={
-                <IconHeart
-                  size="0.9rem"
-                  color={theme.colors.red[6]}
-                  stroke={1.5}
-                />
-              }
-            >
-              Favourites
-            </Menu.Item>
-          </Link>
-
-          <Link href="/profile/notifications" className="no-underline">
-            <Menu.Item
-              className="flex"
-              icon={
-                <IconNotification
-                  size="0.9rem"
-                  // color={theme.colors.red[6]}
-                  stroke={1.5}
-                />
-              }
-            >
-              Notifications
-              <Badge color="red" size="xs" variant="filled" className="ml-2">
-                {unreadNotificationsCount}
-              </Badge>
-            </Menu.Item>
-          </Link>
-
-          <Menu.Label>Settings</Menu.Label>
           <Link href="/profile/" className="no-underline">
             <Menu.Item icon={<IconUser size="0.9rem" stroke={1.5} />}>
               My profile
@@ -303,10 +151,10 @@ const Navbar: FC<INavbar> = () => {
         >
           <Link href={"/"}>
             <Image
-              src={"/MarketplaceLogo.svg"}
+              src={"/TranscribeLogo.svg"}
               height={35}
               width={150}
-              alt="Marketpalce logo"
+              alt="Logo"
             />
           </Link>
 
@@ -318,69 +166,12 @@ const Navbar: FC<INavbar> = () => {
             <Link href="/" className={classes.link}>
               Home
             </Link>
-            <HoverCard
-              width={600}
-              position="bottom"
-              radius="md"
-              shadow="md"
-              withinPortal
-            >
-              <HoverCard.Target>
-                <a href="#" className={classes.link}>
-                  <Center inline>
-                    <Box component="span" mr={5}>
-                      Categories
-                    </Box>
-                    <IconChevronDown
-                      size={16}
-                      color={theme.fn.primaryColor()}
-                    />
-                  </Center>
-                </a>
-              </HoverCard.Target>
-
-              <HoverCard.Dropdown sx={{ overflow: "hidden" }}>
-                <Group position="apart" px="md">
-                  <Text fw={500}>Categories</Text>
-                  <Anchor component={Link} fz={"xs"} href="/categories">
-                    View all
-                  </Anchor>
-                </Group>
-
-                <Divider
-                  my="sm"
-                  mx="-md"
-                  color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
-                />
-
-                <SimpleGrid cols={2} spacing={0}>
-                  {links}
-                </SimpleGrid>
-              </HoverCard.Dropdown>
-            </HoverCard>
             <a href="/about" className={classes.link}>
               About
             </a>
           </Group>
 
-          <Group className={classes.hiddenMobile}>
-            {userMenu}
-            <Button
-              leftIcon={<IconPlus size="0.9rem" color={theme.colors.dark[9]} />}
-              onClick={
-                status === "authenticated"
-                  ? () => {
-                      router.push("/listings/new");
-                    }
-                  : () => {
-                      signIn(undefined, { callbackUrl: "/listings/new" });
-                    }
-              }
-              variant="default"
-            >
-              Create listing
-            </Button>
-          </Group>
+          <Group className={classes.hiddenMobile}>{userMenu}</Group>
 
           <Burger
             opened={drawerOpened}
@@ -437,7 +228,6 @@ const Navbar: FC<INavbar> = () => {
               </Link>
               <Menu>
                 <Menu.Label>Profile</Menu.Label>
-
                 {/* Mobile - Profile */}
                 <Link
                   href="/profile/"
@@ -453,64 +243,23 @@ const Navbar: FC<INavbar> = () => {
                   >
                     My profile
                   </Menu.Item>
-                </Link>
 
-                {/* Mobile - My Listings */}
-                <Link
-                  href="/profile/my-listings"
-                  onClick={toggleDrawer}
-                  className="no-underline"
-                >
-                  <Menu.Item
-                    className={classes.link}
-                    icon={<IconTags size="0.9rem" stroke={1.5} />}
+                  {/* Mobile - Profile */}
+                  <Link
+                    href="/profile/"
+                    onClick={toggleDrawer}
+                    className="no-underline"
                   >
-                    My listings
-                  </Menu.Item>
-                </Link>
-
-                {/* Mobile - Favourites */}
-                <Link
-                  href="/profile/favourites"
-                  onClick={toggleDrawer}
-                  className="no-underline"
-                >
-                  <Menu.Item
-                    className={classes.link}
-                    icon={
-                      <IconHeart
-                        size="0.9rem"
-                        color={theme.colors.red[6]}
-                        stroke={1.5}
-                      />
-                    }
-                  >
-                    Favourites
-                  </Menu.Item>
-                </Link>
-
-                {/* Mobile - Notifications */}
-                <Link href="/profile/notifications" className="no-underline">
-                  <Menu.Item
-                    className={classes.link}
-                    icon={
-                      <IconNotification
-                        size="0.9rem"
-                        // color={theme.colors.red[6]}
-                        stroke={1.5}
-                      />
-                    }
-                  >
-                    Notifications
-                    <Badge
-                      color="red"
-                      size="xs"
-                      variant="filled"
-                      className="ml-2"
+                    <Menu.Item
+                      className={classes.link}
+                      icon={<IconSettings size="0.9rem" stroke={1.5} />}
+                      sx={{
+                        backgroundColor: "white",
+                      }}
                     >
-                      {unreadNotificationsCount}
-                    </Badge>
-                  </Menu.Item>
+                      Account settings
+                    </Menu.Item>
+                  </Link>
                 </Link>
               </Menu>
             </>
@@ -525,13 +274,6 @@ const Navbar: FC<INavbar> = () => {
             {status === "authenticated" && <Menu.Label>Navigate</Menu.Label>}
             <Link href="/" className={classes.link} onClick={toggleDrawer}>
               Home
-            </Link>
-            <Link
-              href="/categories"
-              className={classes.link}
-              onClick={toggleDrawer}
-            >
-              Categories
             </Link>
             <Link href="/about" className={classes.link} onClick={toggleDrawer}>
               About

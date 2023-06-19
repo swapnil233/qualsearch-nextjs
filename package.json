@@ -1,5 +1,5 @@
 {
-  "name": "marketplace",
+  "name": "next-transcription",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -12,7 +12,6 @@
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --write .",
-    "seed": "ts-node seed.ts",
     "prepack": "husky install",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -22,7 +21,6 @@
     "@aws-sdk/s3-request-presigner": "^3.332.0",
     "@emotion/react": "^11.11.0",
     "@emotion/server": "^11.10.0",
-    "@mantine/carousel": "^6.0.8",
     "@mantine/core": "^6.0.10",
     "@mantine/dropzone": "^6.0.7",
     "@mantine/ds": "^6.0.7",
@@ -50,12 +48,11 @@
     "embla-carousel-react": "^7.1.0",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
-    "joi": "^17.9.1",
-    "lodash": "^4.17.21",
     "mantine-datatable": "^2.4.16",
     "morgan": "^1.10.0",
     "next": "13.3.0",
     "next-auth": "^4.22.0",
+    "openai": "^3.3.0",
     "postcss": "8.4.21",
     "react": "18.2.0",
     "react-dom": "18.2.0",

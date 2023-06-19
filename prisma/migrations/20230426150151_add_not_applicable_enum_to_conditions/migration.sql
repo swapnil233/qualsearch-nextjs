@@ -1,2 +1,0 @@
--- AlterEnum
-ALTER TYPE "Condition" ADD VALUE 'NOT_APPLICABLE';

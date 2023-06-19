@@ -209,20 +209,20 @@ const Footer: FC<IFooter> = () => {
         <Container className={classes.inner}>
           <div className={classes.logo}>
             <Image
-              src={"/MarketplaceLogo.svg"}
+              src={"/TranscribeLogo.svg"}
               height={35}
               width={150}
-              alt="Marketpalce logo"
+              alt="Logo"
             />
             <Text size="xs" color="dimmed" className={classes.description}>
-              Toronto&apos;s new online marketpalce
+              Transcription, summarization and diarization with AI
             </Text>
           </div>
           <div className={classes.groups}>{groups}</div>
         </Container>
         <Container className={classes.afterFooter}>
           <Text color="dimmed" size="sm">
-            © 2023 Marketplace. All rights reserved.
+            © 2023 Transcribe. All rights reserved.
           </Text>
           <Group spacing={0} className={classes.social} position="right" noWrap>
             <ActionIcon size="lg">
