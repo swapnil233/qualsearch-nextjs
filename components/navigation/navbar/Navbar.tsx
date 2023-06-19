@@ -7,7 +7,6 @@ import {
   Drawer,
   Group,
   Header,
-  Indicator,
   Loader,
   Menu,
   ScrollArea,
@@ -25,7 +24,6 @@ import {
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { navbarStyles } from "./Navbar.styles";
 
@@ -34,18 +32,11 @@ export interface INavbar {}
 const Navbar: FC<INavbar> = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
-  const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const { classes, theme, cx } = navbarStyles();
   const [userMenuOpened, setUserMenuOpened] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState<
-    Notification[]
-  >([]);
-  const [unreadNotificationsCount, setUnreadNotificationsCount] =
-    useState<number>();
 
   const { data, status } = useSession();
   const user = data?.user;
-  const router = useRouter();
 
   // User menu: menu | loader | "Log in"
   let userMenu;
@@ -68,35 +59,14 @@ const Navbar: FC<INavbar> = () => {
             })}
           >
             <Group spacing={7}>
-              {/* If there's unread notifications, show an indicator */}
-              {unreadNotificationsCount! > 0 ? (
-                <Indicator
-                  inline
-                  label={unreadNotificationsCount}
-                  size={18}
-                  withBorder
-                >
-                  <Avatar
-                    src={user?.image || ""}
-                    alt={
-                      `${user?.name}'s profile picture` ||
-                      "Default profile picture"
-                    }
-                    radius="xl"
-                    size={32}
-                  />
-                </Indicator>
-              ) : (
-                <Avatar
-                  src={user?.image || ""}
-                  alt={
-                    `${user?.name}'s profile picture` ||
-                    "Default profile picture"
-                  }
-                  radius="xl"
-                  size={32}
-                />
-              )}
+              <Avatar
+                src={user?.image || ""}
+                alt={
+                  `${user?.name}'s profile picture` || "Default profile picture"
+                }
+                radius="xl"
+                size={32}
+              />
 
               <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
                 {user?.name}
