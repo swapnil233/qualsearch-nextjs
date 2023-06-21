@@ -36,7 +36,7 @@ export const footerData = [
     links: [
       {
         label: "Contribute",
-        link: "https://github.com/swapnil233/marketplace",
+        link: "https://github.com/swapnil233/next-transcription",
       },
       {
         label: "Media assets",

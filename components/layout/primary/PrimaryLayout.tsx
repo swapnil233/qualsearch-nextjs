@@ -11,12 +11,9 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
   return (
     <>
       <Head>
-        <title>Marketplace</title>
+        <title>Transcription</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <meta
-          name="description"
-          content="Marketplace is a new classfields website based in Toronto"
-        />
+        <meta name="description" content="Transcribe videos" />
         <meta name="keywords" content="Classfields" />
         <meta name="author" content="Hasan Iqbal" />
       </Head>
