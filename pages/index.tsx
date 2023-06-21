@@ -8,8 +8,8 @@ import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
 import axios from "axios";
-
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
+
 import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -35,24 +35,92 @@ interface TranscriptionPageProps {
 const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
   user,
 }) => {
-  const [transcription, setTranscription] = useState("");
-  const [summary, setSummary] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [transcription, setTranscription] = useState<string>("");
+  const [summary, setSummary] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleTranscribeAndSummarize = async () => {
+  const handleTranscribe = async () => {
     try {
+      // Start loading
       setLoading(true);
+
+      // Get transcription from GET /api/transcribe
       const res = await axios.get("/api/transcribe");
+
+      // Set transcription
       setTranscription(res.data.transcription.replace(/\n/g, "<br />"));
-      setSummary(res.data.summary.replace(/\n/g, "<br />"));
+
+      // Stop loading
       setLoading(false);
     } catch (error) {
+      // Stop loading
       setLoading(false);
 
+      // Show error notification
       notifications.show({
-        id: "error",
+        id: "error-transcription",
         withCloseButton: true,
-        title: "Transcription and summarization failed",
+        title: "Transcription failed",
+        message: "Please try again later",
+        color: "red",
+        icon: <IconX />,
+        loading: false,
+      });
+    }
+  };
+
+  const handleSummarize = async () => {
+    if (!transcription || transcription === "") {
+      // Show error notification
+      notifications.show({
+        id: "error-transcription",
+        withCloseButton: true,
+        title: "Transcription is empty",
+        message: "Please transcribe first",
+        color: "red",
+        icon: <IconX />,
+        loading: false,
+      });
+      return;
+    }
+
+    if (summary && summary !== "") {
+      // Show error notification
+      notifications.show({
+        id: "error-summary",
+        withCloseButton: true,
+        title: "Summary already exists",
+        message: "Please transcribe again",
+        color: "red",
+        icon: <IconX />,
+        loading: false,
+      });
+      return;
+    }
+
+    try {
+      // Start loading
+      setLoading(true);
+
+      // Get summary from POST /api/summarize
+      const res = await axios.post("/api/summarize", {
+        transcription,
+      });
+
+      // Set summary
+      setSummary(res.data.summary.replace(/\n/g, "<br />"));
+
+      // Stop loading
+      setLoading(false);
+    } catch (error) {
+      // Stop loading
+      setLoading(false);
+
+      // Show error notification
+      notifications.show({
+        id: "error-summary",
+        withCloseButton: true,
+        title: "Summarization failed",
         message: "Please try again later",
         color: "red",
         icon: <IconX />,
@@ -65,9 +133,18 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
     <>
       <HeadingSection title="Transcription" description="Transcribe a video" />
 
-      <Button loading={loading} onClick={handleTranscribeAndSummarize}>
-        Transcribe & summarize
+      <Button loading={loading} onClick={handleTranscribe}>
+        Transcribe
       </Button>
+
+      <Button
+        loading={loading}
+        onClick={handleSummarize}
+        disabled={!transcription || transcription === ""}
+      >
+        Summarize
+      </Button>
+
       <p
         className="text-gray-700 dark:text-gray-400 text-lg font-normal mb-4 mt-4"
         dangerouslySetInnerHTML={{
