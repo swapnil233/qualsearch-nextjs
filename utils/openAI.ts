@@ -28,14 +28,14 @@ export interface IChatCompletionRequest {
    * ID of the model to use for chat completions.
    */
   model:
-    | "gpt-4"
-    | "gpt-4-0613"
-    | "gpt-4-32k"
-    | "gpt-4-32k-0613"
-    | "gpt-3.5-turbo"
-    | "gpt-3.5-turbo-0613"
-    | "gpt-3.5-turbo-16k"
-    | "gpt-3.5-turbo-16k-0613";
+  | "gpt-4"
+  | "gpt-4-0613"
+  | "gpt-4-32k"
+  | "gpt-4-32k-0613"
+  | "gpt-3.5-turbo"
+  | "gpt-3.5-turbo-0613"
+  | "gpt-3.5-turbo-16k"
+  | "gpt-3.5-turbo-16k-0613";
 
   /**
    * A list of message objects.
@@ -160,10 +160,43 @@ export interface ITranscription {
   };
 }
 
+export interface IEmbeddingsRequest {
+  /**
+   * ID of the model to use. For now, use 2nd gen: text-embedding-ada-002.
+   */
+  model: "text-embedding-ada-002";
+
+  /**
+   * Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays. Each input must not exceed the max input tokens for the model (8191 tokens for text-embedding-ada-002).
+   */
+  input: string | Array<string>;
+
+  /**
+   * (Optional) A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
+   */
+  user?: string;
+}
+
+export interface IEmbeddings {
+  data: {
+    data: Array<{
+      object: "embedding";
+      embedding: Array<number>;
+      index: number;
+    }>;
+    model: string;
+    usage: {
+      prompt_tokens: number;
+      total_tokens: number;
+    };
+  }
+}
+
 export interface IOpenAIApi {
   createChatCompletion(
     _request: IChatCompletionRequest
   ): Promise<IChatCompletion>;
+
   createTranscription(
     _file: ReadStream,
     _model: string,
@@ -173,4 +206,8 @@ export interface IOpenAIApi {
     _language?: string,
     _options?: any
   ): Promise<ITranscription>;
+
+  createEmbedding(
+    _request: IEmbeddingsRequest
+  ): Promise<IEmbeddings>;
 }
