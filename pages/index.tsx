@@ -3,13 +3,15 @@ import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { NextPageWithLayout } from "@/pages/page";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { Button } from "@mantine/core";
+import { Button, FileInput, rem } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
-import { IconX } from "@tabler/icons-react";
+import { IconCheck, IconUpload, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import { v4 } from "uuid";
 
+import sanitizeFileName from "@/utils/sanitizeFileName";
 import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -38,6 +40,58 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
   const [transcription, setTranscription] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFormSubmit = async (event: any) => {
+    event.preventDefault();
+    setUploading(true);
+
+    // Show notification
+    notifications.show({
+      id: "uploading-file",
+      withCloseButton: false,
+      title: "Uploading file",
+      message: "Please wait while we upload your file",
+      icon: <IconX />,
+      loading: true,
+    });
+
+    try {
+      if (!file) {
+        console.log("No file selected");
+        return;
+      }
+
+      const sanitizedFileName = sanitizeFileName(file.name);
+      const uuid = v4();
+      const key = `users/${user?.id}/files/${uuid}-${sanitizedFileName}`;
+
+      const {
+        data: { url: uploadUrl },
+      } = await axios.get(`/api/aws/presigned?key=${key}`);
+
+      const response = await axios.put(uploadUrl, file, {
+        headers: { "Content-Type": file.type },
+      });
+
+      notifications.show({
+        id: "success",
+        withCloseButton: true,
+        title: "File uploaded",
+        message: "Successfully uploaded your file.",
+        color: "green",
+        icon: <IconCheck />,
+        loading: false,
+      });
+    } catch (error) {
+      console.log("Upload failed", error);
+    } finally {
+      notifications.hide("uploading-file");
+      setUploading(false);
+    }
+  };
 
   const handleTranscribe = async () => {
     try {
@@ -132,6 +186,24 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
   return (
     <>
       <HeadingSection title="Transcription" description="Transcribe a video" />
+
+      <form onSubmit={handleFormSubmit}>
+        <FileInput
+          placeholder="Select an audio or video file..."
+          label="Audio/video files"
+          icon={<IconUpload size={rem(14)} />}
+          withAsterisk
+          // multiple
+          accept="audio/*,video/*"
+          value={file}
+          onChange={setFile}
+          sx={{ marginBottom: "1rem", marginTop: "1rem" }}
+        />
+
+        <Button type="submit" loading={uploading}>
+          Submit
+        </Button>
+      </form>
 
       <Button loading={loading} onClick={handleTranscribe}>
         Transcribe
