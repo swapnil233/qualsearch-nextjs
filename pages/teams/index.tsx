@@ -1,7 +1,7 @@
-import TeamCard from "@/components/Card";
+import TeamCard from "@/components/card/team/TeamCard";
 import HeadingSection from "@/components/layout/heading/HeadingSection";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import CreateTeamModal from "@/components/modal/teams/CreateTeamModal";
+import CreateTeamModal from "@/components/modal/team/CreateTeamModal";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
@@ -19,9 +19,7 @@ export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   return requireAuthentication(context, async (session: any) => {
-    const user: User | null = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
+    const user = session.user;
 
     let teams: TeamWithUsers[] = await prisma.team.findMany({
       where: {
