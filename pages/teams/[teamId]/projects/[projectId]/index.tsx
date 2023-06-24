@@ -1,10 +1,10 @@
 import HeadingSection from "@/components/layout/heading/HeadingSection";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import { NextPageWithLayout } from "@/pages/page";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Project } from "@prisma/client";
 import { GetServerSidePropsContext } from "next";
-import { NextPageWithLayout } from "../page";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (_session: any) => {
