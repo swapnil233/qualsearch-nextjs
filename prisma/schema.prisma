@@ -23,6 +23,12 @@ model User {
   phone         String?   @unique
   accounts      Account[]
   sessions      Session[]
+  teamId        String?
+  // m-n -> User can belong to many teams
+  teams         Team[]
+
+  // 1-n User can create many teams
+  createdTeams Team[] @relation("CreatedTeam")
 }
 
 model Account {
@@ -57,4 +63,51 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  description String?
+
+  // m-n -> Team can have many users
+  users User[]
+
+  // 1-n -> Team can have many projects
+  projects Project[]
+
+  // 1-n -> Team can be created by 1 user
+  createdBy       User   @relation("CreatedTeam", fields: [createdByUserId], references: [id])
+  createdByUserId String
+}
+
+// Files belong to projects. A user can have many projects. A project can have many files.
+model Project {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  description String?
+
+  // 1-n -> Project can belong to 1 team
+  Team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
+
+  // 1-n -> Project can have many videos
+  files File[]
+}
+
+model File {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String // eg "John Doe's Interview 06/01/2021"
+  uri         String // eg "https://s3.amazonaws.com/{bucket-name}/{user-id}/{project-id}/interview.mp4"
+  description String?
+
+  // 1-n -> Video can belong to 1 project
+  Project   Project @relation(fields: [projectId], references: [id])
+  projectId String
 }
