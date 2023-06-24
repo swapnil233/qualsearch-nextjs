@@ -42,29 +42,31 @@ const CreateTeamModal: FC<ICreateTeamModal> = ({
     >
       <form onSubmit={form.onSubmit(handleCreateNewTeam)}>
         <TextInput
-          placeholder="ABC Example Team"
+          placeholder="Acme UX team..."
           label="Team name"
           description="This name can be changed later in team settings"
           radius="xs"
           withAsterisk
-          mb={rem(40)}
+          mb={rem(20)}
           size="md"
           {...form.getInputProps("teamName")}
         />
 
         <Textarea
-          placeholder="A description about this team"
-          label="Team description"
+          placeholder="This team is for..."
+          label="Description"
           description="A description will help your team members identify the team"
           radius="xs"
           size="md"
+          autosize
+          minRows={4}
           mb={rem(20)}
           {...form.getInputProps("teamDescription")}
         />
 
         <Alert
           icon={<IconAlertCircle size="1rem" />}
-          title="You are creating an empty team"
+          title="Creating a team without members"
           radius="xs"
           mb={rem(20)}
         >
