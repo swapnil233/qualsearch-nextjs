@@ -136,9 +136,12 @@ const Navbar: FC<INavbar> = () => {
             <Link href="/" className={classes.link}>
               Home
             </Link>
-            <a href="/about" className={classes.link}>
-              About
-            </a>
+            <Link href="/teams" className={classes.link}>
+              Teams
+            </Link>
+            <Link href="/" className={classes.link}>
+              Projects
+            </Link>
           </Group>
 
           <Group className={classes.hiddenMobile}>{userMenu}</Group>
