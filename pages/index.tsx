@@ -70,7 +70,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
 
       const {
         data: { url: uploadUrl },
-      } = await axios.get(`/api/aws/presigned?key=${key}`);
+      } = await axios.get(`/api/aws/presignedUploadUrl?key=${key}`);
 
       const response = await axios.put(uploadUrl, file, {
         headers: { "Content-Type": file.type },
