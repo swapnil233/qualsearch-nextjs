@@ -1,42 +1,25 @@
 import HeadingSection from "@/components/layout/heading/HeadingSection";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { NextPageWithLayout } from "@/pages/page";
-import prisma from "@/utils/prisma";
-import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Button, FileInput, rem } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconCheck, IconUpload, IconX } from "@tabler/icons-react";
 import axios from "axios";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { v4 } from "uuid";
 
 import sanitizeFileName from "@/utils/sanitizeFileName";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
-
-export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  return requireAuthentication(context, async (session: any) => {
-    const user: User | null = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    return {
-      props: {
-        user,
-      },
-    };
-  });
-};
 
 interface TranscriptionPageProps {
   user: User | null;
 }
 
-const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
-  user,
-}) => {
+const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
+  const { data: session, status } = useSession();
+  const user = session?.user;
+
   const [transcription, setTranscription] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -59,13 +42,37 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
     });
 
     try {
+      if (!user) {
+        console.log("No user");
+        notifications.show({
+          id: "error-user",
+          withCloseButton: true,
+          title: "Not signed in",
+          message: "Please sign in to upload a file.",
+          color: "red",
+          icon: <IconX />,
+          loading: false,
+        });
+        return;
+      }
+
       if (!file) {
         console.log("No file selected");
+        notifications.show({
+          id: "error-file",
+          withCloseButton: true,
+          title: "No file selected",
+          message: "Please select a file",
+          color: "red",
+          icon: <IconX />,
+          loading: false,
+        });
         return;
       }
 
       const sanitizedFileName = sanitizeFileName(file.name);
       const uuid = v4();
+      // @ts-ignore
       const key = `users/${user?.id}/files/${uuid}-${sanitizedFileName}`;
 
       const {
@@ -94,6 +101,20 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
   };
 
   const handleTranscribe = async () => {
+    if (!user) {
+      console.log("No user");
+      notifications.show({
+        id: "error-user",
+        withCloseButton: true,
+        title: "Not signed in",
+        message: "Please sign in to transcribe a file.",
+        color: "red",
+        icon: <IconX />,
+        loading: false,
+      });
+      return;
+    }
+
     try {
       // Start loading
       setLoading(true);
@@ -124,6 +145,20 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = ({
   };
 
   const handleSummarize = async () => {
+    if (!user) {
+      console.log("No user");
+      notifications.show({
+        id: "error-user",
+        withCloseButton: true,
+        title: "Not signed in",
+        message: "Please sign in to summarize a file.",
+        color: "red",
+        icon: <IconX />,
+        loading: false,
+      });
+      return;
+    }
+
     if (!transcription || transcription === "") {
       // Show error notification
       notifications.show({
