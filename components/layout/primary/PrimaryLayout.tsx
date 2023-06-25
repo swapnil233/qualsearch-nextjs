@@ -14,7 +14,7 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
         <title>Transcription</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <meta name="description" content="Transcribe videos" />
-        <meta name="keywords" content="Classfields" />
+        <meta name="keywords" content="transcribe, diarize" />
         <meta name="author" content="Hasan Iqbal" />
       </Head>
       <Navbar />

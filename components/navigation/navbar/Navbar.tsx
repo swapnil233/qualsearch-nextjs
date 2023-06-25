@@ -122,8 +122,8 @@ const Navbar: FC<INavbar> = () => {
           <Link href={"/"}>
             <Image
               src={"/TranscribeLogo.svg"}
-              height={35}
-              width={150}
+              height={30}
+              width={109}
               alt="Logo"
             />
           </Link>
@@ -138,9 +138,6 @@ const Navbar: FC<INavbar> = () => {
             </Link>
             <Link href="/teams" className={classes.link}>
               Teams
-            </Link>
-            <Link href="/" className={classes.link}>
-              Projects
             </Link>
           </Group>
 
@@ -248,8 +245,8 @@ const Navbar: FC<INavbar> = () => {
             <Link href="/" className={classes.link} onClick={toggleDrawer}>
               Home
             </Link>
-            <Link href="/about" className={classes.link} onClick={toggleDrawer}>
-              About
+            <Link href="/teams" className={classes.link} onClick={toggleDrawer}>
+              Teams
             </Link>
           </Menu>
 
