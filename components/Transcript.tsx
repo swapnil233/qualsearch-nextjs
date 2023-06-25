@@ -1,3 +1,4 @@
+import { Button, Popover, Text, TextInput, rem } from "@mantine/core";
 import { User } from "@prisma/client";
 import { useEffect, useState } from "react";
 import CommentForm from "./CommentForm";
@@ -44,6 +45,14 @@ const Transcript: React.FC<ITranscriptProps> = ({
     start: number;
     end: number;
   } | null>(null);
+
+  const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
+  const [newSpeakerName, setNewSpeakerName] = useState<string>("");
+
+  const handleSpeakerNameChange = (speaker: number, name: string) => {
+    setSpeakerNames((prev) => ({ ...prev, [speaker]: name }));
+    setNewSpeakerName("");
+  };
 
   const handleTextSelect = (start: number, end: number) => {
     setSelectedText({ start, end });
@@ -119,55 +128,108 @@ const Transcript: React.FC<ITranscriptProps> = ({
     <>
       <div>
         {groupedTranscript.map((group, groupIndex) => (
-          <p
-            key={groupIndex}
-            className="mt-8"
-            onMouseUp={() => {
-              const selectedText = getSelectedTextDetails();
-              if (selectedText) {
-                handleTextSelect(selectedText.start, selectedText.end);
-              }
-            }}
-          >
-            {group.words.map((word) => {
-              const comment = comments.some(
-                (comment) =>
-                  word.start >= comment.start && word.end <= comment.end
-              );
-
-              return (
-                <span
-                  key={word.index}
-                  data-start={word.start}
-                  data-end={word.end}
-                  style={
-                    word.index === currentWord
-                      ? {
-                          color: "black",
-                          textDecoration: "underline",
-                          cursor: "pointer",
-                          fontSize: "1.5rem",
-                        }
-                      : {
-                          color: speakerColor[word.speaker],
-                          backgroundColor: comment ? "yellow" : "transparent",
-                          cursor: "pointer",
-                          fontSize: "1.5rem",
-                        }
-                  }
+          <div key={groupIndex} className="flex flex-col">
+            <Popover
+              width={300}
+              trapFocus
+              position="bottom-start"
+              withArrow
+              shadow="lg"
+            >
+              <Popover.Target>
+                <Text
+                  color="#190041"
+                  fs={"1.2rem"}
+                  mt={"2rem"}
+                  mb={"8px"}
+                  fw={"bold"}
+                  w={"100%"}
+                >
+                  {speakerNames[group.speaker] || group.speaker}
+                </Text>
+              </Popover.Target>
+              <Popover.Dropdown
+                sx={(theme) => ({
+                  background:
+                    theme.colorScheme === "dark"
+                      ? theme.colors.dark[7]
+                      : theme.white,
+                })}
+              >
+                <TextInput
+                  label="Speaker name"
+                  placeholder="eg Product Manager"
+                  size="xs"
+                  mb={rem(10)}
+                  value={newSpeakerName}
+                  onChange={(e) => setNewSpeakerName(e.target.value)}
+                />
+                <Button
+                  size="xs"
+                  variant="light"
                   onClick={() => {
-                    // seek audio to start time of word
-                    if (audioRef.current) {
-                      audioRef.current.currentTime = word.start;
-                      audioRef.current.play();
+                    if (newSpeakerName !== "") {
+                      handleSpeakerNameChange(group.speaker, newSpeakerName);
                     }
                   }}
                 >
-                  {word.punctuated_word + " "}
-                </span>
-              );
-            })}
-          </p>
+                  Change
+                </Button>
+              </Popover.Dropdown>
+            </Popover>
+            <p
+              key={groupIndex}
+              onMouseUp={() => {
+                const selectedText = getSelectedTextDetails();
+                if (selectedText) {
+                  handleTextSelect(selectedText.start, selectedText.end);
+                }
+              }}
+            >
+              {group.words.map((word) => {
+                const comment = comments.some(
+                  (comment) =>
+                    word.start >= comment.start && word.end <= comment.end
+                );
+
+                return (
+                  <span
+                    key={word.index}
+                    data-start={word.start}
+                    data-end={word.end}
+                    style={
+                      word.index === currentWord
+                        ? {
+                            color: "#190041",
+                            cursor: "pointer",
+                            fontSize: "1.5rem",
+                            // lineHeight: "48px",
+                            boxShadow: "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px",
+                            background: "rgba(160, 0, 100, 0.2)",
+                            borderRadius: "3px",
+                          }
+                        : {
+                            color: speakerColor[word.speaker],
+                            backgroundColor: comment ? "yellow" : "transparent",
+                            cursor: "pointer",
+                            fontSize: "1.5rem",
+                            // lineHeight: "28px",
+                          }
+                    }
+                    onClick={() => {
+                      // seek audio to start time of word
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = word.start;
+                        audioRef.current.play();
+                      }
+                    }}
+                  >
+                    {word.punctuated_word + " "}
+                  </span>
+                );
+              })}
+            </p>
+          </div>
         ))}
       </div>
       {selectedText && (
