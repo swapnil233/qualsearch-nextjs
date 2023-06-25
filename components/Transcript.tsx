@@ -36,19 +36,25 @@ const Transcript: React.FC<ITranscriptProps> = ({
   audioRef,
   user,
 }) => {
+  // Word highlighting as audio plays
   const [currentWord, setCurrentWord] = useState<number>(0);
+
+  // Comments
   const [comments, setComments] = useState<
     { start: number; end: number; note: string }[]
   >([]);
 
+  // Text selection
   const [selectedText, setSelectedText] = useState<{
     start: number;
     end: number;
   } | null>(null);
 
+  // Speaker names
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
 
+  // Change speaker name
   const handleSpeakerNameChange = (speaker: number, name: string) => {
     setSpeakerNames((prev) => ({ ...prev, [speaker]: name }));
     setNewSpeakerName("");
@@ -60,7 +66,9 @@ const Transcript: React.FC<ITranscriptProps> = ({
 
   const getSelectedTextDetails = () => {
     const selection = window.getSelection();
+    console.log(selection);
 
+    // If there is a selection, get the start and end time
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
 

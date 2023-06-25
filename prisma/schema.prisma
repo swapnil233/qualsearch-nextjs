@@ -21,6 +21,7 @@ model User {
   emailVerified DateTime?
   image         String?
   phone         String?   @unique
+  role          String?   @default("Collaborator")
   accounts      Account[]
   sessions      Session[]
   teamId        String?

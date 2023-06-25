@@ -2,12 +2,13 @@ import ProjectCard from "@/components/card/project/ProjectCard";
 import HeadingSection from "@/components/layout/heading/HeadingSection";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
+import TeamTable from "@/components/table/TeamTable/TeamTable";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { Project, Team } from "@prisma/client";
+import { Project, Team, User } from "@prisma/client";
 import { IconAlertCircle, IconCheck, IconPlus } from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
@@ -22,6 +23,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       let team: Team | null = await prisma.team.findUnique({
         where: {
           id: teamId as string,
+        },
+        include: {
+          users: true,
         },
       });
 
@@ -74,7 +78,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 interface IProjectsPage {
-  team: Team;
+  team: Team & { users: User[] };
   projects: Project[];
 }
 
@@ -142,6 +146,34 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
     }
   };
 
+  const handleRoleChange = async (userId: string, role: string) => {
+    try {
+      const response = await axios.post("/api/user/role", {
+        teamId: team.id,
+        userId,
+        role,
+      });
+
+      if (response.status === 200) {
+        notifications.show({
+          title: "Role changed",
+          message: "The user's role has been changed.",
+          color: "teal",
+          icon: <IconCheck />,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      notifications.show({
+        title: "Couldn't change the user's role",
+        message:
+          "An error occurred while changing the user's role. We are working on a fix.",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    }
+  };
+
   return (
     <>
       <HeadingSection
@@ -149,7 +181,8 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
         description={team.description || ""}
       ></HeadingSection>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <h2 className="text-xl font-normal flex flex-col mb-4">Projects</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
         {showingProjects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
@@ -161,6 +194,9 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
           <IconPlus size={40} />
         </button>
       </div>
+
+      <h2 className="text-xl font-normal flex flex-col mb-4">Team members</h2>
+      <TeamTable teamMembers={team.users} handleRoleChange={handleRoleChange} />
 
       <CreateProjectModal
         opened={opened}
