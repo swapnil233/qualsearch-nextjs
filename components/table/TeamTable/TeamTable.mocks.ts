@@ -1,6 +1,17 @@
 import { ITeamTable } from "./TeamTable";
 
 const base: ITeamTable = {
+  currentUser: {
+    "id": "clj9cz7540000jlp0zq6k318f",
+    "name": "Hasan Iqbal",
+    "email": "swapniliqbal@gmail.com",
+    "emailVerified": null,
+    "image": "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
+    "phone": null,
+    "role": "Manager",
+    "teamId": null
+  },
+
   teamMembers: [
     {
       "id": "clj9cz7540000jlp0zq6k318f",
