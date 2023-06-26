@@ -1,15 +1,37 @@
-import { Avatar, Group, ScrollArea, Select, Table, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Avatar,
+  Divider,
+  Group,
+  Menu,
+  ScrollArea,
+  Select,
+  Table,
+  Text,
+} from "@mantine/core";
 import { User } from "@prisma/client";
+import {
+  IconDots,
+  IconMessages,
+  IconNote,
+  IconReportAnalytics,
+  IconTrash,
+} from "@tabler/icons-react";
 import { FC } from "react";
 
 export interface ITeamTable {
+  currentUser: User;
   teamMembers: User[];
-  handleRoleChange: (userId: string, role: string) => void;
+  handleRoleChange: (_userId: string, _role: string) => void;
 }
 
 const rolesData = ["Manager", "Collaborator", "Contractor"];
 
-const TeamTable: FC<ITeamTable> = ({ teamMembers, handleRoleChange }) => {
+const TeamTable: FC<ITeamTable> = ({
+  currentUser,
+  teamMembers,
+  handleRoleChange,
+}) => {
   const rows = teamMembers.map((member) => (
     <tr key={member.id}>
       <td>
@@ -37,6 +59,54 @@ const TeamTable: FC<ITeamTable> = ({ teamMembers, handleRoleChange }) => {
         />
       </td>
       <td>2 days ago</td>
+
+      <td>
+        <Group spacing={0} position="right">
+          <Menu
+            transitionProps={{ transition: "pop" }}
+            withArrow
+            position="bottom-end"
+            withinPortal
+          >
+            <Menu.Target>
+              <ActionIcon>
+                <IconDots size="1rem" stroke={1.5} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {currentUser.id !== member.id ? (
+                <>
+                  <Menu.Item icon={<IconMessages size="1rem" stroke={1.5} />}>
+                    Send message
+                  </Menu.Item>
+                  <Menu.Item icon={<IconNote size="1rem" stroke={1.5} />}>
+                    Add note
+                  </Menu.Item>
+                  <Menu.Item
+                    icon={<IconReportAnalytics size="1rem" stroke={1.5} />}
+                  >
+                    Analytics
+                  </Menu.Item>
+                  <Divider opacity={"0.4"} />
+                  <Menu.Item
+                    icon={<IconTrash size="1rem" stroke={1.5} />}
+                    color="red"
+                  >
+                    Remove from team
+                  </Menu.Item>
+                </>
+              ) : (
+                <Menu.Item
+                  icon={<IconTrash size="1rem" stroke={1.5} />}
+                  color="red"
+                >
+                  Leave team
+                </Menu.Item>
+              )}
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
+      </td>
     </tr>
   ));
 
@@ -48,6 +118,7 @@ const TeamTable: FC<ITeamTable> = ({ teamMembers, handleRoleChange }) => {
             <th>Member</th>
             <th>Role</th>
             <th>Last active</th>
+            <th align="right">Actions</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>

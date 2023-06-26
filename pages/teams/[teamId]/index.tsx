@@ -3,6 +3,7 @@ import HeadingSection from "@/components/layout/heading/HeadingSection";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import TeamTable from "@/components/table/TeamTable/TeamTable";
+import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { useForm } from "@mantine/form";
@@ -16,10 +17,12 @@ import { useState } from "react";
 import { NextPageWithLayout } from "../../page";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (_session: any) => {
+  return requireAuthentication(context, async (session: any) => {
     const { teamId } = context.query;
 
     try {
+      const user = session.user;
+
       let team: Team | null = await prisma.team.findUnique({
         where: {
           id: teamId as string,
@@ -64,6 +67,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
       return {
         props: {
+          user,
           team,
           projects,
         },
@@ -78,11 +82,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 interface IProjectsPage {
-  team: Team & { users: User[] };
+  user: User;
+  team: TeamWithUsers;
   projects: Project[];
 }
 
 const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
+  user,
   team,
   projects,
 }) => {
@@ -196,7 +202,11 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
       </div>
 
       <h2 className="text-xl font-normal flex flex-col mb-4">Team members</h2>
-      <TeamTable teamMembers={team.users} handleRoleChange={handleRoleChange} />
+      <TeamTable
+        currentUser={user}
+        teamMembers={team.users}
+        handleRoleChange={handleRoleChange}
+      />
 
       <CreateProjectModal
         opened={opened}
