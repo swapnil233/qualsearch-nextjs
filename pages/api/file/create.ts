@@ -50,7 +50,6 @@ export default async function Handler(
         // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
         const deepgramResponse = await axios.post(`${baseUrl}/api/deepgram/`, {
             uri: signedUrl,
-            tag: fileName,
         });
         const transcription = deepgramResponse.data;
 
