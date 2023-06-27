@@ -81,17 +81,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   });
 }
 
-interface IProjectsPage {
+interface ITeamPage {
   user: User;
   team: TeamWithUsers;
   projects: Project[];
 }
 
-const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
-  user,
-  team,
-  projects,
-}) => {
+const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingProjects, setShowingProjects] = useState<Project[]>(projects);
@@ -195,7 +191,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
 
         <button
           onClick={open}
-          className="border-2 border-gray-200 border-dashed rounded-lg h-60 flex items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
+          className="border-2 border-gray-200 border-dashed rounded-lg h-40 flex items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
         >
           <IconPlus size={40} />
         </button>
@@ -219,8 +215,8 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
   );
 };
 
-export default ProjectsPage;
+export default TeamPage;
 
-ProjectsPage.getLayout = (page) => {
+TeamPage.getLayout = (page) => {
   return <PrimaryLayout>{page}</PrimaryLayout>;
 };

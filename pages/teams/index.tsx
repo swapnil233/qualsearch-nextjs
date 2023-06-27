@@ -50,12 +50,12 @@ export const getServerSideProps: GetServerSideProps = async (
   });
 };
 
-interface TeamsPageProps {
+interface ITeamsPage {
   user: User | null;
   teams: TeamWithUsers[];
 }
 
-const Teams: NextPageWithLayout<TeamsPageProps> = ({ user, teams }) => {
+const Teams: NextPageWithLayout<ITeamsPage> = ({ user, teams }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);

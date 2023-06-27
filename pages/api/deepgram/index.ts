@@ -8,10 +8,10 @@ export default async function Handler(
     if (req.method === "POST") {
         const { DEEPGRAM_API_KEY } = process.env;
         const deepgram = new Deepgram(DEEPGRAM_API_KEY);
-        const { presignedAudioUrl } = req.body;
+        const { uri } = req.body;
 
         const audioSource = {
-            url: presignedAudioUrl as string,
+            url: uri as string,
         }
 
         const options = {
