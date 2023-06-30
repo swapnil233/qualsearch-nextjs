@@ -13,6 +13,7 @@ import { User } from "@prisma/client";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
+import Head from "next/head";
 import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -118,6 +119,17 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
 
   return (
     <>
+      <Head>
+        <title>{`Teams | Transcription`}</title>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta name="description" content="Teams overview." />
+
+        <meta property="og:title" content={`Teams | Transcription`} />
+        <meta property="og:description" content="Teams overview." />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Transcription" />
+      </Head>
+
       <PageHeading
         title="Teams"
         primaryButtonText="Create new team"
