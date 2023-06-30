@@ -34,7 +34,7 @@ const CreateProjectModal: FC<ICreateProjectModal> = ({
     <Modal
       opened={opened}
       onClose={close}
-      title={<Title order={3}>Create a new Project</Title>}
+      title={<Title order={3}>Create a new project</Title>}
       centered
       padding={"lg"}
     >

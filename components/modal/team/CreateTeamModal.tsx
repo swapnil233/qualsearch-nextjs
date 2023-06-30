@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   Group,
   Modal,
@@ -9,7 +8,6 @@ import {
   rem,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconAlertCircle } from "@tabler/icons-react";
 import { FC } from "react";
 
 export interface ICreateTeamModal {
@@ -63,15 +61,6 @@ const CreateTeamModal: FC<ICreateTeamModal> = ({
           mb={rem(20)}
           {...form.getInputProps("teamDescription")}
         />
-
-        <Alert
-          icon={<IconAlertCircle size="1rem" />}
-          title="Creating a team without members"
-          radius="xs"
-          mb={rem(20)}
-        >
-          You can add team members after creating the team.
-        </Alert>
 
         <Group position="apart">
           <Button variant="subtle" radius="xs" onClick={close}>
