@@ -19,6 +19,7 @@ import {
 } from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
+import Head from "next/head";
 import { useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -212,6 +213,23 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
 
   return (
     <>
+      <Head>
+        <title>{`${project.name} | Transcription`}</title>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta
+          name="description"
+          content={`Project description: ${project.description}`}
+        />
+
+        <meta property="og:title" content={`${project.name} | Transcription`} />
+        <meta
+          property="og:description"
+          content={`Project description: ${project.description}`}
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Transcription" />
+      </Head>
+
       <PageHeading
         title={project.name}
         description={project.description || ""}
