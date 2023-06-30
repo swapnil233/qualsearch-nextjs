@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   FileInput,
   Group,
@@ -9,6 +10,7 @@ import {
   rem,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { IconAlertCircle } from "@tabler/icons-react";
 import { FC } from "react";
 
 export interface ICreateFileModal {
@@ -44,7 +46,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
     <Modal
       opened={opened}
       onClose={close}
-      title={<Title order={3}>Create a new Project</Title>}
+      title={<Title order={3}>Add new file</Title>}
       centered
       padding={"lg"}
     >
@@ -75,12 +77,25 @@ const CreateFileModal: FC<ICreateFileModal> = ({
         <FileInput
           placeholder="Select a file..."
           label="File"
-          accept="*/*"
+          accept="audio/*,video/*"
+          description="Audio and video files are supported."
           value={form.values.file}
           onChange={(file) => form.setFieldValue("file", file)}
           required
           mb={rem(20)}
         />
+
+        <Alert
+          icon={<IconAlertCircle size="1rem" />}
+          title="Privacy Assurance Notice"
+          color="green"
+          mb={rem(20)}
+          hidden={form.values.file === null}
+        >
+          By submitting this file, you grant us permission to securely store it.
+          Please rest assured that your file will remain confidential and
+          inaccessible to external parties.
+        </Alert>
 
         <Group position="apart">
           <Button variant="subtle" radius="xs" onClick={close}>
