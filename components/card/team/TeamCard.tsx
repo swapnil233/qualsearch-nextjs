@@ -13,7 +13,7 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
       <Text fz="lg" fw={500}>
         <Link href={`/teams/${team.id}`}>{team.name}</Link>
       </Text>
-      <Text fz="sm" c="dimmed" mt={5}>
+      <Text fz="sm" c="dimmed" mt={5} lineClamp={3}>
         {team.description}
       </Text>
 

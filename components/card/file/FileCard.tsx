@@ -18,7 +18,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           {file.name}
         </Link>
       </Text>
-      <Text fz="sm" c="dimmed" mt={5}>
+      <Text fz="sm" c="dimmed" mt={5} lineClamp={3}>
         {file.description}
       </Text>
     </Card>

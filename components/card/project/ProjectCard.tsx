@@ -15,7 +15,7 @@ const ProjectCard: FC<IProjectCard> = ({ project }) => {
           {project.name}
         </Link>
       </Text>
-      <Text fz="sm" c="dimmed" mt={5}>
+      <Text fz="sm" c="dimmed" mt={5} lineClamp={3}>
         {project.description}
       </Text>
     </Card>
