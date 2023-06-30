@@ -32,6 +32,8 @@ const TeamTable: FC<ITeamTable> = ({
   teamMembers,
   handleRoleChange,
 }) => {
+  console.log("Current user role:", currentUser.role);
+
   const rows = teamMembers.map((member) => (
     <tr key={member.id}>
       <td>
@@ -87,13 +89,17 @@ const TeamTable: FC<ITeamTable> = ({
                   >
                     Analytics
                   </Menu.Item>
-                  <Divider opacity={"0.4"} />
-                  <Menu.Item
-                    icon={<IconTrash size="1rem" stroke={1.5} />}
-                    color="red"
-                  >
-                    Remove from team
-                  </Menu.Item>
+                  {currentUser.role === "Manager" && (
+                    <>
+                      <Divider opacity={"0.4"} />
+                      <Menu.Item
+                        icon={<IconTrash size="1rem" stroke={1.5} />}
+                        color="red"
+                      >
+                        Remove from team
+                      </Menu.Item>
+                    </>
+                  )}
                 </>
               ) : (
                 <Menu.Item
