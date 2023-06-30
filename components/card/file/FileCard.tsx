@@ -11,7 +11,7 @@ export interface IFileCard {
 const FileCard: FC<IFileCard> = ({ file, teamId }) => {
   return (
     <Card withBorder padding="lg" radius="md">
-      <Text fz="lg" fw={500} mt="md">
+      <Text fz="lg" fw={500}>
         <Link
           href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
         >

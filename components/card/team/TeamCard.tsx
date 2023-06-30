@@ -10,7 +10,7 @@ export interface ITeamCard {
 const TeamCard: FC<ITeamCard> = ({ team }) => {
   return (
     <Card withBorder padding="lg" radius="md">
-      <Text fz="lg" fw={500} mt="md">
+      <Text fz="lg" fw={500}>
         <Link href={`/teams/${team.id}`}>{team.name}</Link>
       </Text>
       <Text fz="sm" c="dimmed" mt={5}>

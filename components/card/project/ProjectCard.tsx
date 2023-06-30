@@ -10,7 +10,7 @@ export interface IProjectCard {
 const ProjectCard: FC<IProjectCard> = ({ project }) => {
   return (
     <Card withBorder padding="lg" radius="md">
-      <Text fz="lg" fw={500} mt="md">
+      <Text fz="lg" fw={500}>
         <Link href={`/teams/${project.teamId}/projects/${project.id}`}>
           {project.name}
         </Link>
