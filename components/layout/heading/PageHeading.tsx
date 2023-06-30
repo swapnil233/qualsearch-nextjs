@@ -13,6 +13,7 @@ export interface IPageHeading {
   breadcrumbs?: IBreadcrumb[];
   primaryButtonText?: string;
   primaryButtonAction?: () => void;
+  primaryButtonIcon?: ReactNode;
   secondaryButtonMenuItems?: Array<{
     title: string;
     action: () => void;
@@ -26,6 +27,7 @@ const PageHeading: FC<IPageHeading> = ({
   breadcrumbs,
   primaryButtonText,
   primaryButtonAction,
+  primaryButtonIcon,
   secondaryButtonMenuItems,
 }) => {
   const breadcrumbItems =
@@ -54,7 +56,7 @@ const PageHeading: FC<IPageHeading> = ({
           </div>
         ) : (
           <>
-            <h1 className="text-3xl flex flex-col font-medium text-[#172B4D]">
+            <h1 className="text-3xl flex flex-col font-medium text-[#172B4D] mb-4 md:mb-0">
               {title}
             </h1>
           </>
@@ -69,6 +71,7 @@ const PageHeading: FC<IPageHeading> = ({
                   backgroundColor: "#013c94",
                 },
               }}
+              leftIcon={primaryButtonIcon}
             >
               {primaryButtonText}
             </Button>

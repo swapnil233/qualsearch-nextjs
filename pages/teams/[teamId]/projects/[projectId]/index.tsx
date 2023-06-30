@@ -2,6 +2,7 @@ import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
+import EmptyState from "@/components/states/empty/EmptyState";
 import { NextPageWithLayout } from "@/pages/page";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
@@ -13,6 +14,7 @@ import { File as PrismaFile, Project, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
+  IconFilePlus,
   IconPencil,
   IconTrash,
   IconX,
@@ -235,6 +237,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         description={project.description || ""}
         primaryButtonText="Add new file"
         primaryButtonAction={open}
+        primaryButtonIcon={<IconFilePlus size={"1.2rem"} />}
         secondaryButtonMenuItems={[
           {
             title: "Edit project",
@@ -263,12 +266,24 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         ]}
       ></PageHeading>
 
-      <h2 className="text-xl font-normal flex flex-col mb-4">Files</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-        {showingFiles.map((file) => (
-          <FileCard key={file.id} file={file} teamId={teamId} />
-        ))}
-      </div>
+      {showingFiles.length === 0 ? (
+        <EmptyState
+          description="Upload this project's audio/video files to begin transcript tagging. We will transcribe it in seconds."
+          imageUrl="/empty-file.svg"
+          title="Store your interview files"
+          primaryButtonText="Add a file"
+          primaryButtonAction={open}
+        />
+      ) : (
+        <>
+          <h2 className="text-xl font-normal flex flex-col mb-4">Files</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+            {showingFiles.map((file) => (
+              <FileCard key={file.id} file={file} teamId={teamId} />
+            ))}
+          </div>
+        </>
+      )}
 
       <CreateFileModal
         opened={opened}

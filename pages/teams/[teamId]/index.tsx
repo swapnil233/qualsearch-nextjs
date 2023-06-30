@@ -2,6 +2,7 @@ import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
+import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/TeamTable/TeamTable";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
@@ -13,6 +14,7 @@ import { Project, Team, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
+  IconFolderPlus,
   IconPencil,
   IconTrash,
   IconUser,
@@ -223,6 +225,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         description={team.description || ""}
         primaryButtonText="Create new project"
         primaryButtonAction={open}
+        primaryButtonIcon={<IconFolderPlus size={"1.2rem"} />}
         secondaryButtonMenuItems={[
           {
             title: "Edit team",
@@ -252,12 +255,24 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         ]}
       ></PageHeading>
 
-      <h2 className="text-xl font-normal flex flex-col mb-4">Projects</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
-        {showingProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
+      {showingProjects.length === 0 ? (
+        <EmptyState
+          title="Start with a project"
+          description="Create a project for your UX interviews and usability tests. Think of projects as folders."
+          imageUrl="/empty-project.svg"
+          primaryButtonText="Create new project"
+          primaryButtonAction={open}
+        />
+      ) : (
+        <>
+          <h2 className="text-xl font-normal flex flex-col mb-4">Projects</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
+            {showingProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        </>
+      )}
 
       <h2 className="text-xl font-normal flex flex-col mb-4">Team members</h2>
       {console.log(user)}
