@@ -1,5 +1,5 @@
 import FileCard from "@/components/card/file/FileCard";
-import HeadingSection from "@/components/layout/heading/HeadingSection";
+import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
 import { NextPageWithLayout } from "@/pages/page";
@@ -13,7 +13,8 @@ import { File as PrismaFile, Project, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
-  IconPlus,
+  IconPencil,
+  IconTrash,
   IconX,
 } from "@tabler/icons-react";
 import axios from "axios";
@@ -197,25 +198,58 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
     }
   };
 
+  const handleEdit = () => {
+    console.log("Edit");
+  };
+
+  const handleAddMembers = () => {
+    console.log("Add members");
+  };
+
+  const handleDelete = () => {
+    console.log("Delete");
+  };
+
   return (
     <>
-      <HeadingSection
+      <PageHeading
         title={project.name}
         description={project.description || ""}
-      ></HeadingSection>
+        primaryButtonText="Add new file"
+        primaryButtonAction={open}
+        secondaryButtonMenuItems={[
+          {
+            title: "Edit project",
+            action: handleEdit,
+            icon: <IconPencil size={14} />,
+          },
+          {
+            title: "Delete project",
+            action: handleDelete,
+            icon: <IconTrash size={14} />,
+          },
+        ]}
+        breadcrumbs={[
+          {
+            title: "Home",
+            href: "/",
+          },
+          {
+            title: "Teams",
+            href: "/teams",
+          },
+          {
+            title: "Projects",
+            href: `/teams/${project.teamId}`,
+          },
+        ]}
+      ></PageHeading>
 
       <h2 className="text-xl font-normal flex flex-col mb-4">Files</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
         {showingFiles.map((file) => (
           <FileCard key={file.id} file={file} teamId={teamId} />
         ))}
-
-        <button
-          onClick={open}
-          className="border-2 border-gray-200 border-dashed rounded-lg h-60 flex items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
-        >
-          <IconPlus size={40} />
-        </button>
       </div>
 
       <CreateFileModal

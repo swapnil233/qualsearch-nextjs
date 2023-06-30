@@ -1,5 +1,5 @@
 import ProjectCard from "@/components/card/project/ProjectCard";
-import HeadingSection from "@/components/layout/heading/HeadingSection";
+import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import TeamTable from "@/components/table/TeamTable/TeamTable";
@@ -10,7 +10,13 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { Project, Team, User } from "@prisma/client";
-import { IconAlertCircle, IconCheck, IconPlus } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconCheck,
+  IconPencil,
+  IconTrash,
+  IconUser,
+} from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import { useState } from "react";
@@ -21,7 +27,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const { teamId } = context.query;
 
     try {
-      const user = session.user;
+      const user = await prisma.user.findUnique({
+        where: {
+          id: session.user.id,
+        },
+      });
 
       let team: Team | null = await prisma.team.findUnique({
         where: {
@@ -176,28 +186,63 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     }
   };
 
+  const handleEdit = () => {
+    console.log("Edit");
+  };
+
+  const handleAddMembers = () => {
+    console.log("Add members");
+  };
+
+  const handleDelete = () => {
+    console.log("Delete");
+  };
+
   return (
     <>
-      <HeadingSection
+      <PageHeading
         title={team.name}
         description={team.description || ""}
-      ></HeadingSection>
+        primaryButtonText="Create new project"
+        primaryButtonAction={open}
+        secondaryButtonMenuItems={[
+          {
+            title: "Edit team",
+            action: handleEdit,
+            icon: <IconPencil size={14} />,
+          },
+          {
+            title: "Add members",
+            action: handleAddMembers,
+            icon: <IconUser size={14} />,
+          },
+          {
+            title: "Delete",
+            action: handleDelete,
+            icon: <IconTrash size={14} />,
+          },
+        ]}
+        breadcrumbs={[
+          {
+            title: "Home",
+            href: "/",
+          },
+          {
+            title: "Teams",
+            href: "/teams",
+          },
+        ]}
+      ></PageHeading>
 
       <h2 className="text-xl font-normal flex flex-col mb-4">Projects</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
         {showingProjects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
-
-        <button
-          onClick={open}
-          className="border-2 border-gray-200 border-dashed rounded-lg h-40 flex items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
-        >
-          <IconPlus size={40} />
-        </button>
       </div>
 
       <h2 className="text-xl font-normal flex flex-col mb-4">Team members</h2>
+      {console.log(user)}
       <TeamTable
         currentUser={user}
         teamMembers={team.users}

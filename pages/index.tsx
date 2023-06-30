@@ -1,4 +1,3 @@
-import HeadingSection from "@/components/layout/heading/HeadingSection";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { NextPageWithLayout } from "@/pages/page";
 import { Button, FileInput, rem } from "@mantine/core";
@@ -8,6 +7,7 @@ import { IconCheck, IconUpload, IconX } from "@tabler/icons-react";
 import axios from "axios";
 import { v4 } from "uuid";
 
+import PageHeading from "@/components/layout/heading/PageHeading";
 import sanitizeFileName from "@/utils/sanitizeFileName";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -220,7 +220,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
 
   return (
     <>
-      <HeadingSection title="Transcription" description="Transcribe a video" />
+      <PageHeading title="Transcription" description="Transcribe a video" />
 
       <form onSubmit={handleFormSubmit}>
         <FileInput

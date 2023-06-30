@@ -1,5 +1,5 @@
 import TeamCard from "@/components/card/team/TeamCard";
-import HeadingSection from "@/components/layout/heading/HeadingSection";
+import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateTeamModal from "@/components/modal/team/CreateTeamModal";
 import { NextPageWithLayout } from "@/pages/page";
@@ -10,7 +10,7 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
-import { IconAlertCircle, IconCheck, IconPlus } from "@tabler/icons-react";
+import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { useState } from "react";
@@ -55,7 +55,7 @@ interface ITeamsPage {
   teams: TeamWithUsers[];
 }
 
-const Teams: NextPageWithLayout<ITeamsPage> = ({ user, teams }) => {
+const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);
@@ -118,19 +118,17 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ user, teams }) => {
 
   return (
     <>
-      <HeadingSection title="Teams" description="Manage your teams." />
+      <PageHeading
+        title="Teams"
+        primaryButtonText="Create new team"
+        primaryButtonAction={open}
+        breadcrumbs={[{ title: "Home", href: "/" }]}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {showingTeams.map((team) => (
           <TeamCard key={team.id} team={team} />
         ))}
-
-        <button
-          onClick={open}
-          className="border-2 border-gray-200 border-dashed rounded-lg h-60 flex items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
-        >
-          <IconPlus size={40} />
-        </button>
       </div>
 
       <CreateTeamModal

@@ -1,5 +1,5 @@
 import Transcript from "@/components/Transcript";
-import HeadingSection from "@/components/layout/heading/HeadingSection";
+import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { NextPageWithLayout } from "@/pages/page";
 import prisma from "@/utils/prisma";
@@ -73,10 +73,24 @@ const FilePage: NextPageWithLayout<IFilePage> = ({ file, mediaUrl, user }) => {
 
   return (
     <>
-      <HeadingSection
-        title="Diarized Transcription"
-        description="Click play, or click anywhere on the transcript to jump to that point in the audio."
-      />
+      <PageHeading
+        title={file.name}
+        description={file.description || ""}
+        breadcrumbs={[
+          {
+            title: "Home",
+            href: "/",
+          },
+          {
+            title: "Teams",
+            href: "/teams",
+          },
+          {
+            title: "Projects",
+            href: `/teams/${file.projectId}`,
+          },
+        ]}
+      ></PageHeading>
 
       <div>
         <audio
