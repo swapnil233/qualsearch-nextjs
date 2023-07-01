@@ -88,8 +88,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   // @ts-ignore
   const transcript = file.transcript.results.channels[0].alternatives[0].words;
 
-  console.log(teamId);
-
   return (
     <>
       <Head>
@@ -133,13 +131,22 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
       ></PageHeading>
 
       <div>
-        <audio
-          // src="deepest-question.mp3"
-          src={mediaUrl}
-          controls
-          ref={audioRef}
-          className="sticky top-4 w-full z-50"
-        />
+        {file.mimeType === "video/mp4" ? (
+          <video
+            src={mediaUrl}
+            controls
+            ref={audioRef}
+            className="md:fixed md:bottom-2 md:right-2 md:w-1/3 z-50 w-full"
+          />
+        ) : (
+          <audio
+            src={mediaUrl}
+            controls
+            ref={audioRef}
+            className="sticky top-4 w-full z-50"
+          />
+        )}
+
         <Transcript transcript={transcript} audioRef={audioRef} user={user} />
       </div>
     </>

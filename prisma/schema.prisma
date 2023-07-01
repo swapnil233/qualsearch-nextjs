@@ -103,6 +103,7 @@ model File {
   updatedAt   DateTime @updatedAt
   name        String // eg "John Doe's Interview 06/01/2021"
   uri         String // eg "https://s3.amazonaws.com/{bucket-name}/teams/{team-id}/projects/{project-id}/files/interview.mp4"
+  mimeType    String?
   description String?
   transcript  Json?
 

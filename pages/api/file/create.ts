@@ -33,11 +33,16 @@ export default async function Handler(
 
     if (req.method === "POST") {
         // Destructure the needed properties from the request body.
-        const { fileName, fileDescription, projectId, key } = req.body;
+        const { fileName, fileDescription, projectId, key, mimeType } = req.body;
 
         // Check if the fileName and fileDescription are not undefined or empty.
         if (!fileName || !fileDescription) {
             return res.status(400).send("Missing team name or description.");
+        }
+
+        // Check if a projectId is provided
+        if (!projectId || projectId.length === 0) {
+            return res.status(400).send("Project ID is missing from the request body");
         }
 
         const baseUrl = process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3003'
@@ -62,6 +67,7 @@ export default async function Handler(
                     projectId: projectId,
                     uri: key,
                     transcript: transcription,
+                    mimeType: mimeType,
                 },
             })
 

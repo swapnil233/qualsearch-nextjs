@@ -109,6 +109,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingFiles, setShowingFiles] = useState<PrismaFile[]>(files);
+  const [buttonText, setButtonText] = useState<string>("Create");
 
   const form = useForm({
     initialValues: {
@@ -136,6 +137,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
 
     try {
       setCreating(true);
+      setButtonText("Step 1/2: Uploading file");
 
       // If no file is selected, show an error
       if (!values.file) {
@@ -149,6 +151,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
           icon: <IconX />,
           loading: false,
         });
+        setButtonText("Create");
         return;
       }
 
@@ -165,12 +168,15 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         headers: { "Content-Type": values.file.type },
       });
 
+      setButtonText("Step 2/2: Transcribing file");
+
       // Create the file in the database
       const response = await axios.post("/api/file/create", {
         fileName: form.values.fileName,
         fileDescription: form.values.fileDescription,
         projectId: project.id,
         key,
+        mimeType: values.file.type,
       });
 
       if (response.status === 200) {
@@ -186,11 +192,13 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
 
         form.reset();
         setCreating(false);
+        setButtonText("Create");
         close();
       }
     } catch (error) {
       console.error(error);
       setCreating(false);
+      setButtonText("Create");
       notifications.show({
         title: "Couldn't create a new project",
         message:
@@ -291,6 +299,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         creating={creating}
         handleCreateNewFile={handleCreateNewFile}
         form={form}
+        buttonText={buttonText}
       />
     </>
   );

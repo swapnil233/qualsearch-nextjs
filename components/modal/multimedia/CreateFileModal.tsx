@@ -17,6 +17,7 @@ export interface ICreateFileModal {
   opened: boolean;
   close: () => void;
   creating: boolean;
+  buttonText: string;
   form: ReturnType<
     typeof useForm<{
       fileName: string;
@@ -37,6 +38,7 @@ export interface ICreateFileModal {
 
 const CreateFileModal: FC<ICreateFileModal> = ({
   opened,
+  buttonText,
   close,
   creating,
   form,
@@ -102,7 +104,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
             Cancel
           </Button>
           <Button radius="xs" type="submit" loading={creating}>
-            Create
+            {buttonText}
           </Button>
         </Group>
       </form>
