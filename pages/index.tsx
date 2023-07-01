@@ -21,11 +21,9 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
       position: "relative",
       paddingTop: rem(180),
       paddingBottom: rem(130),
-      backgroundImage:
-        "url(https://images.unsplash.com/photo-1573164713988-8665fc963095?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=980&q=80)",
+      backgroundImage: `url(hero.jpeg)`,
       backgroundSize: "cover",
       backgroundPosition: "center",
-
       [theme.fn.smallerThan("xs")]: {
         paddingTop: rem(80),
         paddingBottom: rem(50),
