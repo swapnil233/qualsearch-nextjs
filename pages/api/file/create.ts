@@ -1,5 +1,4 @@
 import prisma from "@/utils/prisma";
-import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -49,14 +48,20 @@ export default async function Handler(
         console.log(baseUrl);
 
         // Make a GET request to '/api/aws/getSignedUrl?key={key}' to get the signed URL for the file.
-        const response = await axios.get(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
-        const signedUrl = response.data.url;
+        const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
+        const responseJson = await response.json();
+        const signedUrl = responseJson.url;
 
         // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
-        const deepgramResponse = await axios.post(`${baseUrl}/api/deepgram/`, {
-            uri: signedUrl,
+        const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ uri: signedUrl }),
         });
-        const transcription = deepgramResponse.data;
+        const deepgramJson = await deepgramResponse.json();
+        const transcription = deepgramJson;
 
         try {
             // Create a new file in the database with the information from the request.

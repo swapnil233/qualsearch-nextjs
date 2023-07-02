@@ -19,7 +19,6 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useState } from "react";
@@ -123,7 +122,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
     },
   });
 
-  //   POST /api/file/create
+  // POST /api/file/create
   const handleCreateNewFile = async (
     values: {
       fileName: string;
@@ -159,12 +158,16 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
       const key = `teams/${project.teamId}/projects/${project.id}/files/${sanitizedFileName}`;
 
       // Get the S3 presigned upload URL
-      const {
-        data: { url: uploadUrl },
-      } = await axios.get(`/api/aws/presignedUploadUrl?key=${key}`);
+      const uploadResponse = await fetch(
+        `/api/aws/presignedUploadUrl?key=${key}`
+      );
+      const uploadData = await uploadResponse.json();
+      const uploadUrl = uploadData.url;
 
       // Upload the file to S3
-      await axios.put(uploadUrl, values.file, {
+      await fetch(uploadUrl, {
+        method: "PUT",
+        body: values.file,
         headers: { "Content-Type": values.file.type },
       });
 
@@ -174,15 +177,22 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
       const fileType = values.file.type.split("/")[0].toUpperCase();
 
       // Create the file in the database
-      const response = await axios.post("/api/file/create", {
-        fileName: form.values.fileName,
-        fileDescription: form.values.fileDescription,
-        projectId: project.id,
-        key,
-        type: fileType,
+      const response = await fetch("/api/file/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileName: form.values.fileName,
+          fileDescription: form.values.fileDescription,
+          projectId: project.id,
+          key,
+          type: fileType,
+        }),
       });
 
       if (response.status === 200) {
+        const data = await response.json();
         notifications.show({
           title: "File created",
           message: "Your new project has been created for this team.",
@@ -190,7 +200,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
           icon: <IconCheck />,
         });
 
-        const newFile: PrismaFile = response.data;
+        const newFile: PrismaFile = data;
         setShowingFiles([...showingFiles, newFile]);
 
         form.reset();

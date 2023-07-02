@@ -6,7 +6,6 @@ import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { File, User } from "@prisma/client";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
-import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRef } from "react";
@@ -49,19 +48,28 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       const baseUrl = process.env.VERCEL_URL
         ? "https://" + process.env.VERCEL_URL
         : "http://localhost:3003";
-      const response = await axios.get(
+
+      const response = await fetch(
         `${baseUrl}/api/aws/getSignedUrl?key=${file.uri}`
       );
-      const mediaUrl = response.data.url;
 
-      return {
-        props: {
-          user,
-          file,
-          mediaUrl,
-          teamId,
-        },
-      };
+      if (response.ok) {
+        const responseData = await response.json();
+        const mediaUrl = responseData.url;
+
+        return {
+          props: {
+            user,
+            file,
+            mediaUrl,
+            teamId,
+          },
+        };
+      } else {
+        return {
+          notFound: true,
+        };
+      }
     } catch (error) {
       console.log(error);
       return {

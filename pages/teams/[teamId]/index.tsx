@@ -19,7 +19,6 @@ import {
   IconTrash,
   IconUser,
 } from "@tabler/icons-react";
-import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useState } from "react";
@@ -117,7 +116,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     },
   });
 
-  //   POST /api/project/create
+  // POST /api/project/create
   const handleCreateNewProject = async (
     values: { projectName: string; projectDescription: string },
     event: React.FormEvent
@@ -127,13 +126,20 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
 
     try {
       setCreating(true);
-      const response = await axios.post("/api/project/create", {
-        projectName: form.values.projectName,
-        projectDescription: form.values.projectDescription,
-        teamId: team.id,
+      const response = await fetch("/api/project/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          projectName: form.values.projectName,
+          projectDescription: form.values.projectDescription,
+          teamId: team.id,
+        }),
       });
 
       if (response.status === 200) {
+        const data = await response.json();
         notifications.show({
           title: "Project created",
           message: "Your new project has been created for this team.",
@@ -141,7 +147,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           icon: <IconCheck />,
         });
 
-        const newProject: Project = response.data;
+        const newProject: Project = data;
         setShowingProjects([...showingProjects, newProject]);
 
         form.reset();
@@ -163,10 +169,16 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
 
   const handleRoleChange = async (userId: string, role: string) => {
     try {
-      const response = await axios.post("/api/user/role", {
-        teamId: team.id,
-        userId,
-        role,
+      const response = await fetch("/api/user/role", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          teamId: team.id,
+          userId,
+          role,
+        }),
       });
 
       if (response.status === 200) {

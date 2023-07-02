@@ -16,7 +16,6 @@ import {
   IconCheck,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import axios from "axios";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useState } from "react";
@@ -77,7 +76,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
     },
   });
 
-  //   POST /api/team/create
+  // POST /api/team/create
   const handleCreateNewTeam = async (
     values: { teamName: string; teamDescription: string },
     event: React.FormEvent
@@ -87,12 +86,19 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
 
     try {
       setCreating(true);
-      const response = await axios.post("/api/team/create", {
-        teamName: form.values.teamName,
-        teamDescription: form.values.teamDescription,
+      const response = await fetch("/api/team/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          teamName: form.values.teamName,
+          teamDescription: form.values.teamDescription,
+        }),
       });
 
       if (response.status === 200) {
+        const data = await response.json();
         notifications.show({
           title: "Team created",
           message: "Your team has been created successfully.",
@@ -100,7 +106,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
           icon: <IconCheck />,
         });
 
-        const newTeam: TeamWithUsers = response.data;
+        const newTeam: TeamWithUsers = data;
         console.log("new team: ", newTeam);
         setShowingTeams([...showingTeams, newTeam]);
 
