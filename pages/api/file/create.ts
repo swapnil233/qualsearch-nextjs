@@ -33,7 +33,7 @@ export default async function Handler(
 
     if (req.method === "POST") {
         // Destructure the needed properties from the request body.
-        const { fileName, fileDescription, projectId, key, mimeType } = req.body;
+        const { fileName, fileDescription, projectId, key, type } = req.body;
 
         // Check if the fileName and fileDescription are not undefined or empty.
         if (!fileName || !fileDescription) {
@@ -67,7 +67,7 @@ export default async function Handler(
                     projectId: projectId,
                     uri: key,
                     transcript: transcription,
-                    mimeType: mimeType,
+                    type: type,
                 },
             })
 

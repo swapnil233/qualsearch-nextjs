@@ -170,13 +170,16 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
 
       setButtonText("Step 2/2: Transcribing file");
 
+      // Convert file type from "type/subtype" to "VIDEO" or "AUDIO" as required by the Prisma schema
+      const fileType = values.file.type.split("/")[0].toUpperCase();
+
       // Create the file in the database
       const response = await axios.post("/api/file/create", {
         fileName: form.values.fileName,
         fileDescription: form.values.fileDescription,
         projectId: project.id,
         key,
-        mimeType: values.file.type,
+        type: fileType,
       });
 
       if (response.status === 200) {
