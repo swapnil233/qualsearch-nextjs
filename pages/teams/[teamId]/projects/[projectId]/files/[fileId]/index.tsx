@@ -5,6 +5,7 @@ import { NextPageWithLayout } from "@/pages/page";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { File, User } from "@prisma/client";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import axios from "axios";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
@@ -88,6 +89,14 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   // @ts-ignore
   const transcript = file.transcript.results.channels[0].alternatives[0].words;
 
+  const editFile = () => {
+    console.log("Edit file");
+  };
+
+  const handleDelete = () => {
+    console.log("Delete file");
+  };
+
   return (
     <>
       <Head>
@@ -110,6 +119,18 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
       <PageHeading
         title={file.name}
         description={file.description || ""}
+        secondaryButtonMenuItems={[
+          {
+            title: "Edit file",
+            action: editFile,
+            icon: <IconEdit size={14} />,
+          },
+          {
+            title: "Delete file",
+            action: handleDelete,
+            icon: <IconTrash size={14} />,
+          },
+        ]}
         breadcrumbs={[
           {
             title: "Home",
@@ -131,7 +152,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
       ></PageHeading>
 
       <div>
-        {file.mimeType === "video/mp4" ? (
+        {file.type === "VIDEO" ? (
           <video
             src={mediaUrl}
             controls
