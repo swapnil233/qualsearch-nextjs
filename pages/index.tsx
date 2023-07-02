@@ -10,6 +10,7 @@ import {
   rem,
 } from "@mantine/core";
 import { User } from "@prisma/client";
+import { signIn } from "next-auth/react";
 
 interface TranscriptionPageProps {
   user: User | null;
@@ -128,7 +129,12 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
         </Container>
 
         <div className={classes.controls}>
-          <Button className={classes.control} variant="white" size="lg">
+          <Button
+            className={classes.control}
+            variant="white"
+            size="lg"
+            onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
+          >
             Get started
           </Button>
           <Button

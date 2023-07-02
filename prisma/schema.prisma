@@ -20,13 +20,16 @@ model User {
   role          String?   @default("Collaborator")
   accounts      Account[]
   sessions      Session[]
-  teamId        String?
 
   // m-n -> User can belong to many teams
   teams Team[]
 
   // 1-n User can create many teams
   createdTeams Team[] @relation("CreatedTeam")
+
+  // 1-n -> User can create many invitations
+  invitationsSent     Invitation[] @relation("InvitationsSent")
+  invitationsRecieved Invitation[] @relation("InvitationsReceived")
 }
 
 model Account {
@@ -77,8 +80,9 @@ model Team {
   projects Project[]
 
   // 1-n -> Team can be created by 1 user
-  createdBy       User   @relation("CreatedTeam", fields: [createdByUserId], references: [id])
+  createdBy       User         @relation("CreatedTeam", fields: [createdByUserId], references: [id])
   createdByUserId String
+  Invitation      Invitation[]
 }
 
 // Files belong to projects. A user can belong in a team that has many projects. A project can have many files.
@@ -112,7 +116,39 @@ model File {
   projectId String
 }
 
+model Invitation {
+  id           String           @id @default(uuid())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  invitedEmail String           @db.VarChar(320)
+  status       InvitationStatus @default(PENDING)
+  teamId       String
+  team         Team             @relation(fields: [teamId], references: [id])
+
+  // 1-n -> Invitation can be created by 1 user
+  invitedByUserId String?
+  invitedByUser   User?   @relation("InvitationsSent", fields: [invitedByUserId], references: [id])
+
+  // 1-n -> Invitation can be accepted by 1 user
+  invitedUser   User?   @relation("InvitationsReceived", fields: [invitedUserId], references: [id])
+  invitedUserId String?
+
+  @@unique([invitedEmail, teamId])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 enum FileType {
   VIDEO
   AUDIO
+  POWERPOINT
+  PDF
+  WORD
+  EXCEL
+  IMAGE
+  OTHER
 }

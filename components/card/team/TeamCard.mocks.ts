@@ -18,7 +18,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -28,7 +27,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://images.unsplash.com/photo-1595211877493-41a4e5f236b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=715&q=80',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -38,7 +36,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -48,7 +45,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -58,7 +54,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -68,7 +63,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -78,7 +72,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       }, {
         id: 'h',
@@ -87,7 +80,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -97,7 +89,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
       {
@@ -107,7 +98,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       }, {
         id: 'k',
@@ -116,7 +106,6 @@ const base: ITeamCard = {
         emailVerified: null,
         image: 'https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c',
         phone: null,
-        teamId: null,
         role: "Contributor"
       },
     ]

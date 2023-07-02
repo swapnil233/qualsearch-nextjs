@@ -104,7 +104,7 @@ const Navbar: FC<INavbar> = () => {
     userMenu = (
       <Button
         variant="light"
-        onClick={() => signIn(undefined, { callbackUrl: "/" })}
+        onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
       >
         Log in
       </Button>
@@ -269,7 +269,7 @@ const Navbar: FC<INavbar> = () => {
               <>
                 <Button
                   variant="filled"
-                  onClick={() => signIn(undefined, { callbackUrl: "/" })}
+                  onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
                 >
                   Log in
                 </Button>

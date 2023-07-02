@@ -1,6 +1,7 @@
 import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/TeamTable/TeamTable";
@@ -18,6 +19,7 @@ import {
   IconPencil,
   IconTrash,
   IconUser,
+  IconX,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
@@ -103,6 +105,76 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingProjects, setShowingProjects] = useState<Project[]>(projects);
+
+  // Invitation Modal
+  const [inviteOpened, inviteControls] = useDisclosure(false);
+  const [inviting, setInviting] = useState(false);
+
+  const inviteForm = useForm({
+    initialValues: {
+      invitedEmail: "",
+    },
+
+    validate: {
+      invitedEmail: (value) => (value.length > 0 ? null : "Email is required"),
+    },
+  });
+
+  // POST /api/invitation/create
+  const handleCreateNewInvitation = async (
+    values: { invitedEmail: string },
+    event: React.FormEvent
+  ) => {
+    // Prevent the default form submission
+    event.preventDefault();
+
+    try {
+      setInviting(true);
+      const response = await fetch("/api/invitation/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          teamId: team.id,
+          invitedEmail: inviteForm.values.invitedEmail,
+        }),
+      });
+
+      console.log(response);
+
+      if (response.status === 201) {
+        notifications.show({
+          title: "Invitation sent",
+          message: "Your invitation has been sent successfully.",
+          color: "teal",
+          icon: <IconCheck />,
+        });
+
+        inviteForm.reset();
+        setInviting(false);
+        inviteControls.close();
+      } else if (response.status === 409) {
+        notifications.show({
+          title: "Invitation already sent",
+          message: "An invitation has already been sent to this email.",
+          color: "red",
+          icon: <IconX size="1.1rem" />,
+        });
+        inviteForm.reset();
+        setInviting(false);
+      }
+    } catch (error: any) {
+      console.error(error);
+      setInviting(false);
+      notifications.show({
+        title: "Error",
+        message: error.message,
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    }
+  };
 
   const form = useForm({
     initialValues: {
@@ -205,10 +277,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     console.log("Edit");
   };
 
-  const handleAddMembers = () => {
-    console.log("Add members");
-  };
-
   const handleDelete = () => {
     console.log("Delete");
   };
@@ -246,7 +314,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           },
           {
             title: "Add members",
-            action: handleAddMembers,
+            action: inviteControls.open,
             icon: <IconUser size={14} />,
           },
           {
@@ -287,7 +355,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
       )}
 
       <h2 className="text-xl font-normal flex flex-col mb-4">Team members</h2>
-      {console.log(user)}
       <TeamTable
         currentUser={user}
         teamMembers={team.users}
@@ -300,6 +367,14 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         creating={creating}
         handleCreateNewProject={handleCreateNewProject}
         form={form}
+      />
+
+      <NewInvitationModal
+        opened={inviteOpened}
+        close={inviteControls.close}
+        inviting={inviting}
+        handleCreateNewInvitation={handleCreateNewInvitation}
+        form={inviteForm}
       />
     </>
   );

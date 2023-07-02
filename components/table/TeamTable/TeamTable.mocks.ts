@@ -9,7 +9,7 @@ const base: ITeamTable = {
     "image": "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
     "phone": null,
     "role": "Manager",
-    "teamId": null
+
   },
 
   teamMembers: [
@@ -21,7 +21,7 @@ const base: ITeamTable = {
       "image": "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
       "phone": null,
       "role": "Manager",
-      "teamId": null
+
     },
     {
       "id": "clj9dt8ea0006jlp06vsnc1ve",
@@ -31,7 +31,7 @@ const base: ITeamTable = {
       "image": null,
       "phone": null,
       "role": "Collaborator",
-      "teamId": null
+
     },
     {
       "id": "clj9j7dn30002r970eqhag6dy",
@@ -41,7 +41,7 @@ const base: ITeamTable = {
       "image": "https://lh3.googleusercontent.com/a/AAcHTtd4ybh0ktj9xbDqTvwXELhwz1SWx9AOz-V_DSEB=s96-c",
       "phone": null,
       "role": "Collaborator",
-      "teamId": null
+
     }
   ],
   handleRoleChange(userId, role) {
