@@ -1,6 +1,7 @@
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
+import fetch from 'node-fetch';
 import { authOptions } from "../auth/[...nextauth]";
 
 /**
@@ -67,13 +68,16 @@ export default async function Handler(
 
         console.log("Signed URL: " + signedUrl);
 
+        const deepgramRequestBody = JSON.stringify({ uri: signedUrl });
+        console.log("Deepgram request body: " + deepgramRequestBody);
+
         // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
         const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ uri: signedUrl }),
+            body: deepgramRequestBody
         });
         if (!deepgramResponse.ok) {
             console.error('Error fetching transcription', deepgramResponse.status, await deepgramResponse.text());
