@@ -18,6 +18,7 @@ import {
 } from "@tabler/icons-react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head";
+import fetch from "node-fetch";
 import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (

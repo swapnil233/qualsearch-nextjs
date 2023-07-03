@@ -1,10 +1,10 @@
+import { FileWithoutTranscriptAndUri } from "@/types";
 import { Card, Text } from "@mantine/core";
-import { File } from "@prisma/client";
 import Link from "next/link";
 import { FC } from "react";
 
 export interface IFileCard {
-  file: File;
+  file: FileWithoutTranscriptAndUri;
   teamId: string;
 }
 

@@ -23,6 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
+import fetch from "node-fetch";
 import { useState } from "react";
 import { NextPageWithLayout } from "../../page";
 

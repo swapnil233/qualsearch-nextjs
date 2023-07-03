@@ -4,13 +4,14 @@ import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { NextPageWithLayout } from "@/pages/page";
+import { FileWithoutTranscriptAndUri } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import sanitizeFileName from "@/utils/sanitizeFileName";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { File as PrismaFile, Project, User } from "@prisma/client";
+import { File as PrismaFile, Project } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
@@ -24,12 +25,10 @@ import Head from "next/head";
 import { useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (session: any) => {
+  return requireAuthentication(context, async (_session: any) => {
     const { projectId } = context.query;
 
     try {
-      const user = session.user;
-
       let project: Project = await prisma.project.findUniqueOrThrow({
         where: {
           id: projectId as string,
@@ -48,9 +47,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
       const teamId = teamIdResponse.id;
 
-      let files: PrismaFile[] = await prisma.file.findMany({
+      let files: FileWithoutTranscriptAndUri[] = await prisma.file.findMany({
         where: {
           projectId: projectId as string,
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          updatedAt: true,
+          type: true,
+          projectId: true,
         },
       });
 
@@ -77,7 +85,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
       return {
         props: {
-          user,
           project,
           files,
           teamId,
@@ -93,21 +100,20 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 }
 
 interface IProjectPage {
-  user: User;
   project: Project;
-  files: PrismaFile[];
+  files: FileWithoutTranscriptAndUri[];
   teamId: string;
 }
 
 const ProjectPage: NextPageWithLayout<IProjectPage> = ({
-  user,
   project,
   files,
   teamId,
 }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
-  const [showingFiles, setShowingFiles] = useState<PrismaFile[]>(files);
+  const [showingFiles, setShowingFiles] =
+    useState<FileWithoutTranscriptAndUri[]>(files);
   const [buttonText, setButtonText] = useState<string>("Create");
 
   const form = useForm({

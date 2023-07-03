@@ -8,6 +8,7 @@ import { File, User } from "@prisma/client";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
+import fetch from "node-fetch";
 import { useRef } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
