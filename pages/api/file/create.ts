@@ -22,17 +22,26 @@ export default async function Handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
+    console.log("File creation API handler invoked");
+
     // Retrieve the session from the request, to check if the user is authenticated.
     const session = await getServerSession(req, res, authOptions);
 
     // If the session is not found, respond with a 401 status code (Unauthorized).
     if (!session) {
+        console.log("Session not found");
         return res.status(401).send("Unauthorized");
     }
 
+    console.log("Session exists");
+
     if (req.method === "POST") {
+        console.log("Request method is POST");
+
         // Destructure the needed properties from the request body.
         const { fileName, fileDescription, projectId, key, type } = req.body;
+
+        console.log(`fileName: ${fileName}, fileDescription: ${fileDescription}, projectId: ${projectId}, key: ${key}, type: ${type}`);
 
         // Check if the fileName and fileDescription are not undefined or empty.
         if (!fileName || !fileDescription) {
@@ -45,12 +54,14 @@ export default async function Handler(
         }
 
         const baseUrl = process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3003'
-        console.log(baseUrl);
+        console.log(`baseUrl: ${baseUrl}`);
 
         // Make a GET request to '/api/aws/getSignedUrl?key={key}' to get the signed URL for the file.
         const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
         const responseJson = await response.json();
         const signedUrl = responseJson.url;
+
+        console.log("Signed URL: " + signedUrl);
 
         // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
         const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
@@ -60,6 +71,8 @@ export default async function Handler(
             },
             body: JSON.stringify({ uri: signedUrl }),
         });
+        console.log("Deepgram response status: " + deepgramResponse.status);
+
         const deepgramJson = await deepgramResponse.json();
         const transcription = deepgramJson;
 
@@ -76,12 +89,19 @@ export default async function Handler(
                 },
             })
 
+            console.log("File created successfully");
+
             // If the creation was successful, respond with a 200 status code and the created file.
             return res.status(200).send(file);
         } catch (error) {
             // If an error occurred, respond with a 500 status code (Internal Server Error).
+            console.log("Error in file creation:");
             console.log(error);
             res.status(500).send("Something went wrong.");
         }
+    } else {
+        // If the request method is not POST, respond with a 405 status code (Method Not Allowed).
+        console.log("Request method is not POST");
+        return res.status(405).send("Method not allowed");
     }
 }
