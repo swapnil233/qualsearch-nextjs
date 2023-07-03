@@ -58,6 +58,10 @@ export default async function Handler(
 
         // Make a GET request to '/api/aws/getSignedUrl?key={key}' to get the signed URL for the file.
         const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
+        if (!response.ok) {
+            console.error('Error fetching signed URL', response.status, await response.text());
+            throw new Error('Failed to get signed URL');
+        }
         const responseJson = await response.json();
         const signedUrl = responseJson.url;
 
@@ -71,6 +75,10 @@ export default async function Handler(
             },
             body: JSON.stringify({ uri: signedUrl }),
         });
+        if (!deepgramResponse.ok) {
+            console.error('Error fetching transcription', deepgramResponse.status, await deepgramResponse.text());
+            throw new Error('Failed to get transcription');
+        }
         console.log("Deepgram response status: " + deepgramResponse.status);
 
         const deepgramJson = await deepgramResponse.json();
