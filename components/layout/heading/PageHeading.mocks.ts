@@ -1,4 +1,3 @@
-import { IconEdit } from "@tabler/icons";
 import { IPageHeading } from "./PageHeading";
 
 const base: IPageHeading = {
@@ -26,15 +25,6 @@ const base: IPageHeading = {
     console.log("Primary button clicked");
   },
   primaryButtonText: "Primary Button",
-  secondaryButtonMenuItems: [
-    {
-      title: "Edit",
-      action: () => {
-        console.log("Edit clicked");
-      },
-      icon: IconEdit,
-    },
-  ],
 };
 
 export const mockPageHeadingProps = {
