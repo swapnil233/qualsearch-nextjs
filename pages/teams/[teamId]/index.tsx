@@ -4,7 +4,7 @@ import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
-import TeamTable from "@/components/table/TeamTable/TeamTable";
+import TeamTable from "@/components/table/team/TeamTable";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";

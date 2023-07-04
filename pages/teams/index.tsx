@@ -3,6 +3,9 @@ import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateTeamModal from "@/components/modal/team/CreateTeamModal";
 import EmptyState from "@/components/states/empty/EmptyState";
+import InvitationsTable, {
+  IInvitationData,
+} from "@/components/table/invitations/InvitationsTable";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
@@ -10,7 +13,7 @@ import { requireAuthentication } from "@/utils/requireAuthentication";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { User } from "@prisma/client";
+import { Invitation, Team, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
@@ -25,7 +28,7 @@ export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   return requireAuthentication(context, async (session: any) => {
-    const user = session.user;
+    const user: User = session.user;
 
     let teams: TeamWithUsers[] = await prisma.team.findMany({
       where: {
@@ -47,10 +50,37 @@ export const getServerSideProps: GetServerSideProps = async (
       updatedAt: team.updatedAt.toISOString(),
     }));
 
+    // Get user's invitations
+    let invitationResponse: (Invitation & {
+      team: Team;
+      invitedByUser: User | null;
+      invitedUser: User | null;
+    })[] = await prisma.invitation.findMany({
+      where: {
+        invitedEmail: user.email!,
+      },
+      include: {
+        team: true,
+        invitedByUser: true,
+        invitedUser: true,
+      },
+    });
+
+    // Transform all invitations to an array usable by the <InvitationsTable /> component
+    const invitations: IInvitationData[] = invitationResponse.map(
+      (invitation) => ({
+        id: invitation.id,
+        teamName: invitation.team.name,
+        teamDescription: invitation.team.description,
+        createdAt: invitation.createdAt.toDateString(),
+      })
+    );
+
     return {
       props: {
         user,
         teams,
+        invitations,
       },
     };
   });
@@ -59,9 +89,10 @@ export const getServerSideProps: GetServerSideProps = async (
 interface ITeamsPage {
   user: User | null;
   teams: TeamWithUsers[];
+  invitations: IInvitationData[];
 }
 
-const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
+const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);
@@ -164,6 +195,15 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams }) => {
             <TeamCard key={team.id} team={team} />
           ))}
         </div>
+      )}
+
+      {invitations.length !== 0 && (
+        <>
+          <h2 className="text-xl font-normal flex flex-col mb-4 mt-8">
+            Invitations
+          </h2>
+          <InvitationsTable invitations={invitations} />
+        </>
       )}
 
       <CreateTeamModal
