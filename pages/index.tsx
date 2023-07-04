@@ -10,102 +10,103 @@ import {
   rem,
 } from "@mantine/core";
 import { User } from "@prisma/client";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 
 interface TranscriptionPageProps {
   user: User | null;
 }
 
-const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
-  const useStyles = createStyles((theme) => ({
-    wrapper: {
-      position: "relative",
-      paddingTop: rem(180),
-      paddingBottom: rem(130),
-      backgroundImage: `url(hero.jpeg)`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      [theme.fn.smallerThan("xs")]: {
-        paddingTop: rem(80),
-        paddingBottom: rem(50),
-      },
+const useStyles = createStyles((theme) => ({
+  wrapper: {
+    position: "relative",
+    paddingTop: rem(180),
+    paddingBottom: rem(130),
+    backgroundImage: `url(hero.jpeg)`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    [theme.fn.smallerThan("xs")]: {
+      paddingTop: rem(80),
+      paddingBottom: rem(50),
     },
+  },
 
-    inner: {
-      position: "relative",
-      zIndex: 1,
+  inner: {
+    position: "relative",
+    zIndex: 1,
+  },
+
+  title: {
+    fontWeight: 800,
+    fontSize: rem(40),
+    letterSpacing: rem(-1),
+    paddingLeft: theme.spacing.md,
+    paddingRight: theme.spacing.md,
+    color: theme.white,
+    marginBottom: theme.spacing.xs,
+    textAlign: "center",
+    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+
+    [theme.fn.smallerThan("xs")]: {
+      fontSize: rem(28),
+      textAlign: "left",
     },
+  },
 
-    title: {
-      fontWeight: 800,
-      fontSize: rem(40),
-      letterSpacing: rem(-1),
-      paddingLeft: theme.spacing.md,
-      paddingRight: theme.spacing.md,
-      color: theme.white,
-      marginBottom: theme.spacing.xs,
-      textAlign: "center",
-      fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+  highlight: {
+    color: theme.colors[theme.primaryColor][4],
+  },
 
-      [theme.fn.smallerThan("xs")]: {
-        fontSize: rem(28),
-        textAlign: "left",
-      },
-    },
+  description: {
+    color: theme.colors.gray[0],
+    textAlign: "center",
 
-    highlight: {
-      color: theme.colors[theme.primaryColor][4],
-    },
-
-    description: {
-      color: theme.colors.gray[0],
-      textAlign: "center",
-
-      [theme.fn.smallerThan("xs")]: {
-        fontSize: theme.fontSizes.md,
-        textAlign: "left",
-      },
-    },
-
-    controls: {
-      marginTop: `calc(${theme.spacing.xl} * 1.5)`,
-      display: "flex",
-      justifyContent: "center",
-      paddingLeft: theme.spacing.md,
-      paddingRight: theme.spacing.md,
-
-      [theme.fn.smallerThan("xs")]: {
-        flexDirection: "column",
-      },
-    },
-
-    control: {
-      height: rem(42),
+    [theme.fn.smallerThan("xs")]: {
       fontSize: theme.fontSizes.md,
+      textAlign: "left",
+    },
+  },
 
+  controls: {
+    marginTop: `calc(${theme.spacing.xl} * 1.5)`,
+    display: "flex",
+    justifyContent: "center",
+    paddingLeft: theme.spacing.md,
+    paddingRight: theme.spacing.md,
+
+    [theme.fn.smallerThan("xs")]: {
+      flexDirection: "column",
+    },
+  },
+
+  control: {
+    height: rem(42),
+    fontSize: theme.fontSizes.md,
+
+    "&:not(:first-of-type)": {
+      marginLeft: theme.spacing.md,
+    },
+
+    [theme.fn.smallerThan("xs")]: {
       "&:not(:first-of-type)": {
-        marginLeft: theme.spacing.md,
-      },
-
-      [theme.fn.smallerThan("xs")]: {
-        "&:not(:first-of-type)": {
-          marginTop: theme.spacing.md,
-          marginLeft: 0,
-        },
+        marginTop: theme.spacing.md,
+        marginLeft: 0,
       },
     },
+  },
 
-    secondaryControl: {
-      color: theme.white,
-      backgroundColor: "rgba(255, 255, 255, .4)",
+  secondaryControl: {
+    color: theme.white,
+    backgroundColor: "rgba(255, 255, 255, .4)",
 
-      "&:hover": {
-        backgroundColor: "rgba(255, 255, 255, .45) !important",
-      },
+    "&:hover": {
+      backgroundColor: "rgba(255, 255, 255, .45) !important",
     },
-  }));
+  },
+}));
 
+const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
   const { classes, cx } = useStyles();
+  const router = useRouter();
 
   return (
     <div className={classes.wrapper}>
@@ -133,7 +134,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
             className={classes.control}
             variant="white"
             size="lg"
-            onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
+            onClick={() => router.push("/teams")}
           >
             Get started
           </Button>
