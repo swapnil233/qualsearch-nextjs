@@ -77,10 +77,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       files = files.map((file) => ({
         ...file,
         // @ts-ignore
-        createdAt: file.createdAt.toISOString(),
+        createdAt: file.createdAt.toLocaleString(),
 
         // @ts-ignore
-        updatedAt: file.updatedAt.toISOString(),
+        updatedAt: file.updatedAt.toLocaleString(),
       }));
 
       return {
