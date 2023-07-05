@@ -12,6 +12,8 @@ import { FC } from "react";
 
 export interface IInvitationsTable {
   invitations: IInvitationData[];
+  handleAcceptInvitation: (id: string) => void;
+  handleDeclineInvitation: (id: string) => void;
 }
 
 export interface IInvitationData {
@@ -21,7 +23,11 @@ export interface IInvitationData {
   createdAt: string;
 }
 
-const InvitationsTable: FC<IInvitationsTable> = ({ invitations }) => {
+const InvitationsTable: FC<IInvitationsTable> = ({
+  invitations,
+  handleAcceptInvitation,
+  handleDeclineInvitation,
+}) => {
   const rows = invitations.map((invitation) => (
     <tr key={invitation.id}>
       {/* Team name */}
@@ -57,10 +63,15 @@ const InvitationsTable: FC<IInvitationsTable> = ({ invitations }) => {
             leftIcon={<IconCheck size={"1.2rem"} />}
             variant="light"
             color="green"
+            onClick={() => handleAcceptInvitation(invitation.id)}
           >
             Accept
           </Button>
-          <Button variant="subtle" color="red">
+          <Button
+            variant="subtle"
+            color="red"
+            onClick={() => handleDeclineInvitation(invitation.id)}
+          >
             Decline
           </Button>
         </Group>

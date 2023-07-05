@@ -41,6 +41,9 @@ export const getServerSideProps: GetServerSideProps = async (
       include: {
         users: true,
       },
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
 
     // @ts-ignore
@@ -58,6 +61,7 @@ export const getServerSideProps: GetServerSideProps = async (
     })[] = await prisma.invitation.findMany({
       where: {
         invitedEmail: user.email!,
+        status: "PENDING",
       },
       include: {
         team: true,
@@ -96,6 +100,83 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);
+  const [showingInvitations, setShowingInvitations] =
+    useState<IInvitationData[]>(invitations);
+
+  const handleAcceptInvitation = async (invitationId: string) => {
+    try {
+      const response = await fetch("/api/invitation/accept", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invitationId,
+        }),
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        notifications.show({
+          title: "Invitation accepted",
+          message: "You have successfully accepted the invitation.",
+          color: "teal",
+          icon: <IconCheck />,
+        });
+
+        const updatedTeam: TeamWithUsers = data.team;
+        console.log("updated team: ", updatedTeam);
+
+        // Update the teams state
+        setShowingTeams((prevTeams) => [...prevTeams, updatedTeam]);
+
+        // Update the invitations state
+        setShowingInvitations((prevInvitations) =>
+          prevInvitations.filter((invitation) => invitation.id !== invitationId)
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      notifications.show({
+        title: "Error",
+        message: "An error occurred while accepting the invitation.",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    }
+  };
+
+  const handleDeclineInvitation = async (invitationId: string) => {
+    try {
+      const response = await fetch("/api/invitation/decline", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invitationId,
+        }),
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        notifications.show({
+          title: "Invitation declined",
+          message: "You have successfully declined the invitation.",
+          color: "teal",
+          icon: <IconCheck />,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      notifications.show({
+        title: "Error",
+        message: "An error occurred while accepting the invitation.",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    }
+  };
 
   const form = useForm({
     initialValues: {
@@ -197,12 +278,16 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
         </div>
       )}
 
-      {invitations.length !== 0 && (
+      {showingInvitations.length !== 0 && (
         <>
           <h2 className="text-xl font-normal flex flex-col mb-4 mt-8">
             Invitations
           </h2>
-          <InvitationsTable invitations={invitations} />
+          <InvitationsTable
+            invitations={showingInvitations}
+            handleAcceptInvitation={handleAcceptInvitation}
+            handleDeclineInvitation={handleDeclineInvitation}
+          />
         </>
       )}
 
