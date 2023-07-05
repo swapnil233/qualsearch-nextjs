@@ -14,9 +14,7 @@ This document contains the ongoing tasks and improvements for the next.js projec
 
 | Task   | Description                                               |
 | ------ | --------------------------------------------------------- |
-| Task 1 | Re-write all HTTP calls to use Fetch instead of Axios     |
-| Task 2 | Remove file uploads and OpenAI calls from home page       |
-| Task 3 | Implement a working "last active" function for team table |
+| Task 1 | Implement a working "last active" function for team table |
 
 ## Backend Tasks
 
@@ -30,11 +28,9 @@ This document contains the ongoing tasks and improvements for the next.js projec
 
 ## Design Tasks
 
-| Task   | Description                                                                                    |
-| ------ | ---------------------------------------------------------------------------------------------- |
-| Task 1 | Re-design the page header. Include breadcrumbs, title, primary + secondary action buttons, etc |
-| Task 2 | Create a new page layout template                                                              |
-| Task 3 | Implement empty states for teams, projects and files                                           |
+| Task   | Description                       |
+| ------ | --------------------------------- |
+| Task 1 | Create a new page layout template |
 
 ## Functionality Tasks
 
@@ -43,9 +39,8 @@ This document contains the ongoing tasks and improvements for the next.js projec
 | Task 1 | Re-create the "role" property for users. Roles are team-dependant, not a global role that the user has for all teams they're in |
 | Task 2 | Implement project statuses. Projects can be in-progress, completed, archived, or terminated                                     |
 | Task 3 | Implement a pinning feature for teams, projects and files                                                                       |
-| Task 4 | Let users also upload video files, and file pages will have a video ref instead of an audio ref                                 |
-| Task 5 | Implement transcript summary and sentiment using GPT                                                                            |
-| Task 6 | Look into using Prose Mirror for transcripts and tagging                                                                        |
+| Task 4 | Implement transcript summary and sentiment using GPT                                                                            |
+| Task 5 | Look into using Prose Mirror for transcripts and tagging                                                                        |
 
 ## Database Tasks
 
