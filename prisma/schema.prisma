@@ -83,6 +83,9 @@ model Team {
   createdBy       User         @relation("CreatedTeam", fields: [createdByUserId], references: [id])
   createdByUserId String
   Invitation      Invitation[]
+
+  // Frequently fetching teams based on id
+  @@index([id])
 }
 
 // Files belong to projects. A user can belong in a team that has many projects. A project can have many files.
@@ -99,6 +102,9 @@ model Project {
 
   // 1-n -> Project can have many videos
   files File[]
+
+  // Frequently fetching projects based on team id
+  @@index([teamId])
 }
 
 model File {
@@ -114,6 +120,9 @@ model File {
   // 1-n -> Video can belong to 1 project
   Project   Project @relation(fields: [projectId], references: [id])
   projectId String
+
+  // Frequently fetching files based on project id
+  @@index([projectId])
 }
 
 model Invitation {
@@ -134,6 +143,7 @@ model Invitation {
   invitedUserId String?
 
   @@unique([invitedEmail, teamId])
+  @@index([status])
 }
 
 enum InvitationStatus {
