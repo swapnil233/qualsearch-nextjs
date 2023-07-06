@@ -4,11 +4,11 @@ import { FileType } from "@prisma/client";
 import {
   IconFileText,
   IconFileUnknown,
+  IconHeadphones,
   IconPdf,
   IconPhoto,
   IconPresentation,
   IconVideo,
-  IconVinyl,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import React, { FC } from "react";
@@ -33,7 +33,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
         py={8}
         size="sm"
         color={color}
-        radius="xl"
+        radius="md"
         leftSection={
           <Avatar radius="sm" color={color}>
             {icon}
@@ -52,7 +52,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
         <BadgeWithIcon
           color="blue"
           fileType="Audio"
-          icon={<IconVinyl size={"1rem"} />}
+          icon={<IconHeadphones size={"1rem"} />}
         />
       );
     } else if (ft === "VIDEO") {
@@ -115,10 +115,10 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
   };
 
   return (
-    <Card withBorder padding="lg" radius="md">
+    <Card withBorder padding="md" radius="md">
       <Stack justify="space-between" h={"100%"}>
         <div>
-          <Text fz="lg" fw={500}>
+          <Text fz="lg" fw={500} className="line-clamp-2">
             <Link
               href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
             >
@@ -129,7 +129,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
             {file.description}
           </Text>
         </div>
-        <div>
+        <div className="mt-4">
           <Text fz="sm" c="dimmed" mb={8}>
             Uploaded {file.createdAt.toLocaleString()}
           </Text>
