@@ -30,6 +30,7 @@ model User {
   // 1-n -> User can create many invitations
   invitationsSent     Invitation[] @relation("InvitationsSent")
   invitationsRecieved Invitation[] @relation("InvitationsReceived")
+  Speaker             Speaker[]
 }
 
 model Account {
@@ -67,7 +68,7 @@ model VerificationToken {
 }
 
 model Team {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   name        String
@@ -90,7 +91,7 @@ model Team {
 
 // Files belong to projects. A user can belong in a team that has many projects. A project can have many files.
 model Project {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   name        String
@@ -102,13 +103,16 @@ model Project {
 
   // 1-n -> Project can have many videos
   files File[]
+  Clip  Clip[]
+  Note  Note[]
+  Tag   Tag[]
 
   // Frequently fetching projects based on team id
   @@index([teamId])
 }
 
 model File {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   name        String // eg "John Doe's Interview 06/01/2021"
@@ -123,13 +127,17 @@ model File {
 
   // 1-1 -> File can have 0 transcripts or 1 transcript
   DGTranscript DGTranscript?
+  Speaker      Speaker[]
+  Clip         Clip[]
+  Note         Note[]
+  Tag          Tag[]
 
   // Frequently fetching files based on project id
   @@index([projectId])
 }
 
 model Invitation {
-  id           String           @id @default(uuid())
+  id           String           @id @default(cuid())
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   invitedEmail String           @db.VarChar(320)
@@ -163,6 +171,82 @@ model DGTranscript {
   // 1-1 -> A transcript must always belong to 1 file
   file   File   @relation(fields: [fileId], references: [id])
   fileId String @unique
+}
+
+// A file may have speakers. A speaker belongs to one file.
+model Speaker {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String?
+  email     String?
+
+  // A speaker can also be a user in the team
+  teamMemberId String?
+  user         User?   @relation(fields: [teamMemberId], references: [id])
+
+  // 1-n -> Speaker can belong to 1 file
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+}
+
+model Clip {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  name       String
+  start      Float
+  end        Float
+  uri        String
+  type       FileType
+  transcript Json?
+
+  // 1-n -> Clip can belong to 1 file
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+
+  // 1-n -> Clip can belong to 1 project
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  text      String
+  start     Float
+  end       Float
+
+  // 1-n -> Note can belong to 1 file
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+
+  // 1-n -> Note can belong to 1 project
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+
+  // 1-n -> A note can have many tags
+  tags Tag[]
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  start     Float
+  end       Float
+
+  // 1-n -> Tag can belong to 1 file
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String
+
+  // 1-n -> Tag can belong to 1 project
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+
+  // 1-n -> A tag can belong to many notes
+  notes Note[]
 }
 
 enum InvitationStatus {
