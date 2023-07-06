@@ -1,7 +1,7 @@
 import {
   IOpenAIApi,
   ITranscription,
-  ITranscriptionRequest
+  ITranscriptionRequest,
 } from "@/utils/openAI";
 import { createReadStream } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";

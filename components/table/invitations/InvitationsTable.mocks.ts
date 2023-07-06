@@ -12,11 +12,11 @@ const base: IInvitationsTable = {
       id: "jdjdjdjdd",
       teamName: "Brave UX Team",
       teamDescription: "A team for Brave's UX department.",
-      createdAt: "Mon Jul 03 2023"
-    }
+      createdAt: "Mon Jul 03 2023",
+    },
   ],
-  handleAcceptInvitation: () => { },
-  handleDeclineInvitation: () => { },
+  handleAcceptInvitation: () => {},
+  handleDeclineInvitation: () => {},
 };
 
 export const mockInvitationsTableProps = {

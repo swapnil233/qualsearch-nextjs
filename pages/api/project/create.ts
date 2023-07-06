@@ -18,42 +18,52 @@ import { authOptions } from "../auth/[...nextauth]";
  * @param res {NextApiResponse} The HTTP response object.
  */
 export default async function Handler(
-    req: NextApiRequest,
-    res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse
 ) {
-    // Server session
-    const session = await getServerSession(req, res, authOptions);
+  // Server session
+  const session = await getServerSession(req, res, authOptions);
 
-    // Authenticate the request
-    if (!session) {
-        return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  // Authenticate the request
+  if (!session) {
+    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  }
+
+  // Only allow POST requests
+  if (req.method === "POST") {
+    // Destructure the needed properties from the request body.
+    const { projectName, projectDescription, teamId } = req.body;
+
+    // Check if the projectName and projectDescription are not undefined or empty.
+    if (!projectName || !projectDescription) {
+      return res
+        .status(HttpStatus.BadRequest)
+        .send(ErrorMessages.MissingNameOrDescription);
     }
 
-    // Only allow POST requests
-    if (req.method === "POST") {
-        // Destructure the needed properties from the request body.
-        const { projectName, projectDescription, teamId } = req.body;
-
-        // Check if the projectName and projectDescription are not undefined or empty.
-        if (!projectName || !projectDescription) {
-            return res.status(HttpStatus.BadRequest).send(ErrorMessages.MissingNameOrDescription);
-        }
-
-        // Check if the teamId is not undefined or empty.
-        if (!teamId) {
-            return res.status(HttpStatus.BadRequest).send(ErrorMessages.MissingTeamId);
-        }
-
-        try {
-            // Create a new project in the database.
-            const project = await createProject(projectName, projectDescription, teamId);
-            return res.status(HttpStatus.Ok).send(project);
-        } catch (error) {
-            // Log the error for debugging purposes.
-            console.log(error);
-
-            // If an error occurred, respond with a 500 status code (Internal Server Error).
-            return res.status(HttpStatus.InternalServerError).send(ErrorMessages.InternalServerError);
-        }
+    // Check if the teamId is not undefined or empty.
+    if (!teamId) {
+      return res
+        .status(HttpStatus.BadRequest)
+        .send(ErrorMessages.MissingTeamId);
     }
+
+    try {
+      // Create a new project in the database.
+      const project = await createProject(
+        projectName,
+        projectDescription,
+        teamId
+      );
+      return res.status(HttpStatus.Ok).send(project);
+    } catch (error) {
+      // Log the error for debugging purposes.
+      console.log(error);
+
+      // If an error occurred, respond with a 500 status code (Internal Server Error).
+      return res
+        .status(HttpStatus.InternalServerError)
+        .send(ErrorMessages.InternalServerError);
+    }
+  }
 }

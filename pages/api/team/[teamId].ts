@@ -18,43 +18,47 @@ import { authOptions } from "../auth/[...nextauth]";
  * @param res {NextApiResponse} The HTTP response object.
  */
 export default async function Handler(
-    req: NextApiRequest,
-    res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse
 ) {
-    // Get the server session.
-    const session = await getServerSession(req, res, authOptions);
+  // Get the server session.
+  const session = await getServerSession(req, res, authOptions);
 
-    // Authenticate the request.
-    if (!session) {
-        return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  // Authenticate the request.
+  if (!session) {
+    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  }
+
+  // Only allow GET requests.
+  if (req.method === "GET") {
+    // Destructure the needed properties from the request body.
+    const { teamId } = req.query;
+
+    // Check if the teamId is not undefined or empty.
+    if (!teamId) {
+      return res
+        .status(HttpStatus.BadRequest)
+        .send(ErrorMessages.MissingTeamId);
     }
 
-    // Only allow GET requests.
-    if (req.method === "GET") {
-        // Destructure the needed properties from the request body.
-        const { teamId } = req.query;
+    // Fetch the team from the database.
+    try {
+      const team = await prisma.team.findUnique({
+        where: {
+          id: teamId as string,
+        },
+      });
 
-        // Check if the teamId is not undefined or empty.
-        if (!teamId) {
-            return res.status(HttpStatus.BadRequest).send(ErrorMessages.MissingTeamId);
-        }
+      // If the team was found, respond with a 200 status code and the team.
+      return res.status(HttpStatus.Ok).send(team);
+    } catch (error) {
+      // Log the error for debugging purposes.
+      console.log(error);
 
-        // Fetch the team from the database.
-        try {
-            const team = await prisma.team.findUnique({
-                where: {
-                    id: teamId as string,
-                },
-            });
-
-            // If the team was found, respond with a 200 status code and the team.
-            return res.status(HttpStatus.Ok).send(team);
-        } catch (error) {
-            // Log the error for debugging purposes.
-            console.log(error);
-
-            // If an error occurred, respond with a 500 status code (Internal Server Error).
-            return res.status(HttpStatus.InternalServerError).send(ErrorMessages.InternalServerError);
-        }
+      // If an error occurred, respond with a 500 status code (Internal Server Error).
+      return res
+        .status(HttpStatus.InternalServerError)
+        .send(ErrorMessages.InternalServerError);
     }
+  }
 }
