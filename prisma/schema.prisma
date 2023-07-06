@@ -191,14 +191,15 @@ model Speaker {
 }
 
 model Clip {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  name       String
-  start      Float
-  end        Float
-  uri        String
-  type       FileType
-  transcript Json?
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  name        String
+  description String?
+  start       Float
+  end         Float
+  uri         String
+  type        FileType
+  transcript  Json?
 
   // 1-n -> Clip can belong to 1 file
   file   File   @relation(fields: [fileId], references: [id])
@@ -227,6 +228,9 @@ model Note {
 
   // 1-n -> A note can have many tags
   tags Tag[]
+
+  // A note must be created by a user
+  createdByUserId String?
 }
 
 model Tag {
@@ -247,6 +251,9 @@ model Tag {
 
   // 1-n -> A tag can belong to many notes
   notes Note[]
+
+  // A tag must be created by a user
+  createdByUserId String?
 }
 
 enum InvitationStatus {
