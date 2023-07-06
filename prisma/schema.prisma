@@ -121,6 +121,9 @@ model File {
   Project   Project @relation(fields: [projectId], references: [id])
   projectId String
 
+  // 1-1 -> File can have 0 transcripts or 1 transcript
+  DGTranscript DGTranscript?
+
   // Frequently fetching files based on project id
   @@index([projectId])
 }
@@ -144,6 +147,22 @@ model Invitation {
 
   @@unique([invitedEmail, teamId])
   @@index([status])
+}
+
+// The transcript object returned by Deepgram, split into comlumns
+model DGTranscript {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  transcript String
+  confidence Float
+  // Array of word objects. Word, start, end, confidence, speaker, speaker_confidence, punctuated_word
+  words      Json
+  // In the form: \n\nSpeaker 0: Text\n\nSpeaker 1: Text
+  paragraphs String
+
+  // 1-1 -> A transcript must always belong to 1 file
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String @unique
 }
 
 enum InvitationStatus {
