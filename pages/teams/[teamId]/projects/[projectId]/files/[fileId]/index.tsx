@@ -36,6 +36,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         updatedAt: file.updatedAt.toISOString(),
       };
 
+      // Get the team ID of the project
       const { teamId } = await prisma.project.findUniqueOrThrow({
         where: {
           id: file.projectId,
@@ -44,6 +45,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           teamId: true,
         },
       });
+
+      // Check if the user is in the team that has the project which the file belongs to
+      const team = await prisma.team.findUniqueOrThrow({
+        where: {
+          id: teamId,
+        },
+        select: {
+          id: true,
+          users: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (!team.users.map((user) => user.id).includes(user.id)) {
+        return {
+          notFound: true,
+        };
+      }
 
       // GET /api/aws/getSignedUrl?key={URI} endpoint to get the signed URL for the file
       const baseUrl = process.env.VERCEL_URL

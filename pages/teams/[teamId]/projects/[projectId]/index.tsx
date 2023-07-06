@@ -25,8 +25,9 @@ import Head from "next/head";
 import { useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (_session: any) => {
+  return requireAuthentication(context, async (session: any) => {
     const { projectId } = context.query;
+    const user = session.user;
 
     try {
       let project: Project = await prisma.project.findUniqueOrThrow({
@@ -34,6 +35,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           id: projectId as string,
         },
       });
+
+      // Check if the user is in the team that the project belongs to
+      const team = await prisma.team.findUniqueOrThrow({
+        where: {
+          id: project.teamId,
+        },
+        select: {
+          id: true,
+          users: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (!team.users.map((user) => user.id).includes(user.id)) {
+        return {
+          notFound: true,
+        };
+      }
 
       // Get the team ID of the project
       const teamIdResponse = await prisma.team.findUniqueOrThrow({

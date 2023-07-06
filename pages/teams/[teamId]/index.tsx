@@ -27,18 +27,18 @@ import fetch from "node-fetch";
 import { useState } from "react";
 import { NextPageWithLayout } from "../../page";
 
+// Page /teams/[teamId]/
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
     const { teamId } = context.query;
+    const user = session.user;
 
     try {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: session.user.id,
-        },
-      });
-
-      let team: Team | null = await prisma.team.findUnique({
+      let team:
+        | (Team & {
+            users: User[];
+          })
+        | null = await prisma.team.findUnique({
         where: {
           id: teamId as string,
         },
@@ -46,6 +46,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           users: true,
         },
       });
+
+      // If the current user isn't in the team, return a 404
+      if (!team?.users.some((x) => x.id === user.id)) {
+        console.log("User not in team");
+        return {
+          notFound: true,
+        };
+      }
 
       let projects: Project[] = await prisma.project.findMany({
         where: {
