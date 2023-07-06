@@ -5,7 +5,7 @@ import { NextPageWithLayout } from "@/pages/page";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { File, User } from "@prisma/client";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import fetch from "node-fetch";
@@ -106,6 +106,10 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
     console.log("Delete file");
   };
 
+  const handleSummarize = () => {
+    console.log("summarize");
+  };
+
   return (
     <>
       <Head>
@@ -128,6 +132,9 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
       <PageHeading
         title={file.name}
         description={file.description || ""}
+        primaryButtonText="Summarize"
+        primaryButtonIcon={<IconWand size={"1.2rem"} />}
+        primaryButtonAction={handleSummarize}
         secondaryButtonMenuItems={[
           {
             title: "Edit file",
