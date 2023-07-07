@@ -1,4 +1,6 @@
+import { ErrorMessages } from "@/constants/ErrorMessages";
 import prisma from "@/utils/prisma";
+import { Team, User } from "@prisma/client";
 
 /**
  * Validate inputs for creating or updating a team.
@@ -122,10 +124,11 @@ export async function getTeamById(teamId: string) {
 /**
  * Retrieves all teams that a user is a part of.
  *
- * @param userId The ID of the user.
+ * @param userId string; The ID of the user.
+ * @param orderBy string; "asc" or "desc"
  * @returns A Promise resolving to the list of teams.
  */
-export async function getTeamsByUser(userId: string) {
+export async function getTeamsByUser(userId: string, orderBy: "desc" | "asc") {
   try {
     return await prisma.team.findMany({
       where: {
@@ -135,7 +138,12 @@ export async function getTeamsByUser(userId: string) {
           },
         },
       },
-      include: { users: true, projects: true },
+      include: {
+        users: true
+      },
+      orderBy: {
+        updatedAt: orderBy
+      }
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -204,5 +212,102 @@ export async function removeUserFromTeam(teamId: string, userId: string) {
       console.error(`An unknown error occurred in removeUserFromTeam`);
     }
     throw error;
+  }
+}
+
+/**
+ * Validates that a user is a member of a team.
+ * Throws an error if validation fails.
+ * 
+ * @param teamId The ID of the team.
+ * @param userId The ID of the user.
+ * @returns A Promise resolving to the updated team.
+ */
+export async function validateUserIsTeamMember(teamId: string, userId: string) {
+  try {
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      include: { users: true },
+    });
+
+    // If the team doesn't exist, throw an error.
+    if (!team) {
+      throw new Error("Team not found");
+    }
+
+    // If the user is not a member of the team, throw an error.
+    const isMember = team.users.some((user) => user.id === userId);
+    if (!isMember) {
+      throw new Error(
+        ErrorMessages.Unauthorized
+      );
+    }
+
+    return team;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error in validateUserIsTeamMember: ${error.message}`);
+    } else {
+      console.error(`An unknown error occurred in validateUserIsTeamMember`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Get the ID of the team a project is in
+ * 
+ * @param projectId string; The project ID
+ * @returns A promise resolving to the team ID or null
+ */
+export async function getTeamIdFromProjectId(projectId: string): Promise<string | null> {
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: projectId,
+      },
+      select: {
+        teamId: true,
+      },
+    });
+
+    if (!project) {
+      console.error(`No project found for id: ${projectId}`);
+      return null;
+    }
+
+    return project.teamId;
+  } catch (error) {
+    console.error(`Failed to fetch project for id: ${projectId}`, error);
+    return null;
+  }
+}
+
+/**
+ * Get a team and its users based on the team id
+ * 
+ * @param teamId string; The team ID
+ * @returns A promise resolving to the team and its users or null
+ */
+export async function getTeamWithUsersGivenTeamId(teamId: string): Promise<(Team & { users: User[] }) | null> {
+  try {
+    const team = await prisma.team.findUnique({
+      where: {
+        id: teamId,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!team) {
+      console.error(`No team found for id: ${teamId}`);
+      return null;
+    }
+
+    return team;
+  } catch (error) {
+    console.error(`Failed to fetch team for id: ${teamId}`, error);
+    return null;
   }
 }
