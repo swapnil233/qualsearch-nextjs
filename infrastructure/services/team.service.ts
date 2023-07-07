@@ -1,6 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import prisma from "@/utils/prisma";
-import { Team, User } from "@prisma/client";
+import { Project, Team, User } from "@prisma/client";
 
 /**
  * Validate inputs for creating or updating a team.
@@ -8,8 +8,10 @@ import { Team, User } from "@prisma/client";
  *
  * @param teamName The name of the team.
  * @param teamDescription The description of the team.
+ * @throws Will throw an error if validation fails.
+ * @returns void
  */
-function validateTeamInputs(teamName: string, teamDescription: string) {
+function validateTeamInputs(teamName: string, teamDescription: string): void {
   if (!teamName || teamName.length > 255) {
     throw new Error(
       "Team name must be provided and be less than 256 characters."
@@ -22,19 +24,19 @@ function validateTeamInputs(teamName: string, teamDescription: string) {
 }
 
 /**
- * Creates a team.
+ * Creates a team given a name, description, and the ID of the user creating the team.
  *
  * @param teamName The name of the team.
  * @param teamDescription The description of the team.
  * @param userId The ID of the user creating the team.
- * @returns A Promise resolving to the created team.
  * @throws Will throw an error if the Prisma query fails.
+ * @returns A Promise resolving to the created team and its users.
  */
 export async function createTeam(
   teamName: string,
   teamDescription: string,
   userId: string
-) {
+): Promise<Team & { users: User[] }> {
   validateTeamInputs(teamName, teamDescription);
 
   try {
@@ -66,8 +68,8 @@ export async function createTeam(
 /**
  * Updates a team.
  *
- * @param teamId The ID of the team.
- * @param input The fields to update.
+ * @param teamId The ID of the team to update.
+ * @param input An object containing the team name and description.
  * @param input.teamName The name of the team.
  * @param input.teamDescription The description of the team.
  * @returns A Promise resolving to the updated team.
@@ -75,8 +77,11 @@ export async function createTeam(
  */
 export async function updateTeam(
   teamId: string,
-  input: { teamName: string; teamDescription: string }
-) {
+  input: {
+    teamName: string;
+    teamDescription: string;
+  }
+): Promise<Team & { users: User[]; projects: Project[] }> {
   validateTeamInputs(input.teamName, input.teamDescription);
 
   try {
@@ -102,10 +107,12 @@ export async function updateTeam(
  * Retrieves a team by its ID.
  *
  * @param teamId The ID of the team to retrieve.
- * @returns A Promise resolving to the team.
+ * @returns A Promise resolving to the team, including its users and projects, or null if not found.
  * @throws Will throw an error if the Prisma query fails.
  */
-export async function getTeamById(teamId: string) {
+export async function getTeamAndUsersAndProjectsByTeamId(
+  teamId: string
+): Promise<(Team & { users: User[]; projects: Project[] }) | null> {
   try {
     return await prisma.team.findUnique({
       where: { id: teamId },
@@ -122,10 +129,41 @@ export async function getTeamById(teamId: string) {
 }
 
 /**
+ * Retrieves a team and its users by the team ID.
+ *
+ * @param teamId The team ID
+ * @returns A promise resolving to the team and its users or null
+ */
+export async function getTeamAndUsersByTeamId(
+  teamId: string
+): Promise<(Team & { users: User[] }) | null> {
+  try {
+    const team = await prisma.team.findUnique({
+      where: {
+        id: teamId,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!team) {
+      console.error(`No team found for id: ${teamId}`);
+      return null;
+    }
+
+    return team;
+  } catch (error) {
+    console.error(`Failed to fetch team for id: ${teamId}`, error);
+    return null;
+  }
+}
+
+/**
  * Retrieves all teams that a user is a part of.
  *
- * @param userId string; The ID of the user.
- * @param orderBy string; "asc" or "desc"
+ * @param userId The ID of the user.
+ * @param orderBy "asc" or "desc"
  * @returns A Promise resolving to the list of teams.
  */
 export async function getTeamsByUser(userId: string, orderBy: "desc" | "asc") {
@@ -160,9 +198,12 @@ export async function getTeamsByUser(userId: string, orderBy: "desc" | "asc") {
  *
  * @param teamId The ID of the team.
  * @param userId The ID of the user.
- * @returns A Promise resolving to the updated team.
+ * @returns A Promise resolving to the updated team and its users.
  */
-export async function addUserToTeam(teamId: string, userId: string) {
+export async function addUserToTeam(
+  teamId: string,
+  userId: string
+): Promise<Team & { users: User[] }> {
   try {
     return await prisma.team.update({
       where: { id: teamId },
@@ -189,10 +230,13 @@ export async function addUserToTeam(teamId: string, userId: string) {
  * Removes a user from a team.
  *
  * @param teamId The ID of the team.
- * @param userId The ID of the user.
+ * @param userId The ID of the user to remove.
  * @returns A Promise resolving to the updated team.
  */
-export async function removeUserFromTeam(teamId: string, userId: string) {
+export async function removeUserFromTeam(
+  teamId: string,
+  userId: string
+): Promise<Team & { users: User[] }> {
   try {
     return await prisma.team.update({
       where: { id: teamId },
@@ -223,12 +267,13 @@ export async function removeUserFromTeam(teamId: string, userId: string) {
  * @param userId The ID of the user.
  * @returns A Promise resolving to the updated team.
  */
-export async function validateUserIsTeamMember(teamId: string, userId: string) {
+export async function validateUserIsTeamMember(
+  teamId: string,
+  userId: string
+): Promise<Team & { users: User[] }> {
   try {
-    const team = await prisma.team.findUnique({
-      where: { id: teamId },
-      include: { users: true },
-    });
+    // Get the team and its users.
+    const team = await getTeamAndUsersByTeamId(teamId);
 
     // If the team doesn't exist, throw an error.
     if (!team) {
@@ -257,6 +302,7 @@ export async function validateUserIsTeamMember(teamId: string, userId: string) {
  *
  * @param projectId string; The project ID
  * @returns A promise resolving to the team ID or null
+ * @throws Will throw an error if the Prisma query fails.
  */
 export async function getTeamIdFromProjectId(
   projectId: string
@@ -279,37 +325,6 @@ export async function getTeamIdFromProjectId(
     return project.teamId;
   } catch (error) {
     console.error(`Failed to fetch project for id: ${projectId}`, error);
-    return null;
-  }
-}
-
-/**
- * Get a team and its users based on the team id
- *
- * @param teamId string; The team ID
- * @returns A promise resolving to the team and its users or null
- */
-export async function getTeamWithUsersGivenTeamId(
-  teamId: string
-): Promise<(Team & { users: User[] }) | null> {
-  try {
-    const team = await prisma.team.findUnique({
-      where: {
-        id: teamId,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!team) {
-      console.error(`No team found for id: ${teamId}`);
-      return null;
-    }
-
-    return team;
-  } catch (error) {
-    console.error(`Failed to fetch team for id: ${teamId}`, error);
     return null;
   }
 }

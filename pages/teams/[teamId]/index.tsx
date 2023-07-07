@@ -5,7 +5,7 @@ import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
-import { getTeamWithUsersGivenTeamId } from "@/infrastructure/services/team.service";
+import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
@@ -35,7 +35,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const user = session.user;
 
     try {
-      let team = await getTeamWithUsersGivenTeamId(teamId as string);
+      let team = await getTeamAndUsersByTeamId(teamId as string);
 
       // If the current user isn't in the team, return a 404
       if (!team?.users.some((x) => x.id === user.id)) {
