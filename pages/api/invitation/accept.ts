@@ -1,5 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { addUserToTeam } from "@/infrastructure/services/team.service";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -74,23 +75,8 @@ export default async function Handler(
       },
     });
 
-    // Add the user to the team.
-    const updatedTeam = await prisma.team.update({
-      where: {
-        id: invitation.teamId,
-      },
-      data: {
-        users: {
-          connect: {
-            // @ts-ignore
-            id: session.user.id,
-          },
-        },
-      },
-      include: {
-        users: true,
-      },
-    });
+    // @ts-ignore - session.user.id won't be recognized because it comes from authOptions
+    const updatedTeam = await addUserToTeam(invitation.teamId, session.user.id)
 
     // Respond with a 200 status code (OK) and the updated invitation.
     return res.status(HttpStatus.Ok).json({

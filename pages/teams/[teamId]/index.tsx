@@ -5,13 +5,14 @@ import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
+import { getTeamWithUsersGivenTeamId } from "@/infrastructure/services/team.service";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { Project, Team, User } from "@prisma/client";
+import { Project, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
@@ -34,18 +35,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const user = session.user;
 
     try {
-      let team:
-        | (Team & {
-            users: User[];
-          })
-        | null = await prisma.team.findUnique({
-        where: {
-          id: teamId as string,
-        },
-        include: {
-          users: true,
-        },
-      });
+      let team = await getTeamWithUsersGivenTeamId(teamId as string);
 
       // If the current user isn't in the team, return a 404
       if (!team?.users.some((x) => x.id === user.id)) {

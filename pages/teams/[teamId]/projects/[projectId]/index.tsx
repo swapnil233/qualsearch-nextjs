@@ -3,6 +3,7 @@ import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
+import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri } from "@/types";
 import prisma from "@/utils/prisma";
@@ -36,38 +37,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       });
 
-      // Check if the user is in the team that the project belongs to
-      const team = await prisma.team.findUniqueOrThrow({
-        where: {
-          id: project.teamId,
-        },
-        select: {
-          id: true,
-          users: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      if (!team.users.map((user) => user.id).includes(user.id)) {
+      // Validate if the user is a member of the team that the project belongs to
+      try {
+        await validateUserIsTeamMember(project.teamId, user.id);
+      } catch (error) {
+        // If validation fails (user is not in the team), return notFound
         return {
           notFound: true,
         };
       }
-
-      // Get the team ID of the project
-      const teamIdResponse = await prisma.team.findUniqueOrThrow({
-        where: {
-          id: project.teamId,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      const teamId = teamIdResponse.id;
 
       let files: FileWithoutTranscriptAndUri[] = await prisma.file.findMany({
         where: {
@@ -109,7 +87,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         props: {
           project,
           files,
-          teamId,
+          teamId: project.teamId,
         },
       };
     } catch (error) {

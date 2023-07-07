@@ -6,6 +6,7 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import InvitationsTable, {
   IInvitationData,
 } from "@/components/table/invitations/InvitationsTable";
+import { getTeamsByUser } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
@@ -30,21 +31,7 @@ export const getServerSideProps: GetServerSideProps = async (
   return requireAuthentication(context, async (session: any) => {
     const user: User = session.user;
 
-    let teams: TeamWithUsers[] = await prisma.team.findMany({
-      where: {
-        users: {
-          some: {
-            id: session.user.id,
-          },
-        },
-      },
-      include: {
-        users: true,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-    });
+    let teams = await getTeamsByUser(user.id, "desc");
 
     // @ts-ignore
     teams = teams.map((team) => ({

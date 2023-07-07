@@ -1,4 +1,7 @@
-import prisma from "@/utils/prisma";
+import { ErrorMessages } from "@/constants/ErrorMessages";
+import { HttpStatus } from "@/constants/HttpStatus";
+import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { updateUserRole } from "@/infrastructure/services/user.service";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -17,44 +20,24 @@ export default async function Handler(
   if (req.method === "POST") {
     const { teamId, userId, role } = req.body;
     if (!userId || !role || !teamId) {
-      return res.status(400).send("Missing data to update user role.");
+      return res.status(HttpStatus.BadRequest).send(ErrorMessages.BadRequest);
     }
 
-    // Make sure that the user who is making the request is part of the team
-    const team = await prisma.team.findUnique({
-      where: {
-        id: teamId,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!team) {
-      return res.status(404).send("Team not found.");
-    }
-
-    // @ts-expect-error
-    const user = team.users.find((user) => user.id === session.user?.id);
-    if (!user) {
-      return res.status(401).send("Unauthorized");
-    }
-
-    // Update the user's role
     try {
-      const updateUserRole = await prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          role: role,
-        },
-      });
+      // Make sure that the user who is making the request is part of the team
+      // @ts-ignore
+      await validateUserIsTeamMember(teamId, session.user?.id);
 
-      return res.status(200).send(updateUserRole);
+      // Update the user's role
+      const updatedUser = await updateUserRole(userId, role);
+
+      return res.status(HttpStatus.Ok).send(updatedUser);
     } catch (error) {
-      console.log(error);
-      res.status(500).send("Something went wrong.");
+      console.error(error);
+      res.status(HttpStatus.InternalServerError).send(ErrorMessages.InternalServerError);
     }
+  } else {
+    // Handle non-POST requests
+    res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
   }
 }

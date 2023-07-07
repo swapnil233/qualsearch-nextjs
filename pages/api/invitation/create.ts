@@ -1,3 +1,4 @@
+import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -43,23 +44,8 @@ export default async function Handler(
 
   try {
     // Validate that the team exists and the user is a member.
-    const team = await prisma.team.findUnique({
-      where: { id: teamId },
-      include: { users: true },
-    });
-    if (!team) {
-      return res.status(404).send("Team not found");
-    }
-
     // @ts-ignore
-    const isMember = team.users.some((user) => user.id === session.user.id);
-    if (!isMember) {
-      return res
-        .status(403)
-        .send(
-          "You are not a member of this team, so you cannot invite others."
-        );
-    }
+    const team = await validateUserIsTeamMember(teamId, session.user.id);
 
     // Verify the invitee email is not already a member of the team.
     const inviteeExists = team.users.some(

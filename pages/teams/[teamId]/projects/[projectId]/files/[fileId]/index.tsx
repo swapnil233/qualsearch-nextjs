@@ -1,85 +1,51 @@
 import Transcript from "@/components/Transcript";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import {
+  getTeamIdFromProjectId,
+  validateUserIsTeamMember,
+} from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
+import { getSignedUrl } from "@/utils/aws";
+import { formatFileDates } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { File, User } from "@prisma/client";
 import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import fetch from "node-fetch";
 import { useRef } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
     const { fileId } = context.query;
+    const user: User = session.user;
 
     try {
-      const user = session.user;
-
-      // Get the file information from DB. This will contain the URI to the file on S3, as well as the transcript JSON object from Deepgram
       let file: File = await prisma.file.findUniqueOrThrow({
         where: {
           id: fileId as string,
         },
       });
 
-      // Change the dates to ISO strings otherwise Next.js will throw an error
-      file = {
-        ...file,
-
-        // @ts-ignore
-        createdAt: file.createdAt.toISOString(),
-
-        // @ts-ignore
-        updatedAt: file.updatedAt.toISOString(),
-      };
+      file = formatFileDates(file);
 
       // Get the team ID of the project
-      const { teamId } = await prisma.project.findUniqueOrThrow({
-        where: {
-          id: file.projectId,
-        },
-        select: {
-          teamId: true,
-        },
-      });
+      const teamId = await getTeamIdFromProjectId(file.projectId);
 
-      // Check if the user is in the team that has the project which the file belongs to
-      const team = await prisma.team.findUniqueOrThrow({
-        where: {
-          id: teamId,
-        },
-        select: {
-          id: true,
-          users: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      if (!team.users.map((user) => user.id).includes(user.id)) {
+      if (!teamId) {
         return {
           notFound: true,
         };
       }
 
+      // Check if the user is in the team
+      await validateUserIsTeamMember(teamId, user.id);
+
       // GET /api/aws/getSignedUrl?key={URI} endpoint to get the signed URL for the file
-      const baseUrl = process.env.VERCEL_URL
-        ? "https://" + process.env.VERCEL_URL
-        : "http://localhost:3003";
+      const mediaUrl = await getSignedUrl(file.uri);
 
-      const response = await fetch(
-        `${baseUrl}/api/aws/getSignedUrl?key=${file.uri}`
-      );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        const mediaUrl = responseData.url;
-
+      if (mediaUrl) {
         return {
           props: {
             user,
@@ -94,7 +60,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
     } catch (error) {
-      console.log(error);
       return {
         notFound: true,
       };
