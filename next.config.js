@@ -34,28 +34,14 @@ module.exports = {
 module.exports = {
   images: {
     domains: [
-      "i.pravatar.cc",
       "images.pexels.com",
       "cdn.pixabay.com",
       "lh3.googleusercontent.com",
-      "media.kijiji.ca",
     ],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "robohash.org",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
         hostname: "googleusercontent.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "media.kijiji.ca",
         port: "",
         pathname: "/**",
       },
