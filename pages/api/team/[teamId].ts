@@ -1,6 +1,9 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { getTeamById, validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import {
+  getTeamById,
+  validateUserIsTeamMember,
+} from "@/infrastructure/services/team.service";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -32,18 +35,20 @@ export default async function Handler(
 
   // Destructure the needed properties from the request body.
   const { teamId } = req.query;
-  const user = session.user
+  const user = session.user;
 
-  // Check user authorization. 
+  // Check user authorization.
   // A team's info can't be accessed unless the user trying to access it belongs to the team
   try {
     // @ts-ignore
     await validateUserIsTeamMember(teamId as string, user!.id);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return res.status(HttpStatus.Unauthorized).send(error.message)
+      return res.status(HttpStatus.Unauthorized).send(error.message);
     } else {
-      console.error(`An unknown error occurred in /api/team/[teamId] while checking the user's authorization`);
+      console.error(
+        `An unknown error occurred in /api/team/[teamId] while checking the user's authorization`
+      );
       return;
     }
   }
@@ -73,6 +78,8 @@ export default async function Handler(
         .send(ErrorMessages.InternalServerError);
     }
   } else {
-    return res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
+    return res
+      .status(HttpStatus.MethodNotAllowed)
+      .send(ErrorMessages.MethodNotAllowed);
   }
 }

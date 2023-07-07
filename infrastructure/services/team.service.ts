@@ -139,11 +139,11 @@ export async function getTeamsByUser(userId: string, orderBy: "desc" | "asc") {
         },
       },
       include: {
-        users: true
+        users: true,
       },
       orderBy: {
-        updatedAt: orderBy
-      }
+        updatedAt: orderBy,
+      },
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -218,7 +218,7 @@ export async function removeUserFromTeam(teamId: string, userId: string) {
 /**
  * Validates that a user is a member of a team.
  * Throws an error if validation fails.
- * 
+ *
  * @param teamId The ID of the team.
  * @param userId The ID of the user.
  * @returns A Promise resolving to the updated team.
@@ -238,9 +238,7 @@ export async function validateUserIsTeamMember(teamId: string, userId: string) {
     // If the user is not a member of the team, throw an error.
     const isMember = team.users.some((user) => user.id === userId);
     if (!isMember) {
-      throw new Error(
-        ErrorMessages.Unauthorized
-      );
+      throw new Error(ErrorMessages.Unauthorized);
     }
 
     return team;
@@ -256,11 +254,13 @@ export async function validateUserIsTeamMember(teamId: string, userId: string) {
 
 /**
  * Get the ID of the team a project is in
- * 
+ *
  * @param projectId string; The project ID
  * @returns A promise resolving to the team ID or null
  */
-export async function getTeamIdFromProjectId(projectId: string): Promise<string | null> {
+export async function getTeamIdFromProjectId(
+  projectId: string
+): Promise<string | null> {
   try {
     const project = await prisma.project.findUnique({
       where: {
@@ -285,11 +285,13 @@ export async function getTeamIdFromProjectId(projectId: string): Promise<string 
 
 /**
  * Get a team and its users based on the team id
- * 
+ *
  * @param teamId string; The team ID
  * @returns A promise resolving to the team and its users or null
  */
-export async function getTeamWithUsersGivenTeamId(teamId: string): Promise<(Team & { users: User[] }) | null> {
+export async function getTeamWithUsersGivenTeamId(
+  teamId: string
+): Promise<(Team & { users: User[] }) | null> {
   try {
     const team = await prisma.team.findUnique({
       where: {

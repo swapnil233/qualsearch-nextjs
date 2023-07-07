@@ -34,10 +34,14 @@ export default async function Handler(
       return res.status(HttpStatus.Ok).send(updatedUser);
     } catch (error) {
       console.error(error);
-      res.status(HttpStatus.InternalServerError).send(ErrorMessages.InternalServerError);
+      res
+        .status(HttpStatus.InternalServerError)
+        .send(ErrorMessages.InternalServerError);
     }
   } else {
     // Handle non-POST requests
-    res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
+    res
+      .status(HttpStatus.MethodNotAllowed)
+      .send(ErrorMessages.MethodNotAllowed);
   }
 }
