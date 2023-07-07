@@ -1,3 +1,5 @@
+import { ErrorMessages } from "@/constants/ErrorMessages";
+import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -11,7 +13,7 @@ import { authOptions } from "../auth/[...nextauth]";
  * Here is a high-level overview of its flow:
  * 1. It verifies that the client is authenticated.
  * 2. It verifies that the request is a POST request and contains all required parameters.
- * 3. It makes a request to the '/api/aws/getSignedUrl' endpoint to get the signed URL for the file.
+ * 3. It makes a request to '/api/aws/getSignedUrl' to get the signed URL for the file.
  * 4. It sends a POST request to the '/api/deepgram/' endpoint with the signed URL to get the transcription of the multimedia file.
  * 5. It creates a new file record in the database.
  *
@@ -23,111 +25,98 @@ export default async function Handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  console.log("File creation API handler invoked");
-
-  // Retrieve the session from the request, to check if the user is authenticated.
+  // Check authentication
   const session = await getServerSession(req, res, authOptions);
+  if (!session)
+    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
 
-  // If the session is not found, respond with a 401 status code (Unauthorized).
-  if (!session) {
-    console.log("Session not found");
-    return res.status(401).send("Unauthorized");
+  // Check request method
+  if (req.method !== "POST")
+    return res
+      .status(HttpStatus.MethodNotAllowed)
+      .send(ErrorMessages.MethodNotAllowed);
+
+  // Get data from request body
+  const { fileName, fileDescription, projectId, teamId, key, type } = req.body;
+
+  // File must have a name, projectId, teamId, key, and type
+  if (!fileName || fileName.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("File name is missing from the request body");
+  if (!projectId || projectId.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Project ID is missing from the request body");
+  if (!teamId || teamId.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Team ID is missing from the request body");
+  if (!key || key.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Key is missing from the request body");
+  if (!type || type.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Type is missing from the request body");
+
+  // Get the base URL for the API
+  const baseUrl = process.env.VERCEL_URL
+    ? "https://" + process.env.VERCEL_URL
+    : "http://localhost:3003";
+
+  // GET '/api/aws/getSignedUrl?key={key}'
+  const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
+  if (!response.ok) {
+    return res.status(response.status).send(await response.text());
+  }
+  const responseJson = await response.json();
+  const signedUrl = responseJson.url;
+
+  // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
+  const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ uri: signedUrl }),
+  });
+
+  if (!deepgramResponse.ok) {
+    return res
+      .status(deepgramResponse.status)
+      .send(await deepgramResponse.text());
   }
 
-  console.log("Session exists");
+  const deepgramJson = await deepgramResponse.json();
+  const transcription = deepgramJson;
 
-  if (req.method === "POST") {
-    console.log("Request method is POST");
-
-    // Destructure the needed properties from the request body.
-    const { fileName, fileDescription, projectId, key, type } = req.body;
-
-    console.log(
-      `fileName: ${fileName}, fileDescription: ${fileDescription}, projectId: ${projectId}, key: ${key}, type: ${type}`
-    );
-
-    // Check if the fileName and fileDescription are not undefined or empty.
-    if (!fileName || !fileDescription) {
-      return res.status(400).send("Missing team name or description.");
-    }
-
-    // Check if a projectId is provided
-    if (!projectId || projectId.length === 0) {
-      return res
-        .status(400)
-        .send("Project ID is missing from the request body");
-    }
-
-    const baseUrl = process.env.VERCEL_URL
-      ? "https://" + process.env.VERCEL_URL
-      : "http://localhost:3003";
-    console.log(`baseUrl: ${baseUrl}`);
-
-    // Make a GET request to '/api/aws/getSignedUrl?key={key}' to get the signed URL for the file.
-    const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
-    if (!response.ok) {
-      console.error(
-        "Error fetching signed URL",
-        response.status,
-        await response.text()
-      );
-      throw new Error("Failed to get signed URL");
-    }
-    const responseJson = await response.json();
-    const signedUrl = responseJson.url;
-
-    console.log("Signed URL: " + signedUrl);
-
-    const deepgramRequestBody = JSON.stringify({ uri: signedUrl });
-    console.log("Deepgram request body: " + deepgramRequestBody);
-
-    // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
-    const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  try {
+    // Create a new file in the database with the information from the request.
+    const file = await prisma.file.create({
+      data: {
+        name: fileName,
+        description: fileDescription,
+        teamId: teamId,
+        projectId: projectId,
+        uri: key,
+        transcript: transcription,
+        type: type,
       },
-      body: deepgramRequestBody,
     });
-    if (!deepgramResponse.ok) {
-      console.error(
-        "Error fetching transcription",
-        deepgramResponse.status,
-        await deepgramResponse.text()
-      );
-      throw new Error("Failed to get transcription");
+
+    // If the creation was successful, respond with a 200 status code and the created file.
+    return res.status(HttpStatus.Ok).send(file);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      // If there was an error creating the file, respond with a 500 status code and the error message.
+      return res.status(HttpStatus.InternalServerError).send(error.message);
+    } else {
+      // If there was an error creating the file, respond with a 500 status code and the error message.
+      return res
+        .status(HttpStatus.InternalServerError)
+        .send("An error occurred while creating the file.");
     }
-    console.log("Deepgram response status: " + deepgramResponse.status);
-
-    const deepgramJson = await deepgramResponse.json();
-    const transcription = deepgramJson;
-
-    try {
-      // Create a new file in the database with the information from the request.
-      const file = await prisma.file.create({
-        data: {
-          name: fileName,
-          description: fileDescription,
-          projectId: projectId,
-          uri: key,
-          transcript: transcription,
-          type: type,
-        },
-      });
-
-      console.log("File created successfully");
-
-      // If the creation was successful, respond with a 200 status code and the created file.
-      return res.status(200).send(file);
-    } catch (error) {
-      // If an error occurred, respond with a 500 status code (Internal Server Error).
-      console.log("Error in file creation:");
-      console.log(error);
-      res.status(500).send("Something went wrong.");
-    }
-  } else {
-    // If the request method is not POST, respond with a 405 status code (Method Not Allowed).
-    console.log("Request method is not POST");
-    return res.status(405).send("Method not allowed");
   }
 }

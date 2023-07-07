@@ -59,6 +59,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           updatedAt: true,
           type: true,
           projectId: true,
+          teamId: true,
         },
       });
 
@@ -87,7 +88,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         props: {
           project,
           files,
-          teamId: project.teamId,
         },
       };
     } catch (error) {
@@ -102,14 +102,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface IProjectPage {
   project: Project;
   files: FileWithoutTranscriptAndUri[];
-  teamId: string;
 }
 
-const ProjectPage: NextPageWithLayout<IProjectPage> = ({
-  project,
-  files,
-  teamId,
-}) => {
+const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingFiles, setShowingFiles] =
@@ -191,8 +186,9 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         body: JSON.stringify({
           fileName: form.values.fileName,
           fileDescription: form.values.fileDescription,
+          teamId: project.teamId,
           projectId: project.id,
-          key,
+          key: key,
           type: fileType,
         }),
       });
@@ -306,7 +302,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
           <h2 className="text-xl font-normal flex flex-col mb-4">Files</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
             {showingFiles.map((file) => (
-              <FileCard key={file.id} file={file} teamId={teamId} />
+              <FileCard key={file.id} file={file} teamId={file.teamId} />
             ))}
           </div>
         </>

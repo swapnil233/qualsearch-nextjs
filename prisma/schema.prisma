@@ -80,6 +80,9 @@ model Team {
   // 1-n -> Team can have many projects
   projects Project[]
 
+  // 1-n -> Team can have many files
+  files File[]
+
   // 1-n -> Team can be created by 1 user
   createdBy       User         @relation("CreatedTeam", fields: [createdByUserId], references: [id])
   createdByUserId String
@@ -103,9 +106,12 @@ model Project {
 
   // 1-n -> Project can have many videos
   files File[]
-  Clip  Clip[]
-  Note  Note[]
-  Tag   Tag[]
+
+  Clip Clip[]
+  Note Note[]
+  Tag  Tag[]
+
+  status ProjectStatus @default(ACTIVE)
 
   // Frequently fetching projects based on team id
   @@index([teamId])
@@ -124,6 +130,10 @@ model File {
   // 1-n -> Video can belong to 1 project
   Project   Project @relation(fields: [projectId], references: [id])
   projectId String
+
+  // Files belong to a team. A team can have many files.
+  Team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
 
   // 1-1 -> File can have 0 transcripts or 1 transcript
   DGTranscript DGTranscript?
@@ -260,6 +270,11 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   DECLINED
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
 }
 
 enum FileType {
