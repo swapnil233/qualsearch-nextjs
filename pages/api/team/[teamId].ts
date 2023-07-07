@@ -2,7 +2,7 @@ import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import {
   getTeamById,
-  validateUserIsTeamMember,
+  validateUserIsTeamMember
 } from "@/infrastructure/services/team.service";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";

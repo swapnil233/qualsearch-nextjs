@@ -120,9 +120,13 @@ export async function getTeamAndUsersAndProjectsByTeamId(
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`Error in getTeamById: ${error.message}`);
+      console.error(
+        `Error in getTeamAndUsersAndProjectsByTeamId: ${error.message}`
+      );
     } else {
-      console.error(`An unknown error occurred in getTeamById`);
+      console.error(
+        `An unknown error occurred in getTeamAndUsersAndProjectsByTeamId`
+      );
     }
     throw error;
   }
@@ -160,13 +164,39 @@ export async function getTeamAndUsersByTeamId(
 }
 
 /**
+ * Retrieves a team by its ID.
+ *
+ * @param teamId The ID of the team to retrieve.
+ * @returns A Promise resolving to the team, or null if not found.
+ */
+export async function getTeamById(teamId: string): Promise<Team | null> {
+  try {
+    return await prisma.team.findUnique({
+      where: {
+        id: teamId,
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error in getTeamById: ${error.message}`);
+    } else {
+      console.error(`An unknown error occurred in getTeamById`);
+    }
+    throw error;
+  }
+}
+
+/**
  * Retrieves all teams that a user is a part of.
  *
  * @param userId The ID of the user.
  * @param orderBy "asc" or "desc"
  * @returns A Promise resolving to the list of teams.
  */
-export async function getTeamsByUser(userId: string, orderBy: "desc" | "asc") {
+export async function getTeamsByUser(
+  userId: string,
+  orderBy: "desc" | "asc"
+): Promise<Team[]> {
   try {
     return await prisma.team.findMany({
       where: {
