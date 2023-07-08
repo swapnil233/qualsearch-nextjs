@@ -189,7 +189,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     },
   });
 
-  // POST /api/project/create
+  // POST /api/projects
   const handleCreateNewProject = async (
     values: { projectName: string; projectDescription: string },
     event: React.FormEvent
@@ -199,7 +199,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
 
     try {
       setCreating(true);
-      const response = await fetch("/api/project/create", {
+      const response = await fetch("/api/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
