@@ -101,7 +101,7 @@ model Project {
   description String?
 
   // 1-n -> Project can belong to 1 team
-  Team   Team   @relation(fields: [teamId], references: [id])
+  Team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String
 
   // 1-n -> Project can have many videos
@@ -128,11 +128,11 @@ model File {
   transcript  Json?
 
   // 1-n -> Video can belong to 1 project
-  Project   Project @relation(fields: [projectId], references: [id])
+  Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
   // Files belong to a team. A team can have many files.
-  Team   Team   @relation(fields: [teamId], references: [id])
+  Team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String
 
   // 1-1 -> File can have 0 transcripts or 1 transcript
@@ -153,14 +153,14 @@ model Invitation {
   invitedEmail String           @db.VarChar(320)
   status       InvitationStatus @default(PENDING)
   teamId       String
-  team         Team             @relation(fields: [teamId], references: [id])
+  team         Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   // 1-n -> Invitation can be created by 1 user
   invitedByUserId String?
-  invitedByUser   User?   @relation("InvitationsSent", fields: [invitedByUserId], references: [id])
+  invitedByUser   User?   @relation("InvitationsSent", fields: [invitedByUserId], references: [id], onDelete: Cascade)
 
   // 1-n -> Invitation can be accepted by 1 user
-  invitedUser   User?   @relation("InvitationsReceived", fields: [invitedUserId], references: [id])
+  invitedUser   User?   @relation("InvitationsReceived", fields: [invitedUserId], references: [id], onDelete: Cascade)
   invitedUserId String?
 
   @@unique([invitedEmail, teamId])
@@ -179,7 +179,7 @@ model DGTranscript {
   paragraphs String
 
   // 1-1 -> A transcript must always belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
 }
 
@@ -193,10 +193,10 @@ model Speaker {
 
   // A speaker can also be a user in the team
   teamMemberId String?
-  user         User?   @relation(fields: [teamMemberId], references: [id])
+  user         User?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
 
   // 1-n -> Speaker can belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String
 }
 
@@ -212,11 +212,11 @@ model Clip {
   transcript  Json?
 
   // 1-n -> Clip can belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String
 
   // 1-n -> Clip can belong to 1 project
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 }
 
@@ -229,11 +229,11 @@ model Note {
   end       Float
 
   // 1-n -> Note can belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String
 
   // 1-n -> Note can belong to 1 project
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
   // 1-n -> A note can have many tags
@@ -252,11 +252,11 @@ model Tag {
   end       Float
 
   // 1-n -> Tag can belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String
 
   // 1-n -> Tag can belong to 1 project
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
   // 1-n -> A tag can belong to many notes

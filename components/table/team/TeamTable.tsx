@@ -32,8 +32,6 @@ const TeamTable: FC<ITeamTable> = ({
   teamMembers,
   handleRoleChange,
 }) => {
-  console.log("Current user role:", currentUser.role);
-
   const rows = teamMembers.map((member) => (
     <tr key={member.id}>
       <td>

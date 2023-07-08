@@ -24,6 +24,7 @@ import {
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import fetch from "node-fetch";
 import { useState } from "react";
 import { NextPageWithLayout } from "../../page";
@@ -101,6 +102,7 @@ interface ITeamPage {
 }
 
 const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
+  const router = useRouter();
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingProjects, setShowingProjects] = useState<Project[]>(projects);
@@ -276,8 +278,35 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     console.log("Edit");
   };
 
-  const handleDelete = () => {
-    console.log("Delete");
+  const handleDelete = async (teamId: string) => {
+    try {
+      const response = await fetch(`/api/teams?teamId=${teamId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        notifications.show({
+          title: "Team deleted",
+          message: "Your team has been deleted.",
+          color: "teal",
+          icon: <IconCheck />,
+        });
+
+        router.push("/teams");
+      }
+    } catch (error) {
+      console.error(error);
+      notifications.show({
+        title: "Couldn't delete the team",
+        message:
+          "An error occurred while deleting your team. We are working on a fix.",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    }
   };
 
   return (
@@ -318,7 +347,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           },
           {
             title: "Delete",
-            action: handleDelete,
+            action: () => handleDelete(team.id),
             icon: <IconTrash size={14} />,
           },
         ]}

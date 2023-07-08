@@ -358,3 +358,26 @@ export async function getTeamIdFromProjectId(
     return null;
   }
 }
+
+/**
+ * Deletes a team, given its ID.
+ * @param teamId The ID of the team to delete.
+ * @returns A Promise resolving to void.
+ * @throws Will throw an error if the Prisma query fails.
+ */
+export async function deleteTeam(teamId: string): Promise<void> {
+  try {
+    await prisma.team.delete({
+      where: {
+        id: teamId,
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error in deleteTeam: ${error.message}`);
+    } else {
+      console.error(`An unknown error occurred in deleteTeam`);
+    }
+    throw error;
+  }
+}

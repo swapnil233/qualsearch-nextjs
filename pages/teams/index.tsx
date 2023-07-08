@@ -176,7 +176,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
     },
   });
 
-  // POST /api/team/create
+  // POST /api/teams - Create a new team
   const handleCreateNewTeam = async (
     values: { teamName: string; teamDescription: string },
     event: React.FormEvent
@@ -186,7 +186,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
 
     try {
       setCreating(true);
-      const response = await fetch("/api/team/create", {
+      const response = await fetch("/api/teams", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -207,15 +207,12 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
         });
 
         const newTeam: TeamWithUsers = data;
-        console.log("new team: ", newTeam);
         setShowingTeams([...showingTeams, newTeam]);
 
         form.reset();
         setCreating(false);
         close();
       }
-
-      console.log(response);
     } catch (error) {
       console.error(error);
       setCreating(false);
