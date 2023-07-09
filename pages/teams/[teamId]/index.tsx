@@ -1,6 +1,7 @@
 import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import DeleteConfirmationModal from "@/components/modal/delete/DeleteConfirmationModal";
 import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
@@ -111,6 +112,10 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const [inviteOpened, inviteControls] = useDisclosure(false);
   const [inviting, setInviting] = useState(false);
 
+  // Delete Modal
+  const [deleteOpened, deleteControls] = useDisclosure(false);
+  const [deleting, setDeleting] = useState(false);
+
   const inviteForm = useForm({
     initialValues: {
       invitedEmail: "",
@@ -126,6 +131,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     values: { invitedEmail: string },
     event: React.FormEvent
   ) => {
+    console.log("Create new invitation");
     // Prevent the default form submission
     event.preventDefault();
 
@@ -278,8 +284,11 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     console.log("Edit");
   };
 
+  // POST /api/invitation/create
   const handleDelete = async (teamId: string) => {
     try {
+      setDeleting(true);
+
       const response = await fetch(`/api/teams?teamId=${teamId}`, {
         method: "DELETE",
         headers: {
@@ -295,14 +304,16 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           icon: <IconCheck />,
         });
 
+        setDeleting(false);
+        deleteControls.close();
         router.push("/teams");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      setDeleting(false);
       notifications.show({
-        title: "Couldn't delete the team",
-        message:
-          "An error occurred while deleting your team. We are working on a fix.",
+        title: "Error",
+        message: error.message,
         color: "red",
         icon: <IconAlertCircle />,
       });
@@ -346,8 +357,8 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
             icon: <IconUser size={14} />,
           },
           {
-            title: "Delete",
-            action: () => handleDelete(team.id),
+            title: "Delete team",
+            action: deleteControls.open,
             icon: <IconTrash size={14} />,
           },
         ]}
@@ -403,6 +414,13 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         inviting={inviting}
         handleCreateNewInvitation={handleCreateNewInvitation}
         form={inviteForm}
+      />
+
+      <DeleteConfirmationModal
+        opened={deleteOpened}
+        close={deleteControls.close}
+        deleting={deleting}
+        handleDelete={() => handleDelete(team.id)}
       />
     </>
   );
