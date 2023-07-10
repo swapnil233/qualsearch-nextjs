@@ -6,7 +6,8 @@ const cors = Cors({
 });
 
 const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-  return res.status(200).json({ message: "ok" });
+  console.log(req.body);
+  console.log(req.method)
 };
 
 export default cors(webhookHandler as any);
