@@ -1,7 +1,7 @@
 import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
+import CreateFileModalWithSteppers from "@/components/modal/multimedia/CreateFileModalSteppers";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
@@ -132,6 +132,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
     },
     event: React.FormEvent
   ) => {
+    console.log("handleCreateNewFile invoked");
     // Prevent the default form submission
     event.preventDefault();
 
@@ -308,7 +309,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
         </>
       )}
 
-      <CreateFileModal
+      <CreateFileModalWithSteppers
         opened={opened}
         close={close}
         creating={creating}

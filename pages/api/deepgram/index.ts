@@ -1,6 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
 const { Deepgram } = require("@deepgram/sdk");
 
+type RequestBody = {
+  uri: string,
+  multiple_speakers: boolean,
+  audio_type: "general" | "phone_call" | "conference_room" | "finance",
+  redactions: {
+    pci: boolean,
+    ssn: boolean,
+    numbers: boolean
+  }
+}
+
 export default async function Handler(
   req: NextApiRequest,
   res: NextApiResponse
