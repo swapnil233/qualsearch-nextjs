@@ -1,61 +1,109 @@
+import { ErrorMessages } from '@/constants/ErrorMessages';
+import { HttpStatus } from '@/constants/HttpStatus';
 import { NextApiRequest, NextApiResponse } from "next";
-const { Deepgram } = require("@deepgram/sdk");
+import qs from 'qs'; // import the query string library
 
-type RequestBody = {
-  uri: string,
-  multiple_speakers: boolean,
-  audio_type: "general" | "phone_call" | "conference_room" | "finance",
-  redactions: {
-    pci: boolean,
-    ssn: boolean,
-    numbers: boolean
+// Define an interface for the options object
+interface Options {
+  language: string;
+  smart_format: boolean;
+  diarize: boolean;
+  model?: string;
+  tier?: string;
+  redact?: string[];
+}
+
+/**
+ * The handler for the '/api/deepgram' API endpoint.
+ * Currently, it only supports POST requests to interact with Deepgram API.
+ *
+ * @param req {NextApiRequest} The HTTP request object.
+ * @param res {NextApiResponse} The HTTP response object.
+ */
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  switch (req.method) {
+    case 'POST':
+      return handlePost(req, res);
+    default:
+      res.setHeader('Allow', ['POST']);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
 
-export default async function Handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== "POST") {
-    res.status(405).send("Method not allowed.");
-  }
-
+/**
+ * Handler for POST requests to '/api/deepgram'.
+ * This function prepares a query string using information from the request body,
+ * then sends a POST request to Deepgram's API.
+ *
+ * @param req {NextApiRequest} The HTTP request object.
+ * @param res {NextApiResponse} The HTTP response object.
+ */
+async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   try {
     const { DEEPGRAM_API_KEY } = process.env;
 
     if (!DEEPGRAM_API_KEY) {
-      res.status(500).json({ message: "Deepgram API key not found" });
+      res.status(HttpStatus.InternalServerError).json({ message: ErrorMessages.InternalServerError });
       return;
     }
 
-    const deepgram = new Deepgram(DEEPGRAM_API_KEY);
-    const { uri } = req.body;
+    // Extract values from the request body.
+    const { uri, multipleSpeakers, audioType, redactions, transcriptionQuality }: { uri: string, multipleSpeakers: string, audioType: string, redactions: string[], transcriptionQuality: string } = req.body;
 
-    if (!uri) {
-      res.status(400).json({ message: "No URI provided" });
-      return;
-    }
-
-    const audioSource = {
-      url: uri as string,
-    };
-
-    const options = {
-      model: "nova",
+    // Create base options.
+    let options: Options = {
       language: "en",
       smart_format: true,
-      redact: ["pci", "ssn"],
-      diarize: true,
+      diarize: multipleSpeakers === 'true',
     };
 
-    const response = await deepgram.transcription.preRecorded(
-      audioSource,
-      options
-    );
+    if (transcriptionQuality === 'whisper' || transcriptionQuality === 'whisper-large') {
+      // Whisper models do not require tier and model properties.
+      // They are identified solely by the model name (e.g., 'whisper' or 'whisper-large').
+      options['model'] = transcriptionQuality;
+    } else {
+      // Update options based on audioType for 'nova' quality.
+      switch (audioType) {
+        case 'general':
+          options['model'] = 'general';
+          options['tier'] = 'nova';
+          break;
+        case 'phonecall':
+          options['model'] = 'phonecall';
+          options['tier'] = 'enhanced';
+          break;
+        case 'conference':
+          options['model'] = 'meeting';
+          options['tier'] = 'enhanced';
+          break;
+        default:
+          options['model'] = 'general';
+          options['tier'] = 'nova';
+          break;
+      }
+    }
 
-    res.status(200).json(response);
+    // Update options for redactions.
+    if (redactions && Array.isArray(redactions) && redactions.length > 0) {
+      options['redact'] = redactions;
+    }
+
+    // Convert options to query string.
+    const query = qs.stringify(options, { arrayFormat: 'repeat' });
+    console.log("Query: ", `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest`)
+
+    const response = await fetch(`https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${DEEPGRAM_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url: uri }),
+    });
+    const data = await response.json();
+    res.status(HttpStatus.Ok).json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An unexpected error occured" });
+    res.status(HttpStatus.InternalServerError).json({ message: ErrorMessages.InternalServerError });
   }
 }

@@ -37,7 +37,7 @@ export default async function Handler(
       .send(ErrorMessages.MethodNotAllowed);
 
   // Get data from request body
-  const { fileName, fileDescription, projectId, teamId, key, type } = req.body;
+  const { fileName, fileDescription, teamId, projectId, key, type, multipleSpeakers, audioType, redactions, transcriptionQuality } = req.body;
 
   // File must have a name, projectId, teamId, key, and type
   if (!fileName || fileName.length === 0)
@@ -80,7 +80,13 @@ export default async function Handler(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ uri: signedUrl }),
+    body: JSON.stringify({
+      uri: signedUrl,
+      multipleSpeakers,
+      audioType,
+      redactions,
+      transcriptionQuality
+    }),
   });
 
   if (!deepgramResponse.ok) {

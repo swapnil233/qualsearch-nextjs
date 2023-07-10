@@ -119,6 +119,7 @@ const Transcript: React.FC<ITranscriptProps> = ({
   }, [audioRef, transcript]);
 
   // group words by speakers
+  // @TODO there might be only 1 speaker, in which case this throws an error
   const groupedTranscript = transcript.reduce<IGroup[]>(
     (groups, word, index) => {
       const prevSpeaker = groups[groups.length - 1]?.speaker;

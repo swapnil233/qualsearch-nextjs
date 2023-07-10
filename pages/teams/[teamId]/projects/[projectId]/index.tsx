@@ -1,7 +1,7 @@
 import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import CreateFileModalWithSteppers from "@/components/modal/multimedia/CreateFileModalSteppers";
+import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
@@ -116,10 +116,18 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
       fileName: "",
       fileDescription: "",
       file: null as File | null,
+      multipleSpeakers: false,
+      audioType: "",
+      redactions: [] as string[],
+      transcriptionQuality: "nova" as "nova" | "whisper" | "whisper-large",
     },
-
     validate: {
       fileName: (value) => (value.length > 0 ? null : "File name is required"),
+      multipleSpeakers: (value) =>
+        value ? null : "Please specify if there are multiple speakers",
+      // audioType: (value) => (value ? null : "Please select an audio type"),
+      transcriptionQuality: (value) =>
+        value ? null : "Please select a transcription quality",
     },
   });
 
@@ -133,6 +141,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
     event: React.FormEvent
   ) => {
     console.log("handleCreateNewFile invoked");
+    console.log(form.values);
     // Prevent the default form submission
     event.preventDefault();
 
@@ -191,6 +200,10 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
           projectId: project.id,
           key: key,
           type: fileType,
+          multipleSpeakers: form.values.multipleSpeakers,
+          audioType: form.values.audioType,
+          redactions: form.values.redactions,
+          transcriptionQuality: form.values.transcriptionQuality,
         }),
       });
 
@@ -209,7 +222,8 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
         form.reset();
         setCreating(false);
         setButtonText("Create");
-        close();
+        // close();
+        form.reset();
       }
     } catch (error) {
       console.error(error);
@@ -309,7 +323,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
         </>
       )}
 
-      <CreateFileModalWithSteppers
+      <CreateFileModal
         opened={opened}
         close={close}
         creating={creating}

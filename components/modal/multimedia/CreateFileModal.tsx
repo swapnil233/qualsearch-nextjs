@@ -1,17 +1,28 @@
 import {
   Alert,
   Button,
+  Checkbox,
   FileInput,
   Group,
   Modal,
+  Radio,
+  Stack,
+  Stepper,
   TextInput,
   Textarea,
   Title,
-  rem,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { IconAlertCircle } from "@tabler/icons-react";
-import { FC } from "react";
+import {
+  IconAlertCircle,
+  IconArrowLeft,
+  IconArrowRight,
+  IconCheck,
+  IconInfoHexagon,
+  IconSend,
+  IconSitemap,
+} from "@tabler/icons-react";
+import { FC, useState } from "react";
 
 export interface ICreateFileModal {
   opened: boolean;
@@ -23,6 +34,10 @@ export interface ICreateFileModal {
       fileName: string;
       fileDescription: string;
       file: File | null;
+      multipleSpeakers: boolean;
+      audioType: string;
+      redactions: string[];
+      transcriptionQuality: "nova" | "whisper" | "whisper-large";
     }>
   >;
 
@@ -31,6 +46,10 @@ export interface ICreateFileModal {
       fileName: string;
       fileDescription: string;
       file: File | null;
+      multipleSpeakers: boolean;
+      audioType: string;
+      redactions: string[];
+      transcriptionQuality: "nova" | "whisper" | "whisper-large";
     },
     _event: React.FormEvent
   ) => void;
@@ -44,6 +63,40 @@ const CreateFileModal: FC<ICreateFileModal> = ({
   form,
   handleCreateNewFile,
 }) => {
+  const [active, setActive] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const prevStep = () =>
+    setActive((current) => (current > 0 ? current - 1 : current));
+
+  console.log("Step", active);
+
+  const goToNextStep = async () => {
+    // if active step is the last one (3rd step, index 2), then handle form submission
+    if (active === 2) {
+      setLoading(true);
+      const syntheticEvent = new Event("submit", {
+        bubbles: true,
+        cancelable: true,
+      });
+      await handleCreateNewFile(
+        form.values,
+        syntheticEvent as unknown as React.FormEvent
+      );
+      setLoading(false);
+      setActive((current) => current + 1);
+      setCompleted(true);
+    } else {
+      // otherwise, go to the next step
+      setActive((current) => (current < 3 ? current + 1 : current));
+    }
+  };
+
+  const { transcriptionQuality } = form.values;
+  const disableAudioType =
+    transcriptionQuality === "whisper" ||
+    transcriptionQuality === "whisper-large";
+
   return (
     <Modal
       opened={opened}
@@ -51,61 +104,210 @@ const CreateFileModal: FC<ICreateFileModal> = ({
       title={<Title order={3}>Add new file</Title>}
       centered
       padding={"lg"}
+      size={"lg"}
     >
       <form onSubmit={form.onSubmit(handleCreateNewFile)}>
-        <TextInput
-          placeholder="John Doe's User Interview"
-          label="File name"
-          description="The file's name will appear in the project report"
-          radius="xs"
-          withAsterisk
-          mb={rem(20)}
+        <Stepper
           size="md"
-          {...form.getInputProps("fileName")}
-        />
-
-        <Textarea
-          placeholder="This interview was conducted on..."
-          label="Description"
-          description="The file's description will appear in the project report"
-          radius="xs"
-          size="md"
-          autosize
-          minRows={4}
-          mb={rem(20)}
-          {...form.getInputProps("fileDescription")}
-        />
-
-        <FileInput
-          placeholder="Select a file..."
-          label="File"
-          accept="audio/*,video/*"
-          description="Audio and video files are supported."
-          value={form.values.file}
-          onChange={(file) => form.setFieldValue("file", file)}
-          required
-          mb={rem(20)}
-        />
-
-        <Alert
-          icon={<IconAlertCircle size="1rem" />}
-          title="Privacy Assurance Notice"
-          color="green"
-          mb={rem(20)}
-          hidden={form.values.file === null}
+          active={active}
+          onStepClick={setActive}
+          breakpoint="sm"
         >
-          By submitting this file, you grant us permission to securely store it.
-          Please rest assured that your file will remain confidential and
-          inaccessible to external parties.
-        </Alert>
+          <Stepper.Step
+            icon={<IconInfoHexagon size="1.1rem" />}
+            label="Step 1"
+            description="Basic information"
+          >
+            <FileInput
+              placeholder="Select a file..."
+              label="File"
+              accept="audio/*,video/*"
+              description="Audio and video files are supported."
+              value={form.values.file}
+              onChange={(file) => form.setFieldValue("file", file)}
+              required
+              mb={"lg"}
+              // size="md"
+            />
 
-        <Group position="apart">
-          <Button variant="subtle" radius="xs" onClick={close}>
-            Cancel
-          </Button>
-          <Button radius="xs" type="submit" loading={creating}>
-            {buttonText}
-          </Button>
+            <TextInput
+              placeholder="John Doe's User Interview"
+              label="File name"
+              description="The file's name will appear in the project report"
+              radius="xs"
+              withAsterisk
+              mb={"lg"}
+              // size="md"
+              {...form.getInputProps("fileName")}
+            />
+
+            <Textarea
+              placeholder="This interview was conducted on..."
+              label="Description"
+              description="The file's description will appear in the project report"
+              radius="xs"
+              // size="md"
+              autosize
+              minRows={2}
+              mb={"lg"}
+              {...form.getInputProps("fileDescription")}
+            />
+          </Stepper.Step>
+
+          <Stepper.Step
+            label="Step 2"
+            description="File options"
+            icon={<IconSitemap size="1.1rem" />}
+          >
+            <Radio.Group
+              name="transcriptionQuality"
+              label="Transcription quality"
+              description="Select the quality of transcription for this file"
+              withAsterisk
+              mb={"lg"}
+              {...form.getInputProps("transcriptionQuality")}
+            >
+              <Group mt="xs">
+                <Stack spacing={"sm"}>
+                  <Radio value="nova" label="Good (recommended)" />
+                  <Radio value="whisper" label="Better" />
+                  <Radio
+                    value="whisper-large"
+                    label="Best (takes significantly longer)"
+                  />
+                </Stack>
+              </Group>
+            </Radio.Group>
+
+            <Radio.Group
+              name="multipleSpeakers"
+              label="Multiple speakers?"
+              withAsterisk
+              mb={"lg"}
+              {...form.getInputProps("multipleSpeakers")}
+            >
+              <Group mt="xs">
+                <Radio value="true" label="Yes" />
+                <Radio value="false" label="No" />
+              </Group>
+            </Radio.Group>
+
+            <Radio.Group
+              name="audioType"
+              label="Audio type"
+              description="Select the type of audio in this file (even if it is a video file)"
+              // withAsterisk
+              mb={"lg"}
+              {...form.getInputProps("audioType")}
+            >
+              <Group mt="xs">
+                <Stack spacing={"sm"}>
+                  <Radio
+                    disabled={disableAudioType}
+                    value="general"
+                    label="General (recommended) - for everyday conversation"
+                  />
+                  <Radio
+                    disabled={disableAudioType}
+                    value="phone_call"
+                    label="Phone call - low bandwith audio from phone calls"
+                  />
+                  <Radio
+                    disabled={disableAudioType}
+                    value="conference_room"
+                    label="Conference room - multiple speakers using a single mic"
+                  />
+                </Stack>
+              </Group>
+            </Radio.Group>
+
+            <Checkbox.Group
+              label="Redactions (optional)"
+              description="We will try to redact sensitive information, replacing redacted content with asterisks (*)"
+              {...form.getInputProps("redactions")}
+              mb={"lg"}
+            >
+              <Stack mt={"xs"} spacing={"sm"}>
+                <Checkbox
+                  label="PCI - sensative information, such as credit card numbers"
+                  value="pci"
+                />
+                <Checkbox label="SSN - social security numbers" value="ssn" />
+                <Checkbox label="Numbers" value="numbers" />
+              </Stack>
+            </Checkbox.Group>
+          </Stepper.Step>
+
+          <Stepper.Step
+            icon={<IconSend size="1.1rem" />}
+            label="Step 3"
+            description="Privacy notice"
+            loading={loading}
+          >
+            <Alert
+              icon={<IconAlertCircle size="1rem" />}
+              title="Privacy Assurance Notice"
+              color="green"
+            >
+              By submitting this file, you grant us permission to securely store
+              it. Please rest assured that your file will remain confidential
+              and inaccessible to external parties.
+            </Alert>
+          </Stepper.Step>
+
+          {completed && (
+            <Stepper.Completed>
+              Your file was successfully created.
+            </Stepper.Completed>
+          )}
+        </Stepper>
+
+        <Group position="apart" mt={"xl"}>
+          <Group spacing={"xs"}>
+            {active !== 0 && (
+              <Button
+                radius="xs"
+                variant="default"
+                onClick={prevStep}
+                leftIcon={<IconArrowLeft size={"1.2rem"} />}
+                type="button"
+              >
+                Back
+              </Button>
+            )}
+            <Button
+              radius="xs"
+              onClick={() => {
+                close();
+                form.reset();
+                setActive(0);
+              }}
+              variant={active === 0 ? "default" : "subtle"}
+              type="button"
+            >
+              Cancel
+            </Button>
+          </Group>
+          {active !== 2 ? (
+            <Button
+              radius="xs"
+              rightIcon={<IconArrowRight size={"1.2rem"} />}
+              onClick={goToNextStep}
+            >
+              {active === 0
+                ? "Transcription options"
+                : "Privacy acknowledgement"}
+            </Button>
+          ) : (
+            <Button
+              radius="xs"
+              leftIcon={!creating && <IconCheck size={"1.2rem"} />}
+              onClick={goToNextStep}
+              loading={creating}
+            >
+              {buttonText}
+            </Button>
+          )}
         </Group>
       </form>
     </Modal>
