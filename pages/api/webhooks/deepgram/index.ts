@@ -47,7 +47,9 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
       data: {
         transcript: req.body,
-        status: "COMPLETED"
+        status: {
+          set: "COMPLETED"
+        }
       },
     });
 
