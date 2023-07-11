@@ -37,7 +37,18 @@ export default async function Handler(
       .send(ErrorMessages.MethodNotAllowed);
 
   // Get data from request body
-  const { fileName, fileDescription, teamId, projectId, key, type, multipleSpeakers, audioType, redactions, transcriptionQuality } = req.body;
+  const {
+    fileName,
+    fileDescription,
+    teamId,
+    projectId,
+    key,
+    type,
+    multipleSpeakers,
+    audioType,
+    redactions,
+    transcriptionQuality,
+  } = req.body;
 
   // File must have a name, projectId, teamId, key, and type
   if (!fileName || fileName.length === 0)
@@ -74,7 +85,7 @@ export default async function Handler(
   const responseJson = await response.json();
   const signedUrl = responseJson.url;
 
-  // Make a POST request to '/api/deepgram/' to get the transcription of the audio file.
+  // Make a POST request to '/api/deepgram/' to get the request ID sent by Deepgram callback
   const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
     method: "POST",
     headers: {
@@ -85,7 +96,9 @@ export default async function Handler(
       multipleSpeakers,
       audioType,
       redactions,
-      transcriptionQuality
+      transcriptionQuality,
+      teamId,
+      projectId,
     }),
   });
 
@@ -95,8 +108,8 @@ export default async function Handler(
       .send(await deepgramResponse.text());
   }
 
-  const deepgramJson = await deepgramResponse.json();
-  const transcription = deepgramJson;
+  // DG will respond instantly with a requestID, and use a webhook to POST at /api/webhooks/ later with the transcription once it's done
+  const dgRequestId = await deepgramResponse.json();
 
   try {
     // Create a new file in the database with the information from the request.
@@ -107,8 +120,9 @@ export default async function Handler(
         teamId: teamId,
         projectId: projectId,
         uri: key,
-        transcript: transcription,
         type: type,
+        status: "PROCESSING",
+        dgCallbackRequestId: dgRequestId.request_id,
       },
     });
 
