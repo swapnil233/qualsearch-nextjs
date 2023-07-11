@@ -60,6 +60,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           type: true,
           projectId: true,
           teamId: true,
+          dgCallbackRequestId: true,
+          status: true,
         },
       });
 
