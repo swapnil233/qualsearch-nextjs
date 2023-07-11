@@ -4,10 +4,8 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// Using Postgres
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol"]
+  provider = "prisma-client-js"
 }
 
 model User {
