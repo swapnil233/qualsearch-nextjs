@@ -40,12 +40,14 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
     });
 
+    // Put the entire req.body into the transcript field of the file
     const updatedFile = await prisma.file.update({
       where: {
         id: fileToUpdate.id,
       },
       data: {
         transcript: req.body,
+        status: "COMPLETED"
       },
     });
 
