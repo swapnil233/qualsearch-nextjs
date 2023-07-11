@@ -12,13 +12,16 @@ import { authOptions } from "../auth/[...nextauth]";
  * 1. POST: Create a new project.
  * 2. GET: Fetch a project's information.
  * 3. DELETE: Delete a project.
- * 
+ *
  * For all operations, the client must be authenticated.
  *
  * @param req {NextApiRequest} The HTTP request object.
  * @param res {NextApiResponse} The HTTP response object.
  */
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   // Get the server session and authenticate the request.
   const session = await getServerSession(req, res, authOptions);
 
@@ -28,14 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Handle the request depending on its HTTP method.
   switch (req.method) {
-    case 'POST':
+    case "POST":
       return handlePost(req, res);
-    case 'GET':
+    case "GET":
       return handleGet(req, res, session);
-    case 'DELETE':
+    case "DELETE":
       return handleDelete(req, res, session);
     default:
-      res.setHeader('Allow', ['POST', 'GET', 'DELETE']);
+      res.setHeader("Allow", ["POST", "GET", "DELETE"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
@@ -53,16 +56,12 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
   // Project name is required
   if (!projectName) {
-    return res
-      .status(HttpStatus.BadRequest)
-      .send(ErrorMessages.BadRequest);
+    return res.status(HttpStatus.BadRequest).send(ErrorMessages.BadRequest);
   }
 
   // Check if the teamId is not undefined or empty.
   if (!teamId) {
-    return res
-      .status(HttpStatus.BadRequest)
-      .send(ErrorMessages.MissingTeamId);
+    return res.status(HttpStatus.BadRequest).send(ErrorMessages.MissingTeamId);
   }
 
   try {
@@ -84,10 +83,18 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function handleGet(req: NextApiRequest, res: NextApiResponse, session: any) {
-  console.log('GET');
+async function handleGet(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: any
+) {
+  console.log("GET");
 }
 
-async function handleDelete(req: NextApiRequest, res: NextApiResponse, session: any) {
-  console.log('DELETE');
+async function handleDelete(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: any
+) {
+  console.log("DELETE");
 }
