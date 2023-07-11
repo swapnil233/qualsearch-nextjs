@@ -28,8 +28,10 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
    */
 
+  if (req.method !== "POST") return res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
+
   const { request_id } = req.body.metadata;
-  console.log("DG Request ID", request_id);
+  if (!request_id) return res.status(HttpStatus.BadRequest).send(ErrorMessages.BadRequest);
 
   try {
     const fileToUpdate: File = await prisma.file.findUniqueOrThrow({
@@ -37,8 +39,6 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         dgCallbackRequestId: request_id,
       },
     });
-
-    console.log("File to update", fileToUpdate);
 
     const updatedFile = await prisma.file.update({
       where: {
