@@ -36,7 +36,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     select: {
       files: {
         where: {
-          id: request_id
+          dgCallbackRequestId: request_id
         },
       }
     }
