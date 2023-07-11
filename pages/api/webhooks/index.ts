@@ -29,32 +29,34 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
    */
 
   const { request_id } = req.body.metadata;
-  console.log("DG Request ID", request_id)
+  console.log("DG Request ID", request_id);
 
   try {
     const fileToUpdate: File = await prisma.file.findUniqueOrThrow({
       where: {
-        dgCallbackRequestId: request_id
-      }
-    })
+        dgCallbackRequestId: request_id,
+      },
+    });
 
-    console.log("File to update", fileToUpdate)
+    console.log("File to update", fileToUpdate);
 
     const updatedFile = await prisma.file.update({
       where: {
-        id: fileToUpdate.id
+        id: fileToUpdate.id,
       },
       data: {
-        transcript: req.body
-      }
-    })
+        transcript: req.body,
+      },
+    });
 
     res.status(HttpStatus.Ok).send(updatedFile);
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(HttpStatus.InternalServerError).send(error.message);
     } else {
-      res.status(HttpStatus.InternalServerError).send(ErrorMessages.InternalServerError)
+      res
+        .status(HttpStatus.InternalServerError)
+        .send(ErrorMessages.InternalServerError);
     }
   }
 };

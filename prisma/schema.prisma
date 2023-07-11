@@ -118,14 +118,16 @@ model Project {
 }
 
 model File {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  name        String // eg "John Doe's Interview 06/01/2021"
-  uri         String // eg "https://s3.amazonaws.com/{bucket-name}/teams/{team-id}/projects/{project-id}/files/interview.mp4"
-  type        FileType
-  description String?
-  transcript  Json?
+  id                  String     @id @default(cuid())
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  name                String // eg "John Doe's Interview 06/01/2021"
+  uri                 String // eg "https://s3.amazonaws.com/{bucket-name}/teams/{team-id}/projects/{project-id}/files/interview.mp4"
+  type                FileType
+  status              FileStatus @default(PROCESSING)
+  dgCallbackRequestId String     @unique
+  description         String?
+  transcript          Json?
 
   // 1-n -> Video can belong to 1 project
   Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -286,4 +288,10 @@ enum FileType {
   EXCEL
   IMAGE
   OTHER
+}
+
+enum FileStatus {
+  PROCESSING
+  ERROR
+  COMPLETED
 }
