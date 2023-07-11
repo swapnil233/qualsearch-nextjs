@@ -1,7 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
-import { File } from "@prisma/client";
+import { DGTranscript, File } from "@prisma/client";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -47,13 +47,25 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
       data: {
         transcript: req.body,
-        status: {
-          set: "COMPLETED"
-        }
+        status: "COMPLETED",
+        dgCallbackRequestId: ""
       },
     });
 
-    res.status(HttpStatus.Ok).send(updatedFile);
+    const DGTranscript: DGTranscript = await prisma.dGTranscript.create({
+      data: {
+        transcript: req.body.results.channels[0].alternatives[0].transcript,
+        confidence: req.body.results.channels[0].alternatives[0].confidence,
+        words: req.body.results.channels[0].alternatives[0].words,
+        paragraphs: req.body.results.channels[0].alternatives[0].paragraphs,
+        fileId: fileToUpdate.id
+      }
+    })
+
+    res.status(HttpStatus.Ok).send({
+      "Updated File": updatedFile,
+      "DGTranscript": DGTranscript
+    });
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(HttpStatus.InternalServerError).send(error.message);
