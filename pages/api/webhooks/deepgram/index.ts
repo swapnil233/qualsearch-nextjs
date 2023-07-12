@@ -1,7 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
-import { DGTranscript, File } from "@prisma/client";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -10,6 +9,7 @@ const cors = Cors({
 });
 
 const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+
   /**
      req.body = {
       metadata: {
@@ -28,48 +28,74 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
    */
 
+  // Only allow POST
   if (req.method !== "POST") return res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
 
   const { request_id } = req.body.metadata;
   if (!request_id) return res.status(HttpStatus.BadRequest).send(ErrorMessages.BadRequest);
 
+  const dgResponse = req.body.results.channels[0].alternatives[0];
+  const metadata = req.body.metadata;
+
   try {
-    const fileToUpdate: File = await prisma.file.findUniqueOrThrow({
-      where: {
-        dgCallbackRequestId: request_id,
-      },
-    });
 
-    // Put the entire req.body into the transcript field of the file
-    const updatedFile = await prisma.file.update({
+    const fileWithThisRequestId = await prisma.deepgramTranscriptRequest.findUnique({
       where: {
-        id: fileToUpdate.id,
+        request_id: request_id
       },
-      data: {
-        transcript: req.body,
-        status: "COMPLETED",
-        dgCallbackRequestId: ""
-      },
-    });
-
-    const DGTranscript: DGTranscript = await prisma.dGTranscript.create({
-      data: {
-        transcript: req.body.results.channels[0].alternatives[0].transcript,
-        confidence: req.body.results.channels[0].alternatives[0].confidence,
-        words: req.body.results.channels[0].alternatives[0].words,
-        paragraphs: req.body.results.channels[0].alternatives[0].paragraphs,
-        fileId: fileToUpdate.id
+      select: {
+        file: true
       }
     })
 
-    res.status(HttpStatus.Ok).send({
-      "Updated File": updatedFile,
-      "DGTranscript": DGTranscript
-    });
+    if (!fileWithThisRequestId?.file) {
+      return res
+        .status(HttpStatus.BadRequest)
+        .send("No file associated with this request ID")
+    }
+
+    const newTranscript = await prisma.transcript.create({
+      data: {
+        confidence: dgResponse.confidence,
+        words: dgResponse.words,
+        topics: dgResponse.topics,
+        entities: dgResponse.entities,
+        summaries: dgResponse.summaries,
+        paragraphs: dgResponse.paragraphs,
+        transcriptString: dgResponse.transcript,
+        metadata: {
+          create: {
+            created: metadata.created,
+            tags: metadata.tags,
+            models: metadata.models,
+            sha256: metadata.sha256,
+            channels: metadata.channels,
+            duration: metadata.duration,
+            model_info: metadata.model_info,
+            request_id: request_id
+          }
+        },
+        file: {
+          connect: {
+            id: fileWithThisRequestId.file.id
+          }
+        }
+      }
+    })
+
+    console.log(fileWithThisRequestId.file, newTranscript)
+
+    return res.status(HttpStatus.Ok).send({
+      fileWithThisRequestId: fileWithThisRequestId.file,
+      newTranscript: newTranscript
+    })
+
   } catch (error: unknown) {
     if (error instanceof Error) {
+      console.log(error)
       res.status(HttpStatus.InternalServerError).send(error.message);
     } else {
+      console.log(error)
       res
         .status(HttpStatus.InternalServerError)
         .send(ErrorMessages.InternalServerError);
