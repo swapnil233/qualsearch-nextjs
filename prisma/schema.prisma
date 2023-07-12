@@ -175,7 +175,7 @@ model DeepgramTranscriptRequest {
   updatedAt  DateTime @updatedAt
   request_id String   @unique
 
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
 }
 
@@ -194,7 +194,7 @@ model Transcript {
   metadata TranscriptMetadata?
 
   // 1-1: a Transcript belongs to one File. A File can have one Transcript.
-  file   File   @relation(fields: [fileId], references: [id])
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
 }
 

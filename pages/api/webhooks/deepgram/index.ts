@@ -39,6 +39,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
 
+    // Find the file that has this request ID
     const fileWithThisRequestId = await prisma.deepgramTranscriptRequest.findUnique({
       where: {
         request_id: request_id
@@ -54,6 +55,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         .send("No file associated with this request ID")
     }
 
+    // Create a new Transcript row with the data
     const newTranscript = await prisma.transcript.create({
       data: {
         confidence: dgResponse.confidence,
@@ -83,11 +85,20 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       }
     })
 
-    console.log(fileWithThisRequestId.file, newTranscript)
+    // Update the file's status to COMPLETED
+    const updatedFile = await prisma.file.update({
+      where: {
+        id: fileWithThisRequestId.file.id
+      },
+      data: {
+        status: "COMPLETED"
+      }
+    })
 
     return res.status(HttpStatus.Ok).send({
-      fileWithThisRequestId: fileWithThisRequestId.file,
-      newTranscript: newTranscript
+      fileWithThisRequestId: fileWithThisRequestId.file.id,
+      newTranscriptId: newTranscript.id,
+      updatedFileStatus: updatedFile.status
     })
 
   } catch (error: unknown) {

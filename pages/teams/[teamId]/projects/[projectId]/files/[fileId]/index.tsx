@@ -7,7 +7,7 @@ import {
 } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { getSignedUrl } from "@/utils/aws";
-import { formatFileDates } from "@/utils/formatPrismaDates";
+import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { File, User } from "@prisma/client";
@@ -22,13 +22,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const user: User = session.user;
 
     try {
-      let file: File = await prisma.file.findUniqueOrThrow({
+      let file = await prisma.file.findUniqueOrThrow({
         where: {
           id: fileId as string,
         },
+        include: {
+          transcript: true,
+        },
       });
 
-      file = formatFileDates(file);
+      file = formatDatesToIsoString(file);
 
       // Get the team ID of the project
       const teamId = await getTeamIdFromProjectId(file.projectId);
@@ -83,7 +86,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const audioRef = useRef(null);
 
   // @ts-ignore
-  const transcript = file.transcript.results.channels[0].alternatives[0].words;
+  const transcript = file.transcript.words;
 
   const editFile = () => {
     console.log("Edit file");

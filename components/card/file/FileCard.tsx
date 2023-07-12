@@ -118,13 +118,19 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
     <Card withBorder padding="md" radius="md">
       <Stack justify="space-between" h={"100%"}>
         <div>
-          <Text fz="lg" fw={500} className="line-clamp-2">
-            <Link
-              href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
-            >
-              {file.name}
-            </Link>
-          </Text>
+          {file.status === "PROCESSING" ? (
+            <Text fz="lg" fw={500} className="line-clamp-2">
+              {`${file.name} (processing)`}
+            </Text>
+          ) : (
+            <Text fz="lg" fw={500} className="line-clamp-2">
+              <Link
+                href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
+              >
+                {file.name}
+              </Link>
+            </Text>
+          )}
           <Text fz="sm" c="dimmed" mt={5} lineClamp={2}>
             {file.description}
           </Text>
