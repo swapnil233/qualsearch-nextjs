@@ -19,7 +19,17 @@ import { useRef } from "react";
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
     const { fileId } = context.query;
-    const user: User = session.user;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+    });
+
+    if (!user) {
+      return {
+        notFound: true,
+      };
+    }
 
     try {
       let file = await prisma.file.findUniqueOrThrow({
@@ -83,7 +93,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   user,
   teamId,
 }) => {
-  const audioRef = useRef(null);
+  const mediaRef = useRef(null);
 
   // @ts-ignore
   const transcript = file.transcript.words;
@@ -162,19 +172,19 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           <video
             src={mediaUrl}
             controls
-            ref={audioRef}
+            ref={mediaRef}
             className="md:fixed md:bottom-2 md:right-2 md:w-1/3 z-50 w-full"
           />
         ) : (
           <audio
             src={mediaUrl}
             controls
-            ref={audioRef}
+            ref={mediaRef}
             className="sticky top-4 w-full z-50"
           />
         )}
 
-        <Transcript transcript={transcript} audioRef={audioRef} user={user} />
+        <Transcript transcript={transcript} audioRef={mediaRef} user={user} />
       </div>
     </>
   );

@@ -1,9 +1,7 @@
-import { Button, Popover, Text, TextInput, rem } from "@mantine/core";
+import { Avatar, Button, Popover, Text, TextInput, rem } from "@mantine/core";
 import { User } from "@prisma/client";
 import { useEffect, useState } from "react";
-import CommentForm from "./CommentForm";
 
-// mapping of speaker to color
 const speakerColor: Record<number, string> = {
   0: "#00159c",
   1: "#0b7525",
@@ -31,55 +29,162 @@ interface IGroup {
   }[];
 }
 
+interface CustomPopoverProps {
+  onClose: () => void;
+  onSubmit: (note: string) => void;
+  position: { top: number; left: number };
+}
+
+type SelectedTextType = {
+  start: number;
+  end: number;
+  position?: { top: number; left: number };
+};
+
+type CommentType = {
+  start: number;
+  end: number;
+  note: string;
+  position: { top: number; left: number };
+};
+
+const CustomPopover: React.FC<CustomPopoverProps> = ({
+  onClose,
+  onSubmit,
+  position,
+}) => {
+  const [newComment, setNewComment] = useState<string>("");
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: position.top,
+        left: position.left,
+        zIndex: 10,
+        backgroundColor: "white",
+        padding: "10px",
+        borderRadius: "5px",
+        boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
+      }}
+    >
+      <TextInput
+        placeholder="Add a note"
+        value={newComment}
+        onChange={(e) => setNewComment(e.target.value)}
+      />
+      <Button
+        onClick={() => {
+          onSubmit(newComment);
+          setNewComment("");
+          onClose();
+        }}
+      >
+        Create
+      </Button>
+    </div>
+  );
+};
+
+interface CommentPopoverProps {
+  position: { top: number; left: number };
+  comment: any;
+  user: User | null;
+}
+
+const CommentPopover: React.FC<CommentPopoverProps> = ({
+  position,
+  comment,
+  user,
+}) => {
+  return (
+    <div
+      className="absolute bg-white p-4 rounded-md shadow-md"
+      style={{
+        top: position.top,
+        left: position.left,
+        zIndex: 10,
+        width: "250px",
+      }}
+    >
+      <div className="flex items-center mb-4">
+        <Avatar
+          src={user?.image || ""}
+          alt={`${user?.name}'s profile picture` || "Default profile picture"}
+          radius="xl"
+          size={32}
+        />
+        <h3 className="ml-2 font-medium text-lg">{user?.name}</h3>
+      </div>
+      <p className="mb-2 font-regular">{comment.note}</p>
+      <div className="text-sm text-gray-500">
+        <p>{`Commented on ${new Date().toLocaleDateString()}`}</p>
+        <p>
+          From {comment.start} to {comment.end}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const Transcript: React.FC<ITranscriptProps> = ({
   transcript,
   audioRef,
   user,
 }) => {
-  // Word highlighting as audio plays
   const [currentWord, setCurrentWord] = useState<number>(0);
-
-  // Comments
-  const [comments, setComments] = useState<
-    { start: number; end: number; note: string }[]
-  >([]);
-
+  const [comments, setComments] = useState<CommentType[]>([]);
   // Text selection
-  const [selectedText, setSelectedText] = useState<{
-    start: number;
-    end: number;
+  const [selectedText, setSelectedText] = useState<SelectedTextType | null>(
+    null
+  );
+  const [popoverPosition, setPopoverPosition] = useState<{
+    top: number;
+    left: number;
   } | null>(null);
-
-  // Speaker names
+  const [newComment, setNewComment] = useState<string>("");
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
 
-  // Change speaker name
   const handleSpeakerNameChange = (speaker: number, name: string) => {
     setSpeakerNames((prev) => ({ ...prev, [speaker]: name }));
     setNewSpeakerName("");
   };
 
   const handleTextSelect = (start: number, end: number) => {
-    setSelectedText({ start, end });
+    const selection = window.getSelection();
+    if (selection) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelectedText({
+        start,
+        end,
+        position: {
+          top: rect.top + window.scrollY,
+          left: rect.left + rect.width + window.scrollX,
+        },
+      });
+    }
   };
 
   const getSelectedTextDetails = () => {
     const selection = window.getSelection();
-    console.log(selection);
-
-    // If there is a selection, get the start and end time
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
-
       const startElement = range.startContainer.parentElement as HTMLElement;
       const endElement = range.endContainer.parentElement as HTMLElement;
 
       if (startElement && endElement) {
         const start = parseFloat(startElement.dataset.start as string);
         const end = parseFloat(endElement.dataset.end as string);
+        const rect = range.getBoundingClientRect();
+        const lineRect = startElement.getBoundingClientRect();
+        const position = {
+          top: rect.top + window.scrollY,
+          left: lineRect.left + lineRect.width + window.scrollX,
+        };
 
-        return { start, end };
+        return { start, end, position };
       }
     }
 
@@ -242,24 +347,31 @@ const Transcript: React.FC<ITranscriptProps> = ({
         ))}
       </div>
       {selectedText && (
-        <CommentForm
+        <CustomPopover
+          position={selectedText.position!}
+          onClose={() => setSelectedText(null)}
           onSubmit={(note) => {
-            setComments([...comments, { ...selectedText, note }]);
+            setComments([
+              // @ts-ignore
+              ...comments,
+              {
+                ...selectedText,
+                note: note,
+                // @ts-ignore
+                position: selectedText.position,
+              },
+            ]);
             setSelectedText(null);
           }}
         />
       )}
       {comments.map((comment, i) => (
-        <div key={i}>
-          <h3>Comment:</h3>
-          <p>
-            From {comment.start} to {comment.end}
-          </p>
-          <p>
-            Commented by {user?.name} at {new Date().toLocaleString()}
-          </p>
-          <p>{comment.note}</p>
-        </div>
+        <CommentPopover
+          key={i}
+          position={comment.position}
+          comment={comment}
+          user={user}
+        />
       ))}
     </>
   );
