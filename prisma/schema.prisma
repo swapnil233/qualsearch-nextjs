@@ -90,6 +90,27 @@ model Team {
   @@index([id])
 }
 
+model Invitation {
+  id           String           @id @default(cuid())
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  invitedEmail String           @db.VarChar(320)
+  status       InvitationStatus @default(PENDING)
+  teamId       String
+  team         Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  // 1-n -> Invitation can be created by 1 user
+  invitedByUserId String?
+  invitedByUser   User?   @relation("InvitationsSent", fields: [invitedByUserId], references: [id], onDelete: Cascade)
+
+  // 1-n -> Invitation can be accepted by 1 user
+  invitedUser   User?   @relation("InvitationsReceived", fields: [invitedUserId], references: [id], onDelete: Cascade)
+  invitedUserId String?
+
+  @@unique([invitedEmail, teamId])
+  @@index([status])
+}
+
 // Files belong to projects. A user can belong in a team that has many projects. A project can have many files.
 model Project {
   id          String   @id @default(cuid())
@@ -116,71 +137,81 @@ model Project {
 }
 
 model File {
-  id                  String     @id @default(cuid())
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-  name                String // eg "John Doe's Interview 06/01/2021"
-  uri                 String // eg "https://s3.amazonaws.com/{bucket-name}/teams/{team-id}/projects/{project-id}/files/interview.mp4"
-  type                FileType
-  status              FileStatus @default(PROCESSING)
-  dgCallbackRequestId String     @unique
-  description         String?
-  transcript          Json?
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  name        String
+  description String?
+  uri         String
+  type        FileType
+  status      FileStatus @default(PROCESSING)
 
-  // 1-n -> Video can belong to 1 project
+  // 1-n: Video can belong to 1 project
   Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
-  // Files belong to a team. A team can have many files.
+  // 1-n: files belong to a team. A team can have many files.
   Team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String
 
-  // 1-1 -> File can have 0 transcripts or 1 transcript
-  DGTranscript DGTranscript?
-  Speaker      Speaker[]
-  Clip         Clip[]
-  Note         Note[]
-  Tag          Tag[]
+  // 1-1: a file can have one transcript
+  transcript Transcript?
+
+  // 1-1: a File can have one Deepgram transcript request ID
+  transcriptRequestId DeepgramTranscriptRequest?
+
+  Speaker Speaker[]
+  Clip    Clip[]
+  Note    Note[]
+  Tag     Tag[]
 
   // Frequently fetching files based on project id
   @@index([projectId])
 }
 
-model Invitation {
-  id           String           @id @default(cuid())
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  invitedEmail String           @db.VarChar(320)
-  status       InvitationStatus @default(PENDING)
-  teamId       String
-  team         Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  // 1-n -> Invitation can be created by 1 user
-  invitedByUserId String?
-  invitedByUser   User?   @relation("InvitationsSent", fields: [invitedByUserId], references: [id], onDelete: Cascade)
-
-  // 1-n -> Invitation can be accepted by 1 user
-  invitedUser   User?   @relation("InvitationsReceived", fields: [invitedUserId], references: [id], onDelete: Cascade)
-  invitedUserId String?
-
-  @@unique([invitedEmail, teamId])
-  @@index([status])
-}
-
-// The transcript object returned by Deepgram, split into comlumns
-model DGTranscript {
+model DeepgramTranscriptRequest {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
-  transcript String
-  confidence Float
-  // Array of word objects. Word, start, end, confidence, speaker, speaker_confidence, punctuated_word
-  words      Json
-  // In the form: \n\nSpeaker 0: Text\n\nSpeaker 1: Text
-  paragraphs String
+  updatedAt  DateTime @updatedAt
+  request_id String   @unique
 
-  // 1-1 -> A transcript must always belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  file   File   @relation(fields: [fileId], references: [id])
   fileId String @unique
+}
+
+model Transcript {
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
+  confidence       Float
+  words            Json
+  topics           Json
+  entities         Json
+  summaries        Json
+  paragraphs       Json
+  transcriptString String
+
+  // 1-1: a Transcript can have one TranscriptMetadata.
+  metadata TranscriptMetadata?
+
+  // 1-1: a Transcript belongs to one File. A File can have one Transcript.
+  file   File   @relation(fields: [fileId], references: [id])
+  fileId String @unique
+}
+
+model TranscriptMetadata {
+  id         String   @id @default(cuid())
+  created    String
+  tags       String[]
+  models     String[]
+  sha256     String
+  channels   Int
+  duration   Float
+  model_info Json
+  request_id String
+
+  // 1-1: a Transcript can have one TranscriptMetadata
+  transcript   Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+  transcriptId String     @unique
 }
 
 // A file may have speakers. A speaker belongs to one file.

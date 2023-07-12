@@ -85,7 +85,7 @@ export default async function Handler(
   const responseJson = await response.json();
   const signedUrl = responseJson.url;
 
-  // Make a POST request to '/api/deepgram/' to get the request ID sent by Deepgram callback
+  // Make a POST request to '/api/deepgram/' to get the rquest_id sent by Deepgram callback
   const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
     method: "POST",
     headers: {
@@ -112,7 +112,6 @@ export default async function Handler(
   const dgRequestId = await deepgramResponse.json();
 
   try {
-    // Create a new file in the database with the information from the request.
     const file = await prisma.file.create({
       data: {
         name: fileName,
@@ -121,8 +120,11 @@ export default async function Handler(
         projectId: projectId,
         uri: key,
         type: type,
-        status: "PROCESSING",
-        dgCallbackRequestId: dgRequestId.request_id,
+        transcriptRequestId: {
+          create: {
+            request_id: dgRequestId.request_id
+          }
+        }
       },
     });
 

@@ -47,7 +47,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
-      let files: FileWithoutTranscriptAndUri[] = await prisma.file.findMany({
+      let files = await prisma.file.findMany({
         where: {
           projectId: projectId as string,
         },
@@ -60,8 +60,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           type: true,
           projectId: true,
           teamId: true,
-          dgCallbackRequestId: true,
           status: true,
+          transcriptRequestId: {
+            select: {
+              request_id: true,
+            },
+          },
         },
       });
 
