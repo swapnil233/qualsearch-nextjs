@@ -122,9 +122,9 @@ export default async function Handler(
         type: type,
         transcriptRequestId: {
           create: {
-            request_id: dgRequestId.request_id
-          }
-        }
+            request_id: dgRequestId.request_id,
+          },
+        },
       },
     });
 

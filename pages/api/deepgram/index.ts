@@ -117,7 +117,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // Convert options to query string.
     const query = qs.stringify(options, { arrayFormat: "repeat" });
 
-    const deepgramCallbackUrl = "https://transcription-eight.vercel.app/api/webhooks/deepgram/";
+    const deepgramCallbackUrl =
+      "https://transcription-eight.vercel.app/api/webhooks/deepgram/";
 
     const response = await fetch(
       `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${deepgramCallbackUrl}`,
