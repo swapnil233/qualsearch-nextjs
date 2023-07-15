@@ -1,15 +1,26 @@
 import { TeamWithUsers } from "@/types";
 import { Avatar, Card, Group, Text, Tooltip } from "@mantine/core";
+import { User } from "@prisma/client";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, memo } from "react";
 
 export interface ITeamCard {
   team: TeamWithUsers;
 }
 
+interface UserAvatarProps {
+  user: User;
+}
+
+const UserAvatar: FC<UserAvatarProps> = ({ user }) => (
+  <Tooltip label={`${user.name}, ${user.email}`} position="top" withArrow>
+    <Avatar src={user.image} radius="xl" />
+  </Tooltip>
+);
+
 const TeamCard: FC<ITeamCard> = ({ team }) => {
   return (
-    <Card withBorder padding="lg" radius="md">
+    <Card withBorder padding="lg" radius="sm">
       <Text fz="lg" fw={500}>
         <Link href={`/teams/${team.id}`}>{team.name}</Link>
       </Text>
@@ -19,15 +30,8 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
 
       <Group position="apart" mt="md">
         <Avatar.Group spacing="sm">
-          {team.users.slice(0, 3).map((user, index) => (
-            <Tooltip
-              key={index}
-              label={`${user.name}, ${user.email}`}
-              position="top"
-              withArrow
-            >
-              <Avatar key={index} src={user.image} radius="xl" />
-            </Tooltip>
+          {team.users.slice(0, 3).map((user) => (
+            <UserAvatar key={user.id} user={user} />
           ))}
           {team.users.length > 3 && (
             <Tooltip
@@ -44,4 +48,4 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
   );
 };
 
-export default TeamCard;
+export default memo(TeamCard);
