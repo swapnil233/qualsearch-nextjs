@@ -12,19 +12,18 @@ This document contains the ongoing tasks and improvements for the next.js projec
 
 ## Frontend Tasks
 
-| Task   | Description                                               |
-| ------ | --------------------------------------------------------- |
-| Task 1 | Implement a working "last active" function for team table |
+| Task   | Description                                                                |
+| ------ | -------------------------------------------------------------------------- |
+| Task 1 | Implement a working "last active" function for team table                  |
+| Task 2 | Re-create all styles to use Mantine theme, so dark-mode functions properly |
 
 ## Backend Tasks
 
 | Task   | Description                                                                     |
 | ------ | ------------------------------------------------------------------------------- |
-| Task 1 | Implement a callback API endpoint for Deepgram's transcription response         |
-| Task 2 | Implement team deletion feature. Only the creator can delete a team             |
-| Task 3 | Implement project deletion feature. Anyone inside the team can delete a project |
-| Task 4 | Implement file deletion. Everyone inside the team can delete files              |
-| Task 5 | Implement a soft-delete feature for teams, projects, and files                  |
+| Task 1 | Implement project deletion feature. Anyone inside the team can delete a project |
+| Task 2 | Implement file deletion. Everyone inside the team can delete files              |
+| Task 3 | Implement a soft-delete feature for teams, projects, and files                  |
 
 ## Design Tasks
 
