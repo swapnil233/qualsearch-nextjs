@@ -1,6 +1,5 @@
-import { Breadcrumbs, Button, Menu } from "@mantine/core";
+import { Anchor, Breadcrumbs, Button, Menu } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
-import Link from "next/link";
 import { FC, ReactNode } from "react";
 
 interface IBreadcrumb {
@@ -32,13 +31,9 @@ const PageHeading: FC<IPageHeading> = ({
 }) => {
   const breadcrumbItems =
     breadcrumbs?.map((item, index) => (
-      <Link
-        href={item.href}
-        key={index}
-        className="text-[#6B778C] hover:text-[#172B4D] hover:underline transition-colors no-underline"
-      >
+      <Anchor key={index} href={item.href} target="_blank">
         {item.title}
-      </Link>
+      </Anchor>
     )) || [];
 
   return (
@@ -63,16 +58,7 @@ const PageHeading: FC<IPageHeading> = ({
         )}
         <div className="flex">
           {primaryButtonText && primaryButtonAction && (
-            <Button
-              onClick={primaryButtonAction}
-              sx={{
-                backgroundColor: "#0052CC",
-                ":hover": {
-                  backgroundColor: "#013c94",
-                },
-              }}
-              leftIcon={primaryButtonIcon}
-            >
+            <Button onClick={primaryButtonAction} leftIcon={primaryButtonIcon}>
               {primaryButtonText}
             </Button>
           )}
@@ -82,12 +68,7 @@ const PageHeading: FC<IPageHeading> = ({
                 <Button
                   variant="filled"
                   ml={primaryButtonText ? "xs" : 0}
-                  sx={{
-                    backgroundColor: "#F5F6F8",
-                    ":hover": {
-                      backgroundColor: "#F0F0F0",
-                    },
-                  }}
+                  color="gray.1"
                 >
                   <IconDots color="#42526E" />
                 </Button>

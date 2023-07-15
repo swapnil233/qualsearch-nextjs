@@ -10,106 +10,50 @@ import {
   Loader,
   Menu,
   ScrollArea,
+  Switch,
   Text,
-  UnstyledButton,
   rem,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-  IconChevronDown,
-  IconLogout,
+  IconMoonStars,
   IconSettings,
+  IconSun,
   IconUser,
 } from "@tabler/icons-react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { FC, useState } from "react";
+import { FC, useMemo } from "react";
 import { navbarStyles } from "./Navbar.styles";
+import UserMenu from "./UserMenu";
 
 export interface INavbar {}
 
 const Navbar: FC<INavbar> = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
-  const { classes, theme, cx } = navbarStyles();
-  const [userMenuOpened, setUserMenuOpened] = useState(false);
+  const { classes, theme } = navbarStyles();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   const { data, status } = useSession();
   const user = data?.user;
 
-  // User menu: menu | loader | "Log in"
-  let userMenu;
-
-  if (status === "authenticated") {
-    userMenu = (
-      <Menu
-        width={260}
-        position="bottom-end"
-        transitionProps={{ transition: "pop-top-right" }}
-        onClose={() => setUserMenuOpened(false)}
-        onOpen={() => setUserMenuOpened(true)}
-        withinPortal
-      >
-        <Menu.Target>
-          {/* User button */}
-          <UnstyledButton
-            className={cx(classes.user, {
-              [classes.userActive]: userMenuOpened,
-            })}
-          >
-            <Group spacing={7}>
-              <Avatar
-                src={user?.image || ""}
-                alt={
-                  `${user?.name}'s profile picture` || "Default profile picture"
-                }
-                radius="xl"
-                size={32}
-              />
-
-              <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-                {user?.name}
-              </Text>
-              <IconChevronDown size={rem(12)} stroke={1.5} />
-            </Group>
-          </UnstyledButton>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Link href="/profile/" className="no-underline">
-            <Menu.Item icon={<IconUser size="0.9rem" stroke={1.5} />}>
-              My profile
-            </Menu.Item>
-          </Link>
-          <Link href="/profile/settings" className="no-underline">
-            <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
-              Account settings
-            </Menu.Item>
-          </Link>
-          <Menu.Divider />
-          <Menu.Item
-            onClick={() => {
-              signOut({ callbackUrl: "/" });
-            }}
-            icon={<IconLogout size="0.9rem" stroke={1.5} />}
-          >
-            Log out
-          </Menu.Item>
-        </Menu.Dropdown>
-      </Menu>
-    );
-  } else if (status === "loading") {
-    userMenu = <Loader size={"sm"} />;
-  } else if (status === "unauthenticated") {
-    userMenu = (
-      <Button
-        variant="light"
-        onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
-      >
-        Log in
-      </Button>
-    );
-  }
+  const userMenu = useMemo(() => {
+    if (status === "loading") {
+      return <Loader size={"sm"} />;
+    } else {
+      return (
+        <UserMenu
+          user={user}
+          status={status}
+          colorScheme={colorScheme}
+          toggleColorScheme={toggleColorScheme}
+        />
+      );
+    }
+  }, [status, user, colorScheme]);
 
   return (
     <Box>
@@ -117,7 +61,7 @@ const Navbar: FC<INavbar> = () => {
         <Group
           className="max-w-6xl w-full mx-auto sm:px-4 px-6"
           position="apart"
-          sx={{ height: "100%" }}
+          h={"100%"}
         >
           <Link href={"/"}>
             <Image
@@ -162,6 +106,24 @@ const Navbar: FC<INavbar> = () => {
         zIndex={1000000}
       >
         <ScrollArea h={`calc(100vh - ${rem(60)})`} mx="-md">
+          <Group px={"sm"} w={"100%"}>
+            <Switch
+              checked={colorScheme === "dark"}
+              onChange={() => toggleColorScheme()}
+              size="md"
+              onLabel={
+                <IconSun color={theme.white} size="1.25rem" stroke={1.5} />
+              }
+              offLabel={
+                <IconMoonStars
+                  color={theme.colors.gray[6]}
+                  size="1.25rem"
+                  stroke={1.5}
+                />
+              }
+              className={classes.hiddenDesktop}
+            />
+          </Group>
           {/* Profile links */}
           {status === "authenticated" && (
             <>
