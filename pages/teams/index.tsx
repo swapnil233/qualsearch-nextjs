@@ -249,6 +249,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
 
       <PageHeading
         title="Teams"
+        // description="View and manage your teams. You can edit or leave teams from within the team's page."
         primaryButtonText="Create new team"
         primaryButtonAction={open}
         primaryButtonIcon={<IconUsersGroup size={"1.2rem"} />}
@@ -269,13 +270,8 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
           spacing={"md"}
           verticalSpacing={"md"}
           breakpoints={[
-            // Above 992px
             { maxWidth: "62rem", cols: 3, spacing: "md" },
-
-            // Above 768px
             { maxWidth: "48rem", cols: 2, spacing: "sm" },
-
-            // Above 576px
             { maxWidth: "36rem", cols: 1, spacing: "sm" },
           ]}
         >
@@ -287,7 +283,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
 
       {showingInvitations.length !== 0 && (
         <>
-          <Title order={3} fw={"normal"} mt={"2rem"} mb={"xs"}>
+          <Title order={3} fw={"normal"} mt={"3rem"} mb={"xs"}>
             Invitations
           </Title>
           <Text mb={"lg"}>Manage your team invitations.</Text>
@@ -310,23 +306,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
               >
                 Recieved
               </Tabs.Tab>
-              <Tabs.Tab
-                // rightSection={
-                //   <Badge
-                //     w={16}
-                //     h={16}
-                //     sx={{ pointerEvents: "none" }}
-                //     variant="filled"
-                //     size="sm"
-                //     p={0}
-                //   >
-                //     {}
-                //   </Badge>
-                // }
-                value="sent"
-              >
-                Sent
-              </Tabs.Tab>
+              <Tabs.Tab value="sent">Sent</Tabs.Tab>
             </Tabs.List>
             <Tabs.Panel value="received">
               <InvitationsTable

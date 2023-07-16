@@ -388,7 +388,10 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           <Title order={3} fw={"normal"} mb={"xs"}>
             Projects
           </Title>
-          <Text mb={"lg"}>Manage your team invitations.</Text>
+          <Text mb={"lg"}>
+            Overview of this team&apos;s projects. Projects can be managed from
+            within their page.
+          </Text>
           <SimpleGrid
             cols={4}
             spacing={"md"}
@@ -406,10 +409,13 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         </>
       )}
 
-      <Title order={3} fw={"normal"} mt={"2rem"} mb={"xs"}>
+      <Title order={3} fw={"normal"} mt={"3rem"} mb={"xs"}>
         Team members
       </Title>
-      <Text mb={"lg"}>View and manage the members of this team.</Text>
+      <Text mb={"lg"}>
+        View and manage the members of this team. Only the manager may remove
+        members from the team.
+      </Text>
       <TeamTable
         currentUser={user}
         teamMembers={team.users}
