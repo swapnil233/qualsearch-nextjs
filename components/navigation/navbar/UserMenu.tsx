@@ -80,10 +80,18 @@ const UserMenu: FC<IUserMenuProps> = ({
         </Menu.Target>
         <Menu.Dropdown>
           <Link href="/profile/" className="no-underline">
-            <Menu.Item icon={<IconUser size="1.1rem" />}>My profile</Menu.Item>
+            <Menu.Item
+              icon={<IconUser size="1.1rem" />}
+              color={theme.colorScheme === "dark" ? theme.white : theme.black}
+            >
+              My profile
+            </Menu.Item>
           </Link>
           <Link href="/profile/settings" className="no-underline">
-            <Menu.Item icon={<IconSettings size="1.1rem" />}>
+            <Menu.Item
+              icon={<IconSettings size="1.1rem" />}
+              color={theme.colorScheme === "dark" ? theme.white : theme.black}
+            >
               Account settings
             </Menu.Item>
           </Link>
@@ -93,6 +101,7 @@ const UserMenu: FC<IUserMenuProps> = ({
               signOut({ callbackUrl: "/" });
             }}
             icon={<IconLogout size="1.1rem" />}
+            color={theme.colorScheme === "dark" ? theme.white : theme.black}
           >
             Log out
           </Menu.Item>
@@ -114,7 +123,7 @@ const UserMenu: FC<IUserMenuProps> = ({
       <Switch
         checked={colorScheme === "dark"}
         onChange={() => toggleColorScheme()}
-        size="lg"
+        size="md"
         onLabel={<IconSun color={theme.white} size="1.25rem" stroke={1.5} />}
         offLabel={
           <IconMoonStars

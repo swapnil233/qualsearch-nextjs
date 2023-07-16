@@ -53,7 +53,7 @@ const Navbar: FC<INavbar> = () => {
         />
       );
     }
-  }, [status, user, colorScheme]);
+  }, [status, user, toggleColorScheme, colorScheme]);
 
   return (
     <Box>
