@@ -10,6 +10,7 @@ import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service"
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
+import { SimpleGrid, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -384,16 +385,31 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         />
       ) : (
         <>
-          <h2 className="text-xl font-normal flex flex-col mb-4">Projects</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-16">
+          <Title order={3} fw={"normal"} mb={"xs"}>
+            Projects
+          </Title>
+          <Text mb={"lg"}>Manage your team invitations.</Text>
+          <SimpleGrid
+            cols={4}
+            spacing={"md"}
+            verticalSpacing={"md"}
+            breakpoints={[
+              { maxWidth: "62rem", cols: 3, spacing: "md" },
+              { maxWidth: "48rem", cols: 2, spacing: "sm" },
+              { maxWidth: "36rem", cols: 1, spacing: "sm" },
+            ]}
+          >
             {showingProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
-          </div>
+          </SimpleGrid>
         </>
       )}
 
-      <h2 className="text-xl font-normal flex flex-col mb-4">Team members</h2>
+      <Title order={3} fw={"normal"} mt={"2rem"} mb={"xs"}>
+        Team members
+      </Title>
+      <Text mb={"lg"}>View and manage the members of this team.</Text>
       <TeamTable
         currentUser={user}
         teamMembers={team.users}

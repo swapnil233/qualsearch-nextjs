@@ -1,7 +1,7 @@
-import { Card, Text } from "@mantine/core";
+import { Button, Card, Stack, Text } from "@mantine/core";
 import { Project } from "@prisma/client";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, memo } from "react";
 
 export interface IProjectCard {
   project: Project;
@@ -9,17 +9,30 @@ export interface IProjectCard {
 
 const ProjectCard: FC<IProjectCard> = ({ project }) => {
   return (
-    <Card withBorder padding="lg" radius="md">
-      <Text fz="lg" fw={500}>
-        <Link href={`/teams/${project.teamId}/projects/${project.id}`}>
-          {project.name}
+    <Card
+      withBorder
+      radius="sm"
+      sx={(theme) => ({
+        backgroundColor:
+          theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+      })}
+    >
+      <Stack justify="space-between" align="stretch" h="100%">
+        <Stack spacing={"xs"} justify="space-between" align="stretch">
+          <Text fz="lg" fw={500}>
+            {project.name}
+          </Text>
+          <Text fz="sm" c={"dimmed"} lineClamp={2}>
+            {project.description}
+          </Text>
+        </Stack>
+
+        <Link href={`/teams/${project.teamId}/projects/${project.id}`} passHref>
+          <Button variant="default">View</Button>
         </Link>
-      </Text>
-      <Text fz="sm" c="dimmed" mt={5} lineClamp={3}>
-        {project.description}
-      </Text>
+      </Stack>
     </Card>
   );
 };
 
-export default ProjectCard;
+export default memo(ProjectCard);
