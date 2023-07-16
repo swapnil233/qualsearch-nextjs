@@ -252,11 +252,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
         <EmptyState
           title="Start collaborating"
           description="Create a team, invite your team mates, and start collaborating on your UX research."
-          imageUrl={
-            colorScheme === "light"
-              ? "/empty-team-light.svg"
-              : "/empty-team-dark.svg"
-          }
+          imageUrl={"/empty-state-images/teams/empty-team.svg"}
           primaryButtonText="Create new team"
           primaryButtonAction={open}
         />

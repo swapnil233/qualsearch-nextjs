@@ -378,7 +378,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         <EmptyState
           title="Start with a project"
           description="Create a project for your UX interviews and usability tests. Think of projects as folders."
-          imageUrl="/empty-project.svg"
+          imageUrl="/empty-state-images/projects/empty-project.svg"
           primaryButtonText="Create new project"
           primaryButtonAction={open}
         />

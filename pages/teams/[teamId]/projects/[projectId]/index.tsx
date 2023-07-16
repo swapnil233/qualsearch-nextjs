@@ -313,7 +313,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
       {showingFiles.length === 0 ? (
         <EmptyState
           description="Upload this project's audio/video files to begin transcript tagging. We will transcribe it in seconds."
-          imageUrl="/empty-file.svg"
+          imageUrl="/empty-state-images/files/empty-file.svg"
           title="Store your interview files"
           primaryButtonText="Add a file"
           primaryButtonAction={open}
