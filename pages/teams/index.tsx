@@ -11,6 +11,7 @@ import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
+import { useMantineColorScheme } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -89,6 +90,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);
   const [showingInvitations, setShowingInvitations] =
     useState<IInvitationData[]>(invitations);
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   const handleAcceptInvitation = async (invitationId: string) => {
     try {
@@ -250,7 +252,11 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
         <EmptyState
           title="Start collaborating"
           description="Create a team, invite your team mates, and start collaborating on your UX research."
-          imageUrl="/empty-team.svg"
+          imageUrl={
+            colorScheme === "light"
+              ? "/empty-team-light.svg"
+              : "/empty-team-dark.svg"
+          }
           primaryButtonText="Create new team"
           primaryButtonAction={open}
         />
