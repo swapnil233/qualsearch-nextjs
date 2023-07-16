@@ -11,7 +11,14 @@ import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { useMantineColorScheme } from "@mantine/core";
+import {
+  Badge,
+  SimpleGrid,
+  Tabs,
+  Text,
+  Title,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -257,23 +264,82 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
           primaryButtonAction={open}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <SimpleGrid
+          cols={4}
+          spacing={"md"}
+          verticalSpacing={"md"}
+          breakpoints={[
+            // Above 992px
+            { maxWidth: "62rem", cols: 3, spacing: "md" },
+
+            // Above 768px
+            { maxWidth: "48rem", cols: 2, spacing: "sm" },
+
+            // Above 576px
+            { maxWidth: "36rem", cols: 1, spacing: "sm" },
+          ]}
+        >
           {showingTeams.map((team) => (
             <TeamCard key={team.id} team={team} />
           ))}
-        </div>
+        </SimpleGrid>
       )}
 
       {showingInvitations.length !== 0 && (
         <>
-          <h2 className="text-xl font-normal flex flex-col mb-4 mt-8">
+          <Title order={3} fw={"normal"} mt={"2rem"} mb={"xs"}>
             Invitations
-          </h2>
-          <InvitationsTable
-            invitations={showingInvitations}
-            handleAcceptInvitation={handleAcceptInvitation}
-            handleDeclineInvitation={handleDeclineInvitation}
-          />
+          </Title>
+          <Text mb={"lg"}>Manage your team invitations.</Text>
+          <Tabs color="teal" defaultValue={"received"} w={"100%"}>
+            <Tabs.List>
+              <Tabs.Tab
+                rightSection={
+                  <Badge
+                    w={16}
+                    h={16}
+                    sx={{ pointerEvents: "none" }}
+                    variant="filled"
+                    size="sm"
+                    p={0}
+                  >
+                    {showingInvitations.length}
+                  </Badge>
+                }
+                value="received"
+              >
+                Recieved
+              </Tabs.Tab>
+              <Tabs.Tab
+                // rightSection={
+                //   <Badge
+                //     w={16}
+                //     h={16}
+                //     sx={{ pointerEvents: "none" }}
+                //     variant="filled"
+                //     size="sm"
+                //     p={0}
+                //   >
+                //     {}
+                //   </Badge>
+                // }
+                value="sent"
+              >
+                Sent
+              </Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value="received">
+              <InvitationsTable
+                invitations={showingInvitations}
+                handleAcceptInvitation={handleAcceptInvitation}
+                handleDeclineInvitation={handleDeclineInvitation}
+              />
+            </Tabs.Panel>
+            <Tabs.Panel value="sent">
+              Under construction. Come back later to view the invitations you
+              have sent.
+            </Tabs.Panel>
+          </Tabs>
         </>
       )}
 
