@@ -1,4 +1,14 @@
-import { Anchor, Breadcrumbs, Button, Menu } from "@mantine/core";
+import {
+  Anchor,
+  Box,
+  Breadcrumbs,
+  Button,
+  Menu,
+  Stack,
+  Text,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
 import { FC, ReactNode } from "react";
 
@@ -31,29 +41,32 @@ const PageHeading: FC<IPageHeading> = ({
 }) => {
   const breadcrumbItems =
     breadcrumbs?.map((item, index) => (
-      <Anchor key={index} href={item.href} target="_blank">
+      <Anchor key={index} href={item.href}>
         {item.title}
       </Anchor>
     )) || [];
+  const theme = useMantineTheme();
 
   return (
     <section className="w-full pb-8">
       <Breadcrumbs mb={"sm"}>{breadcrumbItems}</Breadcrumbs>
-      <div className="flex justify-between flex-col md:flex-row">
+      <Box className="flex justify-between flex-col md:flex-row">
         {description ? (
-          <div className="flex flex-col mb-4 md:mb-0">
-            <h1 className="text-3xl flex flex-col font-medium text-[#172B4D] mb-4">
-              {title}
-            </h1>
-            <h2 className="text-base leading-6 text-gray-600">
-              {description || ""}
-            </h2>
-          </div>
+          <>
+            <Stack spacing={0} mb={"1rem"} className="md:mb-0">
+              <Title order={1} size={"1.875rem"} fw={500} mb={"1rem"}>
+                {title}
+              </Title>
+              <Title order={2} size={"1rem"} lh={"1.5rem"} fw={"normal"}>
+                {description || ""}
+              </Title>
+            </Stack>
+          </>
         ) : (
           <>
-            <h1 className="text-3xl flex flex-col font-medium text-[#172B4D] mb-4 md:mb-0">
+            <Text className="text-3xl mb-4 md:mb-0" fw={500}>
               {title}
-            </h1>
+            </Text>
           </>
         )}
         <div className="flex">
@@ -67,10 +80,16 @@ const PageHeading: FC<IPageHeading> = ({
               <Menu.Target>
                 <Button
                   variant="filled"
+                  color={theme.colorScheme === "dark" ? "gray.9" : "gray.4"}
                   ml={primaryButtonText ? "xs" : 0}
-                  color="gray.1"
                 >
-                  <IconDots color="#42526E" />
+                  <IconDots
+                    color={
+                      theme.colorScheme === "dark"
+                        ? theme.colors.gray[3]
+                        : theme.colors.gray[7]
+                    }
+                  />
                 </Button>
               </Menu.Target>
 
@@ -84,7 +103,7 @@ const PageHeading: FC<IPageHeading> = ({
             </Menu>
           )}
         </div>
-      </div>
+      </Box>
     </section>
   );
 };
