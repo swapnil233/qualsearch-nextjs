@@ -65,7 +65,11 @@ const Navbar: FC<INavbar> = () => {
         >
           <Link href={"/"}>
             <Image
-              src={"/TranscribeLogo.svg"}
+              src={
+                theme.colorScheme === "dark"
+                  ? "/logo-dark.svg"
+                  : "/logo-light.svg"
+              }
               height={30}
               width={109}
               alt="Logo"
