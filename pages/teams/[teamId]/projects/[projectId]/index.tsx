@@ -9,6 +9,7 @@ import { FileWithoutTranscriptAndUri } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import sanitizeFileName from "@/utils/sanitizeFileName";
+import { SimpleGrid, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -320,12 +321,27 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
         />
       ) : (
         <>
-          <h2 className="text-xl font-normal flex flex-col mb-4">Files</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+          <Title order={3} fw={"normal"} mb={"xs"}>
+            Files
+          </Title>
+          <Text mb={"lg"}>
+            Qualitative data files uploaded by members of the team.
+            Transcription-tagging is done within audio and video files.
+          </Text>
+          <SimpleGrid
+            cols={3}
+            spacing={"md"}
+            verticalSpacing={"md"}
+            breakpoints={[
+              { maxWidth: "62rem", cols: 3, spacing: "md" },
+              { maxWidth: "48rem", cols: 2, spacing: "sm" },
+              { maxWidth: "36rem", cols: 1, spacing: "sm" },
+            ]}
+          >
             {showingFiles.map((file) => (
               <FileCard key={file.id} file={file} teamId={file.teamId} />
             ))}
-          </div>
+          </SimpleGrid>
         </>
       )}
 

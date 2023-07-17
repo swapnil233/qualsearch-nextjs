@@ -1,5 +1,15 @@
 import { FileWithoutTranscriptAndUri } from "@/types";
-import { Avatar, Badge, Card, MantineColor, Stack, Text } from "@mantine/core";
+import timeAgo from "@/utils/timeAgo";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Group,
+  MantineColor,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { FileType } from "@prisma/client";
 import {
   IconFileText,
@@ -11,7 +21,7 @@ import {
   IconVideo,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import React, { FC } from "react";
+import React, { FC, memo, useMemo } from "react";
 
 export interface IFileCard {
   file: FileWithoutTranscriptAndUri;
@@ -24,30 +34,28 @@ interface IBadgeWithIcon {
   color?: MantineColor;
 }
 
-const FileCard: FC<IFileCard> = ({ file, teamId }) => {
-  // This is a component that renders a badge with an icon
-  const BadgeWithIcon: FC<IBadgeWithIcon> = ({ fileType, icon, color }) => {
-    return (
-      <Badge
-        pl={0}
-        py={8}
-        size="sm"
-        color={color}
-        radius="md"
-        leftSection={
-          <Avatar radius="sm" color={color}>
-            {icon}
-          </Avatar>
-        }
-      >
-        {fileType}
-      </Badge>
-    );
-  };
+const BadgeWithIcon: FC<IBadgeWithIcon> = ({ fileType, icon, color }) => {
+  return (
+    <Badge
+      pl={0}
+      py={"0.5rem"}
+      size="sm"
+      color={color}
+      radius="md"
+      leftSection={
+        <Avatar variant="" color={color}>
+          {icon}
+        </Avatar>
+      }
+    >
+      <Text>{fileType}</Text>
+    </Badge>
+  );
+};
 
-  // This is a component that renders an icon based on the file type
-  const TypeToIcon = (ft: FileType) => {
-    if (ft === "AUDIO") {
+const TypeToIcon = (ft: FileType) => {
+  switch (ft) {
+    case "AUDIO":
       return (
         <BadgeWithIcon
           color="blue"
@@ -55,7 +63,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconHeadphones size={"1rem"} />}
         />
       );
-    } else if (ft === "VIDEO") {
+    case "VIDEO":
       return (
         <BadgeWithIcon
           color="green"
@@ -63,15 +71,15 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconVideo size={"1rem"} />}
         />
       );
-    } else if (ft === "EXCEL") {
+    case "EXCEL":
       return (
         <BadgeWithIcon
           color="blue"
           fileType="Excel"
-          icon={<IconVideo size={"1rem"} />}
+          icon={<IconFileText size={"1rem"} />}
         />
       );
-    } else if (ft === "PDF") {
+    case "PDF":
       return (
         <BadgeWithIcon
           color="blue"
@@ -79,7 +87,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconPdf size={"1.2rem"} />}
         />
       );
-    } else if (ft === "POWERPOINT") {
+    case "POWERPOINT":
       return (
         <BadgeWithIcon
           color="blue"
@@ -87,7 +95,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconPresentation size={"1.2rem"} />}
         />
       );
-    } else if (ft === "WORD") {
+    case "WORD":
       return (
         <BadgeWithIcon
           color="blue"
@@ -95,7 +103,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconFileText size={"1.2rem"} />}
         />
       );
-    } else if (ft === "IMAGE") {
+    case "IMAGE":
       return (
         <BadgeWithIcon
           color="blue"
@@ -103,7 +111,7 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconPhoto size={"1.2rem"} />}
         />
       );
-    } else if (ft === "OTHER") {
+    case "OTHER":
       return (
         <BadgeWithIcon
           color="blue"
@@ -111,39 +119,59 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           icon={<IconFileUnknown size={"1.2rem"} />}
         />
       );
-    }
-  };
+    default:
+      return null;
+  }
+};
+
+const FileCard: FC<IFileCard> = ({ file, teamId }) => {
+  const uploadedTimeAgo = useMemo(
+    () => timeAgo(new Date(file.updatedAt)),
+    [file.updatedAt]
+  );
 
   return (
-    <Card withBorder padding="md" radius="md">
-      <Stack justify="space-between" h={"100%"}>
-        <div>
-          {file.status === "PROCESSING" ? (
-            <Text fz="lg" fw={500} className="line-clamp-2">
-              {`${file.name} (processing)`}
+    <Card
+      withBorder
+      radius="sm"
+      sx={(theme) => ({
+        backgroundColor:
+          theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+      })}
+    >
+      <Stack justify="space-between" align="stretch" h="100%">
+        <Stack spacing={"xs"} justify="space-between" align="stretch">
+          <Group w="100%" align="center" position="apart" noWrap>
+            <Text fz="lg" fw={500}>
+              {file.name}
             </Text>
-          ) : (
-            <Text fz="lg" fw={500} className="line-clamp-2">
-              <Link
-                href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
-              >
-                {file.name}
-              </Link>
-            </Text>
-          )}
-          <Text fz="sm" c="dimmed" mt={5} lineClamp={2}>
+            {TypeToIcon(file.type)}
+          </Group>
+          <Text fz="sm" c={"dimmed"} lineClamp={2}>
             {file.description}
           </Text>
-        </div>
-        <div className="mt-4">
-          <Text fz="sm" c="dimmed" mb={8}>
-            Uploaded {file.createdAt.toLocaleString()}
+        </Stack>
+
+        <Group position="apart">
+          <Text fz="sm" c={"dimmed"}>
+            Updated {uploadedTimeAgo}
           </Text>
-          {TypeToIcon(file.type)}
-        </div>
+          <Link
+            href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
+            passHref
+          >
+            <Button
+              disabled={file.status === "PROCESSING"}
+              loading={file.status === "PROCESSING"}
+              variant="default"
+            >
+              {file.status === "PROCESSING" ? "Transcribing" : "View"}
+            </Button>
+          </Link>
+        </Group>
       </Stack>
     </Card>
   );
 };
 
-export default FileCard;
+export default memo(FileCard);
