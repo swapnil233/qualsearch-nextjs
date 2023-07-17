@@ -1,5 +1,4 @@
 import {
-  Anchor,
   Box,
   Breadcrumbs,
   Button,
@@ -10,6 +9,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
+import Link from "next/link";
 import { FC, ReactNode } from "react";
 
 interface IBreadcrumb {
@@ -39,13 +39,22 @@ const PageHeading: FC<IPageHeading> = ({
   primaryButtonIcon,
   secondaryButtonMenuItems,
 }) => {
+  const theme = useMantineTheme();
   const breadcrumbItems =
     breadcrumbs?.map((item, index) => (
-      <Anchor key={index} href={item.href}>
-        {item.title}
-      </Anchor>
+      <Link
+        key={index}
+        href={item.href}
+        passHref
+        style={{
+          textDecoration: "none",
+        }}
+      >
+        <Text color={theme.colorScheme === "dark" ? "#8C9BAB" : "#626F86"}>
+          {item.title}
+        </Text>
+      </Link>
     )) || [];
-  const theme = useMantineTheme();
 
   return (
     <section className="w-full pb-8">
