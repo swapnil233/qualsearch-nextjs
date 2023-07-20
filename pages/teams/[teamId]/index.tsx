@@ -52,6 +52,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         where: {
           teamId: teamId as string,
         },
+        include: {
+          _count: {
+            select: {
+              files: true,
+            },
+          },
+        },
       });
 
       // If the team doesn't exist, return a 404
