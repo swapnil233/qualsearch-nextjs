@@ -126,9 +126,9 @@ model Project {
   // 1-n -> Project can have many videos
   files File[]
 
-  Clip Clip[]
-  Note Note[]
-  Tag  Tag[]
+  clips Clip[]
+  notes Note[]
+  tags  Tag[]
 
   status ProjectStatus @default(ACTIVE)
 
