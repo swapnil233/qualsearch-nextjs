@@ -9,6 +9,7 @@ import {
   Text,
   createStyles,
   rem,
+  useMantineTheme,
 } from "@mantine/core";
 import {
   IconBrandInstagram,
@@ -16,6 +17,7 @@ import {
   IconBrandYoutube,
 } from "@tabler/icons-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export const footerData = [
   {
@@ -181,6 +183,7 @@ export const footerStyles = createStyles((theme) => ({
 
 const Footer: FC<IFooter> = () => {
   const { classes } = footerStyles();
+  const theme = useMantineTheme();
 
   const groups = footerData.map((group) => {
     const links = group.links.map((link, index) => (
@@ -208,12 +211,18 @@ const Footer: FC<IFooter> = () => {
       <div className="max-w-6xl mx-auto pt-14 sm:px-4 px-6">
         <Container className={classes.inner}>
           <div className={classes.logo}>
-            <Image
-              src={"/TranscribeLogo.svg"}
-              height={35}
-              width={150}
-              alt="Logo"
-            />
+            <Link href={"/"}>
+              <Image
+                src={
+                  theme.colorScheme === "dark"
+                    ? "/logo-dark.svg"
+                    : "/logo-light.svg"
+                }
+                height={30}
+                width={109}
+                alt="Logo"
+              />
+            </Link>
             <Text size="xs" color="dimmed" className={classes.description}>
               Transcription, summarization and diarization with AI
             </Text>
