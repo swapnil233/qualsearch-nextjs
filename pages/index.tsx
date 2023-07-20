@@ -37,14 +37,13 @@ const useStyles = createStyles((theme) => ({
 
   title: {
     fontWeight: 800,
-    fontSize: rem(40),
+    fontSize: rem(64),
     letterSpacing: rem(-1),
     paddingLeft: theme.spacing.md,
     paddingRight: theme.spacing.md,
     color: theme.white,
     marginBottom: theme.spacing.xs,
     textAlign: "center",
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
 
     [theme.fn.smallerThan("xs")]: {
       fontSize: rem(28),
@@ -57,8 +56,9 @@ const useStyles = createStyles((theme) => ({
   },
 
   description: {
-    color: theme.colors.gray[0],
+    color: theme.white,
     textAlign: "center",
+    fontSize: theme.spacing.md,
 
     [theme.fn.smallerThan("xs")]: {
       fontSize: theme.fontSizes.md,
@@ -109,23 +109,24 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
   const router = useRouter();
 
   return (
-    <div className={classes.wrapper}>
+    <section className={classes.wrapper}>
       <Overlay color="#000" opacity={0.65} zIndex={1} />
 
       <div className={classes.inner}>
         <Title className={classes.title}>
           AI powered analysis for{" "}
-          <Text component="span" inherit className={classes.highlight}>
+          <Text component="span" className={classes.highlight} inherit>
             UX teams
           </Text>
         </Title>
 
         <Container size={640}>
           <Text size="lg" className={classes.description}>
-            Analyze user testing and user interviews data with our AI-powered UX
-            analysis and repository platform, featuring audio and
-            transcriptions, automatic speaker detection, and AI powered
-            summaries and sentiment analysis.
+            Elevate your research by uploading and converting your interviews
+            into transcripts. Use our AI-powered platform to spotlight pivotal
+            moments, uncover recurring themes and patterns, and harness these
+            insights to drive informed decisions. Collaborate effectively by
+            sharing these evidence-backed findings with your team.
           </Text>
         </Container>
 
@@ -146,7 +147,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
