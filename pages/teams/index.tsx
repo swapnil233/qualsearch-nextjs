@@ -11,14 +11,7 @@ import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import {
-  Badge,
-  SimpleGrid,
-  Tabs,
-  Text,
-  Title,
-  useMantineColorScheme,
-} from "@mantine/core";
+import { Badge, SimpleGrid, Tabs, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -97,7 +90,6 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);
   const [showingInvitations, setShowingInvitations] =
     useState<IInvitationData[]>(invitations);
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   const handleAcceptInvitation = async (invitationId: string) => {
     try {
@@ -155,7 +147,6 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
       });
 
       if (response.status === 200) {
-        const data = await response.json();
         notifications.show({
           title: "Invitation declined",
           message: "You have successfully declined the invitation.",

@@ -12,8 +12,8 @@ import { FC } from "react";
 
 export interface IInvitationsTable {
   invitations: IInvitationData[];
-  handleAcceptInvitation: (id: string) => void;
-  handleDeclineInvitation: (id: string) => void;
+  handleAcceptInvitation: (_id: string) => void;
+  handleDeclineInvitation: (_id: string) => void;
 }
 
 export interface IInvitationData {

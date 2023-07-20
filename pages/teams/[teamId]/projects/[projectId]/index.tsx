@@ -250,10 +250,6 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
     console.log("Edit");
   };
 
-  const handleAddMembers = () => {
-    console.log("Add members");
-  };
-
   const handleDelete = () => {
     console.log("Delete");
   };
