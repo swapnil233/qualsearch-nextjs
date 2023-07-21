@@ -1,12 +1,4 @@
-import {
-  Button,
-  Group,
-  Modal,
-  TextInput,
-  Textarea,
-  Title,
-  rem,
-} from "@mantine/core";
+import { Button, Group, Modal, TextInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { FC } from "react";
 
@@ -34,7 +26,7 @@ const CreateTeamModal: FC<ICreateTeamModal> = ({
     <Modal
       opened={opened}
       onClose={close}
-      title={<Title order={3}>Create a new team</Title>}
+      title="Create new team"
       centered
       padding={"lg"}
     >
@@ -42,32 +34,29 @@ const CreateTeamModal: FC<ICreateTeamModal> = ({
         <TextInput
           placeholder="Acme UX team..."
           label="Team name"
-          description="This name can be changed later in team settings"
           radius="xs"
           withAsterisk
-          mb={rem(20)}
-          size="md"
+          mb={"md"}
           {...form.getInputProps("teamName")}
         />
 
         <Textarea
           placeholder="This team is for..."
           label="Description"
-          description="A description will help your team members identify the team"
+          description="Optional field that helps identify the team"
           radius="xs"
-          size="md"
           autosize
           minRows={4}
-          mb={rem(20)}
+          mb={"md"}
           {...form.getInputProps("teamDescription")}
         />
 
         <Group position="apart">
-          <Button variant="subtle" radius="xs" onClick={close}>
+          <Button variant="default" color="gray" radius="xs" onClick={close}>
             Cancel
           </Button>
           <Button radius="xs" type="submit" loading={creating}>
-            Create
+            Create team
           </Button>
         </Group>
       </form>

@@ -10,7 +10,6 @@ import {
   Stepper,
   TextInput,
   Textarea,
-  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import {
@@ -19,8 +18,8 @@ import {
   IconArrowRight,
   IconCheck,
   IconInfoHexagon,
-  IconSend,
-  IconSitemap,
+  IconListCheck,
+  IconSpy,
 } from "@tabler/icons-react";
 import { FC, useState } from "react";
 
@@ -101,14 +100,14 @@ const CreateFileModal: FC<ICreateFileModal> = ({
     <Modal
       opened={opened}
       onClose={close}
-      title={<Title order={3}>Add new file</Title>}
+      title="Create new file"
       centered
       padding={"lg"}
       size={"lg"}
     >
       <form onSubmit={form.onSubmit(handleCreateNewFile)}>
         <Stepper
-          size="md"
+          size="sm"
           active={active}
           onStepClick={setActive}
           breakpoint="sm"
@@ -127,7 +126,6 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               onChange={(file) => form.setFieldValue("file", file)}
               required
               mb={"lg"}
-              // size="md"
             />
 
             <TextInput
@@ -137,7 +135,6 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               radius="xs"
               withAsterisk
               mb={"lg"}
-              // size="md"
               {...form.getInputProps("fileName")}
             />
 
@@ -146,7 +143,6 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               label="Description"
               description="The file's description will appear in the project report"
               radius="xs"
-              // size="md"
               autosize
               minRows={2}
               mb={"lg"}
@@ -156,13 +152,13 @@ const CreateFileModal: FC<ICreateFileModal> = ({
 
           <Stepper.Step
             label="Step 2"
-            description="File options"
-            icon={<IconSitemap size="1.1rem" />}
+            description="Transcription options"
+            icon={<IconListCheck size="1.1rem" />}
           >
             <Radio.Group
               name="transcriptionQuality"
               label="Transcription quality"
-              description="Select the quality of transcription for this file"
+              description="We will notify you when the transcription is finished."
               withAsterisk
               mb={"lg"}
               {...form.getInputProps("transcriptionQuality")}
@@ -195,7 +191,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
             <Radio.Group
               name="audioType"
               label="Audio type"
-              description="Select the type of audio in this file (even if it is a video file)"
+              description="Select the type of audio in this file (even if it is a video file)."
               // withAsterisk
               mb={"lg"}
               {...form.getInputProps("audioType")}
@@ -239,25 +235,27 @@ const CreateFileModal: FC<ICreateFileModal> = ({
           </Stepper.Step>
 
           <Stepper.Step
-            icon={<IconSend size="1.1rem" />}
+            icon={<IconSpy size="1.1rem" />}
             label="Step 3"
             description="Privacy notice"
             loading={loading}
           >
             <Alert
               icon={<IconAlertCircle size="1rem" />}
-              title="Privacy Assurance Notice"
+              title="Privacy assurance notice"
               color="green"
             >
               By submitting this file, you grant us permission to securely store
-              it. Please rest assured that your file will remain confidential
-              and inaccessible to external parties.
+              and process it. Please rest assured that your file will remain
+              confidential and inaccessible to external parties.
             </Alert>
           </Stepper.Step>
 
           {completed && (
             <Stepper.Completed>
-              Your file was successfully created.
+              Your file has been uploaded and is now being processed. We will
+              notify via email you when the transcription is completed. You can
+              refresh the page in a few minutes, or leave the app.
             </Stepper.Completed>
           )}
         </Stepper>

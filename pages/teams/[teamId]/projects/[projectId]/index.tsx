@@ -1,7 +1,7 @@
 import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import CreateFileModal from "@/components/modal/multimedia/CreateFileModal";
+import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
@@ -116,7 +116,9 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
   const [creating, setCreating] = useState(false);
   const [showingFiles, setShowingFiles] =
     useState<FileWithoutTranscriptAndUri[]>(files);
-  const [buttonText, setButtonText] = useState<string>("Create");
+  const [buttonText, setButtonText] = useState<string>(
+    "Accept and upload file"
+  );
 
   const form = useForm({
     initialValues: {
@@ -132,7 +134,6 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
       fileName: (value) => (value.length > 0 ? null : "File name is required"),
       multipleSpeakers: (value) =>
         value ? null : "Please specify if there are multiple speakers",
-      // audioType: (value) => (value ? null : "Please select an audio type"),
       transcriptionQuality: (value) =>
         value ? null : "Please select a transcription quality",
     },

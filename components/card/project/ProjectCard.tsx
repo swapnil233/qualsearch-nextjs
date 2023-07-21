@@ -38,7 +38,7 @@ const ProjectCard: FC<IProjectCard> = ({
         <Group position="apart">
           <Group spacing={"sm"}>
             <Tooltip
-              label={`This project has ${fileCount} ${
+              label={`This project has ${fileCount || "no"} ${
                 fileCount !== 0 && fileCount <= 1 ? "file" : "files"
               }`}
             >
@@ -49,7 +49,7 @@ const ProjectCard: FC<IProjectCard> = ({
             </Tooltip>
 
             <Tooltip
-              label={`This project has ${noteCount} ${
+              label={`This project has ${noteCount || "no"} ${
                 noteCount !== 0 && noteCount <= 1 ? "note" : "notes"
               }`}
             >
@@ -60,7 +60,7 @@ const ProjectCard: FC<IProjectCard> = ({
             </Tooltip>
 
             <Tooltip
-              label={`This project has ${tagCount} ${
+              label={`This project has ${tagCount || "no"} ${
                 tagCount !== 0 && tagCount <= 1 ? "tag" : "tags"
               }`}
             >

@@ -57,8 +57,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           _count: {
             select: {
               files: true,
-              Note: true,
-              Tag: true,
+              notes: true,
+              tags: true,
             },
           },
         },

@@ -1,12 +1,4 @@
-import {
-  Button,
-  Group,
-  Modal,
-  TextInput,
-  Textarea,
-  Title,
-  rem,
-} from "@mantine/core";
+import { Button, Group, Modal, TextInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { FC } from "react";
 
@@ -34,40 +26,37 @@ const CreateProjectModal: FC<ICreateProjectModal> = ({
     <Modal
       opened={opened}
       onClose={close}
-      title={<Title order={3}>Create a new project</Title>}
+      title="Create new project"
       centered
       padding={"lg"}
     >
       <form onSubmit={form.onSubmit(handleCreateNewProject)}>
         <TextInput
-          placeholder="Acme Usability Tests..."
           label="Project name"
-          description="This name can be changed later in project settings"
+          placeholder="ABC App Modernization"
           radius="xs"
           withAsterisk
-          mb={rem(20)}
-          size="md"
+          mb={"md"}
           {...form.getInputProps("projectName")}
         />
 
         <Textarea
-          placeholder="This project is about..."
           label="Description"
-          description="The project's description will appear in the project report"
+          description="This will appear in the project report. Can be changed later."
+          placeholder="This project is about..."
           radius="xs"
-          size="md"
           autosize
           minRows={4}
-          mb={rem(20)}
+          mb={"md"}
           {...form.getInputProps("projectDescription")}
         />
 
         <Group position="apart">
-          <Button variant="subtle" radius="xs" onClick={close}>
+          <Button variant="default" color="gray" radius="xs" onClick={close}>
             Cancel
           </Button>
           <Button radius="xs" type="submit" loading={creating}>
-            Create
+            Create project
           </Button>
         </Group>
       </form>
