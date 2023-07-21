@@ -14,7 +14,8 @@ import { SimpleGrid, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { Project, User } from "@prisma/client";
+import { Project, ProjectStatus, User } from "@prisma/client";
+import { GetResult } from "@prisma/client/runtime/library";
 import {
   IconAlertCircle,
   IconCheck,
@@ -48,7 +49,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
-      let projects: Project[] = await prisma.project.findMany({
+      let projects = await prisma.project.findMany({
         where: {
           teamId: teamId as string,
         },
@@ -56,6 +57,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           _count: {
             select: {
               files: true,
+              Note: true,
+              Tag: true,
             },
           },
         },
@@ -107,14 +110,37 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface ITeamPage {
   user: User;
   team: TeamWithUsers;
-  projects: Project[];
+  projects: ({
+    _count: {
+      files: number;
+      Note: number;
+      Tag: number;
+    };
+  } & GetResult<
+    {
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      name: string;
+      description: string | null;
+      teamId: string;
+      status: ProjectStatus;
+    },
+    any
+  > & {})[];
 }
 
 const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const router = useRouter();
-  const [opened, { open, close }] = useDisclosure(false);
+
+  const fileCount = projects[0]._count.files;
+  const noteCount = projects[0]._count.Note;
+  const tagCount = projects[0]._count.Tag;
   const [creating, setCreating] = useState(false);
   const [showingProjects, setShowingProjects] = useState<Project[]>(projects);
+
+  // Modals
+  const [opened, { open, close }] = useDisclosure(false);
 
   // Invitation Modal
   const [inviteOpened, inviteControls] = useDisclosure(false);
@@ -410,7 +436,13 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
             ]}
           >
             {showingProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                fileCount={fileCount}
+                noteCount={noteCount}
+                tagCount={tagCount}
+              />
             ))}
           </SimpleGrid>
         </>

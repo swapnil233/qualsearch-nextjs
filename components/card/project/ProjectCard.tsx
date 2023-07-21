@@ -6,9 +6,17 @@ import { FC, memo } from "react";
 
 export interface IProjectCard {
   project: Project;
+  fileCount: number;
+  noteCount: number;
+  tagCount: number;
 }
 
-const ProjectCard: FC<IProjectCard> = ({ project }) => {
+const ProjectCard: FC<IProjectCard> = ({
+  project,
+  fileCount,
+  noteCount,
+  tagCount,
+}) => {
   return (
     <Card
       withBorder
@@ -29,24 +37,36 @@ const ProjectCard: FC<IProjectCard> = ({ project }) => {
         </Stack>
         <Group position="apart">
           <Group spacing={"sm"}>
-            <Tooltip label="This project has 3 files">
+            <Tooltip
+              label={`This project has ${fileCount} ${
+                fileCount !== 0 && fileCount <= 1 ? "file" : "files"
+              }`}
+            >
               <Group spacing={"0.25rem"} position="left">
                 <IconVideo size={"1rem"} />
-                <Text>3</Text>
+                <Text>{fileCount || 0}</Text>
               </Group>
             </Tooltip>
 
-            <Tooltip label="This project has 8 notes">
+            <Tooltip
+              label={`This project has ${noteCount} ${
+                noteCount !== 0 && noteCount <= 1 ? "note" : "notes"
+              }`}
+            >
               <Group spacing={"0.25rem"} position="left">
                 <IconNote size={"1rem"} />
-                <Text>8</Text>
+                <Text>{noteCount || 0}</Text>
               </Group>
             </Tooltip>
 
-            <Tooltip label="This project has 23 tags">
+            <Tooltip
+              label={`This project has ${tagCount} ${
+                tagCount !== 0 && tagCount <= 1 ? "tag" : "tags"
+              }`}
+            >
               <Group spacing={"0.25rem"} position="left">
                 <IconTags size={"1rem"} />
-                <Text>23</Text>
+                <Text>{tagCount || 0}</Text>
               </Group>
             </Tooltip>
           </Group>
