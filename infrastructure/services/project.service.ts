@@ -11,5 +11,15 @@ export async function createProject(
       description: projectDescription,
       teamId: teamId,
     },
+    include: {
+      _count: {
+        select: {
+          clips: true,
+          files: true,
+          notes: true,
+          tags: true
+        }
+      }
+    }
   });
 }

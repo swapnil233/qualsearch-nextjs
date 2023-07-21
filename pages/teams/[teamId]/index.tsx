@@ -14,7 +14,7 @@ import { SimpleGrid, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { Project, ProjectStatus, User } from "@prisma/client";
+import { ProjectStatus, User } from "@prisma/client";
 import { GetResult } from "@prisma/client/runtime/library";
 import {
   IconAlertCircle,
@@ -113,8 +113,8 @@ interface ITeamPage {
   projects: ({
     _count: {
       files: number;
-      Note: number;
-      Tag: number;
+      notes: number;
+      tags: number;
     };
   } & GetResult<
     {
@@ -132,12 +132,8 @@ interface ITeamPage {
 
 const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const router = useRouter();
-
-  const fileCount = projects[0]._count.files;
-  const noteCount = projects[0]._count.Note;
-  const tagCount = projects[0]._count.Tag;
   const [creating, setCreating] = useState(false);
-  const [showingProjects, setShowingProjects] = useState<Project[]>(projects);
+  const [showingProjects, setShowingProjects] = useState(projects);
 
   // Modals
   const [opened, { open, close }] = useDisclosure(false);
@@ -165,7 +161,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     values: { invitedEmail: string },
     event: React.FormEvent
   ) => {
-    console.log("Create new invitation");
     // Prevent the default form submission
     event.preventDefault();
 
@@ -181,8 +176,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           invitedEmail: inviteForm.values.invitedEmail,
         }),
       });
-
-      console.log(response);
 
       if (response.status === 201) {
         notifications.show({
@@ -260,7 +253,8 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           icon: <IconCheck />,
         });
 
-        const newProject: Project = data;
+        // @TODO type this
+        const newProject = data;
         setShowingProjects([...showingProjects, newProject]);
 
         form.reset();
@@ -439,9 +433,9 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
               <ProjectCard
                 key={project.id}
                 project={project}
-                fileCount={fileCount}
-                noteCount={noteCount}
-                tagCount={tagCount}
+                fileCount={project._count.files}
+                noteCount={project._count.notes}
+                tagCount={project._count.tags}
               />
             ))}
           </SimpleGrid>
