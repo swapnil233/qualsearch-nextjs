@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Group,
+  Loader,
   MantineColor,
   Stack,
   Text,
@@ -20,7 +21,7 @@ import {
   IconPresentation,
   IconVideo,
 } from "@tabler/icons-react";
-import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { FC, memo, useMemo } from "react";
 
 export interface IFileCard {
@@ -125,6 +126,7 @@ const TypeToIcon = (ft: FileType) => {
 };
 
 const FileCard: FC<IFileCard> = ({ file, teamId }) => {
+  const router = useRouter();
   const uploadedTimeAgo = useMemo(
     () => timeAgo(new Date(file.updatedAt)),
     [file.updatedAt]
@@ -142,9 +144,12 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
       <Stack justify="space-between" align="stretch" h="100%">
         <Stack spacing={"xs"} justify="space-between" align="stretch">
           <Group w="100%" align="center" position="apart" noWrap>
-            <Text fz="lg" fw={500}>
-              {file.name}
-            </Text>
+            <Group spacing={"xs"}>
+              {file.status === "PROCESSING" && <Loader size={"xs"} />}
+              <Text fz="lg" fw={500}>
+                {file.name}
+              </Text>
+            </Group>
             {TypeToIcon(file.type)}
           </Group>
           <Text fz="sm" c={"dimmed"} lineClamp={2}>
@@ -156,18 +161,20 @@ const FileCard: FC<IFileCard> = ({ file, teamId }) => {
           <Text fz="sm" c={"dimmed"}>
             Updated {uploadedTimeAgo}
           </Text>
-          <Link
-            href={`/teams/${teamId}/projects/${file.projectId}/files/${file.id}`}
-            passHref
+          <Button
+            disabled={file.status === "PROCESSING"}
+            // loading={file.status === "PROCESSING"}
+            variant="default"
+            onClick={() => {
+              file.status === "COMPLETED"
+                ? router.push(
+                    `/teams/${teamId}/projects/${file.projectId}/files/${file.id}`
+                  )
+                : "";
+            }}
           >
-            <Button
-              disabled={file.status === "PROCESSING"}
-              loading={file.status === "PROCESSING"}
-              variant="default"
-            >
-              {file.status === "PROCESSING" ? "Transcribing" : "View"}
-            </Button>
-          </Link>
+            {file.status === "PROCESSING" ? "Transcribing" : "View"}
+          </Button>
         </Group>
       </Stack>
     </Card>
