@@ -1,7 +1,7 @@
 import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import DeleteConfirmationModal from "@/components/modal/delete/DeleteConfirmationModal";
+import TeamDeletionConfirmationModal from "@/components/modal/delete/TeamDeletionConfirmationModal";
 import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
@@ -471,10 +471,11 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         form={inviteForm}
       />
 
-      <DeleteConfirmationModal
+      <TeamDeletionConfirmationModal
         opened={deleteOpened}
         close={deleteControls.close}
-        deleting={deleting}
+        isDeleting={deleting}
+        teamName={team.name}
         handleDelete={() => handleDelete(team.id)}
       />
     </>
