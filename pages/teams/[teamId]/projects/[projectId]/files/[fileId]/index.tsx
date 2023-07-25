@@ -1,4 +1,4 @@
-import Transcript from "@/components/Transcript";
+import Tiptap from "@/components/Tiptap";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import {
@@ -184,7 +184,9 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           />
         )}
 
-        <Transcript transcript={transcript} audioRef={mediaRef} user={user} />
+        {/* <Transcript transcript={transcript} audioRef={mediaRef} user={user} /> */}
+        {/* <Transcript transcript={transcript} user={user} /> */}
+        <Tiptap transcript={transcript} user={user} />
       </div>
     </>
   );
