@@ -1,4 +1,5 @@
 import { RouterTransition } from "@/components/RouterTransition";
+import "@/styles/Tiptap.css";
 import "@/styles/globals.css";
 import {
   ColorScheme,
