@@ -1,9 +1,9 @@
-import { getSession } from "next-auth/react";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { Session } from "next-auth";
+import { getSession } from "next-auth/react";
 
 type AuthenticatedCallback = (
-  session: Session
+  _session: Session
 ) => Promise<GetServerSidePropsResult<any>>;
 
 export const requireAuthentication = async (
