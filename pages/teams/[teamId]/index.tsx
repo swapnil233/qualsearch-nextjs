@@ -406,7 +406,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
               { maxWidth: "36rem", cols: 1, spacing: "sm" },
             ]}
           >
-            {projects.map((project) => (
+            {showingProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
