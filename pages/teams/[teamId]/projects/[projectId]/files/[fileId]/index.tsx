@@ -110,16 +110,35 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const words = transcript.words;
   const [summary, setSummary] = useState<Summary | null>(null);
 
-  // Fetch summaries if they exist
+  // Fetch summary if it exists, else create one.
   useEffect(() => {
     const fetchSummary = async () => {
       try {
         const response = await fetch(
           `/api/summaries?transcriptId=${transcript.id}`
         );
-        if (response.ok) {
+        // Summary exists in DB
+        if (response.status === 200) {
           const summaryData = await response.json();
           setSummary(summaryData);
+          // Create new summary since it doesn't exist in DB.
+        } else if (response.status === 404) {
+          try {
+            const response = await fetch("/api/summaries/", {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              method: "POST",
+              body: JSON.stringify({ transcriptId: transcript.id }),
+            });
+            if (response.status === 200) {
+              const newSummary = await response.json();
+              setSummary(newSummary.summary);
+            }
+          } catch (error) {
+            console.log(error);
+          }
         } else {
           console.error("Response error:", response.status);
         }

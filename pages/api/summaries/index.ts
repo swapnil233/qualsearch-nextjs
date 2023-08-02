@@ -74,8 +74,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
-    if (!transcript)
+    if (!transcript) {
       return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);
+    }
 
     // Initialize pinecone
     const pinecone = new PineconeClient();
@@ -83,7 +84,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       environment: process.env.PINECONE_ENVIRONMENT!,
       apiKey: process.env.PINECONE_API_KEY!,
     });
-
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
 
     // Split transcript into 1,000 char chunks with 200 char overlap
@@ -96,7 +96,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       transcript.transcriptString as string,
     ]);
 
-    // Upsert transcript embeddings to Pinecone
+    // Upsert transcript embeddings to Pinecone vector store.
     await PineconeStore.fromDocuments(
       splitTranscript,
       new OpenAIEmbeddings({
@@ -119,23 +119,27 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // https://js.langchain.com/docs/modules/chains/popular/summarize
     const chain = loadSummarizationChain(model, {
       type: "map_reduce",
+      returnIntermediateSteps: true
     });
-    const summary = await chain.call({
-      input_documents: splitTranscript,
+    const result = await chain.call({
+      input_documents: splitTranscript
     });
 
     // Insert the summary to the DB
-    await prisma.transcript.update({
+    const summary = await prisma.transcript.update({
       where: {
         id: transcriptId,
       },
       data: {
         summary: {
           create: {
-            content: summary.text.trim().replaceAll("\n", " "),
+            content: result.text.trim().replaceAll("\n", " "),
           },
         },
       },
+      select: {
+        summary: true
+      }
     });
 
     return res.status(HttpStatus.Ok).send(summary);
