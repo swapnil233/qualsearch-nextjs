@@ -1,4 +1,5 @@
 import Transcript from "@/components/Transcript";
+import SummaryCard from "@/components/card/summary/SummaryCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import {
@@ -10,11 +11,17 @@ import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { File, User } from "@prisma/client";
+import { Box } from "@mantine/core";
+import {
+  File,
+  Transcript as PrismaTranscript,
+  Summary,
+  User,
+} from "@prisma/client";
 import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -36,12 +43,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         where: {
           id: fileId as string,
         },
-        include: {
-          transcript: true,
+      });
+      file = formatDatesToIsoString(file);
+
+      let transcript = await prisma.transcript.findUniqueOrThrow({
+        where: {
+          fileId: fileId as string,
         },
       });
-
-      file = formatDatesToIsoString(file);
+      transcript = formatDatesToIsoString(transcript);
 
       // Get the team ID of the project
       const teamId = await getTeamIdFromProjectId(file.projectId);
@@ -63,6 +73,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           props: {
             user,
             file,
+            transcript,
             mediaUrl,
             teamId,
           },
@@ -82,6 +93,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface IFilePage {
   file: File;
+  transcript: PrismaTranscript;
   teamId: string;
   mediaUrl: string;
   user: User;
@@ -89,14 +101,54 @@ interface IFilePage {
 
 const FilePage: NextPageWithLayout<IFilePage> = ({
   file,
+  transcript,
   mediaUrl,
   user,
   teamId,
 }) => {
   const mediaRef = useRef(null);
+  const words = transcript.words;
+  const [summary, setSummary] = useState<Summary | null>(null);
 
-  // @ts-ignore
-  const transcript = file.transcript.words;
+  // Fetch summary if it exists, else create one.
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const response = await fetch(
+          `/api/summaries?transcriptId=${transcript.id}`
+        );
+        // Summary exists in DB
+        if (response.status === 200) {
+          const summaryData = await response.json();
+          setSummary(summaryData);
+          // Create new summary since it doesn't exist in DB.
+        } else if (response.status === 404) {
+          try {
+            const response = await fetch("/api/summaries/", {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              method: "POST",
+              body: JSON.stringify({ transcriptId: transcript.id }),
+            });
+            if (response.status === 200) {
+              const newSummary = await response.json();
+              setSummary(newSummary.summary);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        } else {
+          console.error("Response error:", response.status);
+        }
+      } catch (error) {
+        console.log("Could not fetch summary:", error);
+      }
+    };
+
+    fetchSummary();
+  }, [transcript.id]);
 
   const editFile = () => {
     console.log("Edit file");
@@ -184,7 +236,23 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           />
         )}
 
-        <Transcript transcript={transcript} audioRef={mediaRef} user={user} />
+        <Box mt={"lg"}>
+          {summary ? (
+            <SummaryCard
+              summary={summary.content}
+              dateSummarized={summary.createdAt}
+            />
+          ) : (
+            <SummaryCard summary="" dateSummarized="" />
+          )}
+        </Box>
+
+        <Transcript
+          // @ts-ignore
+          transcript={words}
+          audioRef={mediaRef}
+          user={user}
+        />
       </div>
     </>
   );

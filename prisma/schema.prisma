@@ -196,6 +196,20 @@ model Transcript {
   // 1-1: a Transcript belongs to one File. A File can have one Transcript.
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @unique
+
+  // 1-1: a Transcript can have 1 summary.
+  summary   Summary? @relation(fields: [summaryId], references: [id], onDelete: Cascade)
+  summaryId String?  @unique
+}
+
+model Summary {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+
+  // 1-1: a Summary belongs to 1 Transcript.
+  Transcript Transcript?
 }
 
 model TranscriptMetadata {

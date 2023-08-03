@@ -8,14 +8,14 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
 import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
 import { TeamWithUsers } from "@/types";
+import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { SimpleGrid, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { ProjectStatus, User } from "@prisma/client";
-import { GetResult } from "@prisma/client/runtime/library";
+import { Prisma, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
@@ -49,6 +49,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
+      // Include counts for files, notes and tags to display in card.
       let projects = await prisma.project.findMany({
         where: {
           teamId: teamId as string,
@@ -71,25 +72,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
-      // Turn the dates into ISO strings otherwise Next.js will throw an error
-      team = {
-        ...team,
-        // @ts-ignore
-        createdAt: team.createdAt.toISOString(),
-
-        // @ts-ignore
-        updatedAt: team.updatedAt.toISOString(),
-      };
-
-      // @ts-ignore
-      projects = projects.map((project) => ({
-        ...project,
-        // @ts-ignore
-        createdAt: project.createdAt.toISOString(),
-
-        // @ts-ignore
-        updatedAt: project.updatedAt.toISOString(),
-      }));
+      // Turn the dates into ISO strings otherwise Next.js will throw errors
+      team = formatDatesToIsoString(team);
+      projects = formatDatesToIsoString(projects);
 
       return {
         props: {
@@ -110,24 +95,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface ITeamPage {
   user: User;
   team: TeamWithUsers;
-  projects: ({
-    _count: {
-      files: number;
-      notes: number;
-      tags: number;
+  projects: Prisma.ProjectGetPayload<{
+    include: {
+      _count: {
+        select: {
+          files: true;
+          notes: true;
+          tags: true;
+        };
+      };
     };
-  } & GetResult<
-    {
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      name: string;
-      description: string | null;
-      teamId: string;
-      status: ProjectStatus;
-    },
-    any
-  > & {})[];
+  }>[];
 }
 
 const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
@@ -253,7 +231,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           icon: <IconCheck />,
         });
 
-        // @TODO type this
         const newProject = data;
         setShowingProjects([...showingProjects, newProject]);
 
