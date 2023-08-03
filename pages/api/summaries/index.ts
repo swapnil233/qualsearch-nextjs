@@ -5,6 +5,7 @@ import { PineconeClient } from "@pinecone-database/pinecone";
 import { loadSummarizationChain } from "langchain/chains";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
+import { PromptTemplate } from "langchain/prompts";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -111,15 +112,21 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     );
 
     const model = new OpenAI({
-      modelName: "gpt-4",
-      temperature: 0.3,
+      // @TODO figure out why gpt-4 doesn't work??
+      modelName: "gpt-3.5-turbo",
+      temperature: 0,
     });
+
+    const template = `The following text is the transcript from a user experience team conducting a usability test. Create a detailed summary of what happened in the interview. The summary should consist of an initial overview section, the title should which must be **Overview:**, in which the most important findings and/or discussions are summarized briefly. Then, there should be a "Key findings" section below that, the title of which must be **Key findings**, which must list out 5 to 10 bullet points covering the main findings from the interview in a numbered list format. An example of a finding is "User finds the log-in process difficult as it requires 2FA". This summary will be viewed by UX experts/professionals and software engineers within web application development, so you can use UX jargon if necessary.`
+
+    const promptTemplate = PromptTemplate.fromTemplate(template);
 
     // Generate a summary
     // https://js.langchain.com/docs/modules/chains/popular/summarize
     const chain = loadSummarizationChain(model, {
       type: "map_reduce",
-      returnIntermediateSteps: true
+      verbose: true,
+      combinePrompt: promptTemplate
     });
     const result = await chain.call({
       input_documents: splitTranscript
@@ -133,7 +140,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       data: {
         summary: {
           create: {
-            content: result.text.trim().replaceAll("\n", " "),
+            content: result.text
           },
         },
       },

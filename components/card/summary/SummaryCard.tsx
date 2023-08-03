@@ -7,6 +7,14 @@ export interface ISummaryCard {
 }
 
 const SummaryCard: FC<ISummaryCard> = ({ summary, dateSummarized }) => {
+  // Parse the bolds returned by AI (in **)
+  const parseMarkdown = (text: string) => {
+    const parts = text.split("**");
+    return parts.map((part: string, i: number) =>
+      i % 2 === 0 ? part : <strong key={i}>{part}</strong>
+    );
+  };
+
   return (
     <Card
       withBorder
@@ -20,7 +28,9 @@ const SummaryCard: FC<ISummaryCard> = ({ summary, dateSummarized }) => {
         <Stack spacing={"md"}>
           <Title order={3}>Summary</Title>
           {summary !== "" ? (
-            <Text>{summary}</Text>
+            summary
+              .split("\n")
+              .map((line, i) => <Text key={i}>{parseMarkdown(line)}</Text>)
           ) : (
             <>
               <Skeleton height={11} radius={"xs"} />
