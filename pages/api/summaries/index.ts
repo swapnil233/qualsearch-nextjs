@@ -117,7 +117,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       temperature: 0,
     });
 
-    const template = `The following text is the transcript from a user experience team conducting a usability test. Create a detailed summary of what happened in the interview. The summary should consist of an initial overview section, the title should which must be **Overview:**, in which the most important findings and/or discussions are summarized briefly. Then, there should be a "Key findings" section below that, the title of which must be **Key findings**, which must list out 5 to 10 bullet points covering the main findings from the interview in a numbered list format. An example of a finding is "User finds the log-in process difficult as it requires 2FA". This summary will be viewed by UX experts/professionals and software engineers within web application development, so you can use UX jargon if necessary.`
+    const template = `The following text is the transcript from a user experience team conducting a usability test. Create a detailed summary of what happened in the interview. The summary should consist of an initial overview section, the title should which must be **Overview:**, in which the most important findings and/or discussions are summarized briefly. Then, there should be a "Key findings" section below that, the title of which must be **Key findings**, which must list out 5 to 10 bullet points covering the main findings from the interview in a numbered list format. An example of a finding is "User finds the log-in process difficult as it requires 2FA". This summary will be viewed by UX experts/professionals and software engineers within web application development, so you can use UX jargon if necessary.`;
 
     const promptTemplate = PromptTemplate.fromTemplate(template);
 
@@ -126,10 +126,10 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const chain = loadSummarizationChain(model, {
       type: "map_reduce",
       verbose: true,
-      combinePrompt: promptTemplate
+      combinePrompt: promptTemplate,
     });
     const result = await chain.call({
-      input_documents: splitTranscript
+      input_documents: splitTranscript,
     });
 
     // Insert the summary to the DB
@@ -140,13 +140,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       data: {
         summary: {
           create: {
-            content: result.text
+            content: result.text,
           },
         },
       },
       select: {
-        summary: true
-      }
+        summary: true,
+      },
     });
 
     return res.status(HttpStatus.Ok).send(summary);

@@ -3,8 +3,8 @@ export async function getSignedUrl(uri: string): Promise<string | null> {
   const baseUrl = process.env.VERCEL_URL
     ? process.env.VERCEL_URL
     : process.env.AMPLIFY_URL
-      ? process.env.AMPLIFY_URL
-      : "http://localhost:3003";
+    ? process.env.AMPLIFY_URL
+    : "http://localhost:3003";
 
   const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${uri}`);
 

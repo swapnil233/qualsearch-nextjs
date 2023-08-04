@@ -17,9 +17,9 @@ export async function createProject(
           clips: true,
           files: true,
           notes: true,
-          tags: true
-        }
-      }
-    }
+          tags: true,
+        },
+      },
+    },
   });
 }

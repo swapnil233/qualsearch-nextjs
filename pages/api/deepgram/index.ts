@@ -123,25 +123,21 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
         ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
         : "https://transcription-eight.vercel.app/api/webhooks/deepgram/";
 
-    const req_expensive = `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`
-    const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`
+    console.log("Callback URL", cb)
 
-    console.log("Expensive", req_expensive)
-    console.log("Cheaper", req_expensive)
+    const req_expensive = `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`;
+    const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 
-    const response = await fetch(
-      req_expensive,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Token ${DEEPGRAM_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: uri }),
-      }
-    );
+    const response = await fetch(req_expensive, {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${DEEPGRAM_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: uri }),
+    });
     const data = await response.json();
-    console.log("DG Response", data)
+    console.log("DG Response", data);
     res.status(HttpStatus.Ok).json(data);
   } catch (error) {
     console.error(error);
