@@ -120,16 +120,24 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const deepgramCallbackUrl =
       "https://transcription-eight.vercel.app/api/webhooks/deepgram/";
 
-    const cb = process.env.VERCEL
-      ? `${process.env.VERCEL_URL}/api/webhooks/deepgram`
-      : process.env.AMPLIFY_URL ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
-        : `${process.env.VERCEL_URL}/api/webhooks/deepgram`
+    let cb;
+
+    if (process.env.VERCEL) {
+      cb = `${process.env.VERCEL_URL}/api/webhooks/deepgram`;
+    } else if (process.env.AMPLIFY_URL) {
+      cb = `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`;
+    } else {
+      cb = "https://transcription-eight.vercel.app/api/webhooks/deepgram/";
+    }
 
     const req_expensive = `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`
 
+    console.log("Expensive", req_expensive)
+    console.log("Cheaper", req_expensive)
+
     const response = await fetch(
-      req_cheaper,
+      req_expensive,
       {
         method: "POST",
         headers: {
@@ -140,6 +148,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       }
     );
     const data = await response.json();
+    console.log("DG Response", data)
     res.status(HttpStatus.Ok).json(data);
   } catch (error) {
     console.error(error);
