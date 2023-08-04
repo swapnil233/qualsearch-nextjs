@@ -20,8 +20,8 @@ const getSignedUrlWithClient = async ({
   bucket: string;
   key: string;
 }) => {
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
+  const accessKeyId = process.env.ACCESS_KEY_ID!;
+  const secretAccessKey = process.env.SECRET_ACCESS_KEY!;
 
   const client = new S3Client({
     region,
@@ -71,8 +71,8 @@ export default async function Handler(
         return;
       }
 
-      const region = process.env.AWS_BUCKET_REGION!;
-      const bucket = process.env.AWS_BUCKET_NAME!;
+      const region = process.env.BUCKET_REGION!;
+      const bucket = process.env.BUCKET_NAME!;
 
       const url = await getSignedUrlWithClient({
         region,
