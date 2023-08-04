@@ -2,7 +2,6 @@ import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
-import absoluteUrl from 'next-absolute-url';
 import { getServerSession } from "next-auth";
 import fetch from "node-fetch";
 import { authOptions } from "../auth/[...nextauth]";
@@ -74,25 +73,30 @@ export default async function Handler(
       .send("Type is missing from the request body");
 
   // Get the base URL for the API
-  let baseUrl = '';
-  if (process.env.VERCEL) {
-    baseUrl = `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.AMPLIFY) {
-    baseUrl = process.env.AMPLIFY_URL!;
-  } else {
-    baseUrl = 'http://localhost:3003';
-  }
+  // let baseUrl = '';
+  // if (process.env.VERCEL) {
+  //   baseUrl = `https://${process.env.VERCEL_URL}`;
+  // } else if (process.env.AMPLIFY) {
+  //   baseUrl = process.env.AMPLIFY_URL!;
+  // } else {
+  //   baseUrl = 'http://localhost:3003';
+  // }
 
-  console.log("VERCEL:", process.env.VERCEL)
-  console.log("VERCEL_URL:", process.env.VERCEL_URL)
-  console.log("AMPLIFY:", process.env.AMPLIFY)
-  console.log("AMPLIFY_URL:", process.env.AMPLIFY_URL)
+  // console.log("VERCEL:", process.env.VERCEL)
+  // console.log("VERCEL_URL:", process.env.VERCEL_URL)
+  // console.log("AMPLIFY:", process.env.AMPLIFY)
+  // console.log("AMPLIFY_URL:", process.env.AMPLIFY_URL)
 
-  const { origin } = absoluteUrl(req);
-  console.log('Requested URL ->', origin);
+  // const { origin } = absoluteUrl(req);
+  // console.log('Requested URL ->', origin);
+
+  // Get the base URL for the API
+  const baseUrl = process.env.AMPLIFY_URL
+    ? "https://" + process.env.AMPLIFY_URL
+    : "http://localhost:3003";
 
   // GET '/api/aws/getSignedUrl?key={key}'
-  const response = await fetch(`${origin}/api/aws/getSignedUrl?key=${key}`);
+  const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
   if (!response.ok) {
     return res.status(response.status).send(await response.text());
   }
@@ -100,7 +104,7 @@ export default async function Handler(
   const signedUrl = responseJson.url;
 
   // Make a POST request to '/api/deepgram/' to get the rquest_id sent by Deepgram callback
-  const deepgramResponse = await fetch(`/api/deepgram/`, {
+  const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
