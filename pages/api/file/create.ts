@@ -73,12 +73,12 @@ export default async function Handler(
       .send("Type is missing from the request body");
 
   // Get the base URL for the API
-  const baseUrl = process.env.VERCEL_URL
-    ? "https://" + process.env.VERCEL_URL
-    : "http://localhost:3003";
+  // const baseUrl = process.env.VERCEL_URL
+  //   ? "https://" + process.env.VERCEL_URL
+  //   : "http://localhost:3003";
 
   // GET '/api/aws/getSignedUrl?key={key}'
-  const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
+  const response = await fetch(`/api/aws/getSignedUrl?key=${key}`);
   if (!response.ok) {
     return res.status(response.status).send(await response.text());
   }
@@ -86,7 +86,7 @@ export default async function Handler(
   const signedUrl = responseJson.url;
 
   // Make a POST request to '/api/deepgram/' to get the rquest_id sent by Deepgram callback
-  const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
+  const deepgramResponse = await fetch(`/api/deepgram/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
