@@ -120,8 +120,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const deepgramCallbackUrl =
       "https://transcription-eight.vercel.app/api/webhooks/deepgram/";
 
+    const cb = process.env.VERCEL
+      ? `${process.env.VERCEL_URL}/api/webhooks/deepgram`
+      : process.env.AMPLIFY_URL ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
+        : `${process.env.VERCEL_URL}/api/webhooks/deepgram`
+
     const response = await fetch(
-      `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${deepgramCallbackUrl}`,
+      `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`,
       {
         method: "POST",
         headers: {
