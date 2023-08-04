@@ -19,6 +19,8 @@ frontend:
         - echo "SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY" >> .env
         - echo "DEEPGRAM_API_KEY=$DEEPGRAM_API_KEY" >> .env
         - echo "DEEPGRAM_PROJECT_ID=$DEEPGRAM_PROJECT_ID" >> .env
+        - echo "AMPLIFY=$AMPLIFY" >> .env
+        - echo "AMPLIFY_URL=$AMPLIFY_URL" >> .env
         - npm ci
     build:
       commands:
