@@ -125,8 +125,11 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       : process.env.AMPLIFY_URL ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
         : `${process.env.VERCEL_URL}/api/webhooks/deepgram`
 
+    const req_expensive = `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`
+    const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`
+
     const response = await fetch(
-      `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`,
+      req_cheaper,
       {
         method: "POST",
         headers: {
