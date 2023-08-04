@@ -74,7 +74,7 @@ export default async function Handler(
 
   // Get the base URL for the API
   const baseUrl = process.env.VERCEL_URL
-    ? process.env.VERCEL_URL
+    ? "https://" + process.env.VERCEL_URL
     : process.env.AMPLIFY_URL
       ? process.env.AMPLIFY_URL
       : "http://localhost:3003";
