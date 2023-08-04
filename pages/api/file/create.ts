@@ -92,7 +92,7 @@ export default async function Handler(
 
   // Get the base URL for the API
   const baseUrl = process.env.AMPLIFY_URL
-    ? "https://" + process.env.AMPLIFY_URL
+    ? process.env.AMPLIFY_URL
     : "http://localhost:3003";
 
   // GET '/api/aws/getSignedUrl?key={key}'
