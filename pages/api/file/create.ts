@@ -82,8 +82,13 @@ export default async function Handler(
     baseUrl = 'http://localhost:3003';
   }
 
+  console.log("VERCEL:", process.env.VERCEL)
+  console.log("VERCEL_URL:", process.env.VERCEL_URL)
+  console.log("AMPLIFY:", process.env.AMPLIFY)
+  console.log("AMPLIFY_URL:", process.env.AMPLIFY_URL)
+
   // GET '/api/aws/getSignedUrl?key={key}'
-  const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
+  const response = await fetch(`https://main.dvws5ww9zrzf5.amplifyapp.com/api/aws/getSignedUrl?key=${key}`);
   if (!response.ok) {
     return res.status(response.status).send(await response.text());
   }
