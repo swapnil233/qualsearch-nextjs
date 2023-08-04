@@ -73,12 +73,17 @@ export default async function Handler(
       .send("Type is missing from the request body");
 
   // Get the base URL for the API
-  // const baseUrl = process.env.VERCEL_URL
-  //   ? "https://" + process.env.VERCEL_URL
-  //   : "http://localhost:3003";
+  let baseUrl = '';
+  if (process.env.VERCEL) {
+    baseUrl = `https://${process.env.VERCEL_URL}`;
+  } else if (process.env.AMPLIFY) {
+    baseUrl = process.env.AMPLIFY_URL!;
+  } else {
+    baseUrl = 'http://localhost:3003';
+  }
 
   // GET '/api/aws/getSignedUrl?key={key}'
-  const response = await fetch(`/api/aws/getSignedUrl?key=${key}`);
+  const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
   if (!response.ok) {
     return res.status(response.status).send(await response.text());
   }
