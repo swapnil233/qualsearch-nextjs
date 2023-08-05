@@ -9,8 +9,6 @@ import { PromptTemplate } from "langchain/prompts";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
 
 /**
  * Handler for the '/api/summaries' API endpoint.
@@ -30,11 +28,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   // Get the server session and authenticate the request.
-  const session = await getServerSession(req, res, authOptions);
+  // const session = await getServerSession(req, res, authOptions);
 
-  if (!session) {
-    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
-  }
+  // if (!session) {
+  //   return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  // }
 
   // Handle the request depending on its HTTP method.
   switch (req.method) {
@@ -89,8 +87,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     // Split transcript into 1,000 char chunks with 200 char overlap
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
-      chunkOverlap: 200,
+      chunkSize: 10000,
+      chunkOverlap: 500,
+      separators: ["\n\n", "\n"]
     });
 
     const splitTranscript = await splitter.createDocuments([
@@ -98,7 +97,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     ]);
 
     // Upsert transcript embeddings to Pinecone vector store.
-    await PineconeStore.fromDocuments(
+    const pineconeStore = await PineconeStore.fromDocuments(
       splitTranscript,
       new OpenAIEmbeddings({
         openAIApiKey: process.env.OPENAI_API_KEY,
@@ -111,24 +110,45 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       }
     );
 
+    console.log(pineconeStore)
+
     const model = new OpenAI({
       // @TODO figure out why gpt-4 doesn't work??
       modelName: "gpt-3.5-turbo",
       temperature: 0,
     });
 
-    const template = `The following text is the transcript from a user experience team conducting a usability test. Create a detailed summary of what happened in the interview. The summary should consist of an initial overview section, the title should which must be **Overview:**, in which the most important findings and/or discussions are summarized briefly. Then, there should be a "Key findings" section below that, the title of which must be **Key findings**, which must list out 5 to 10 bullet points covering the main findings from the interview in a numbered list format. An example of a finding is "User finds the log-in process difficult as it requires 2FA". This summary will be viewed by UX experts/professionals and software engineers within web application development, so you can use UX jargon if necessary.`;
+    const mapPromptTemplate = new PromptTemplate({
+      inputVariables: ["text"],
+      template: `Write a concise summary of the following: 
+      "{text}"
+      CONCISE SUMMARY:
+      `
+    })
 
-    const promptTemplate = PromptTemplate.fromTemplate(template);
+    const combinePromptTemplate = new PromptTemplate({
+      inputVariables: [],
+      template: `
+      Given text is a UX team's usability test transcript. Produce a summary including two sections:
+      
+      **Overview**: Briefly encapsulate key discussions or outcomes.
+  
+      **Key Findings**: Enumerate 5-10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". 
+  
+      The summary targets UX professionals and web app development engineers; UX jargon usage is acceptable. 
+  
+      If the text isn't a usability test transcript, return an appropriate message.`
+    })
 
     // Generate a summary
     // https://js.langchain.com/docs/modules/chains/popular/summarize
-    const chain = loadSummarizationChain(model, {
+    const summaryChain = loadSummarizationChain(model, {
       type: "map_reduce",
-      verbose: true,
-      combinePrompt: promptTemplate,
+      // verbose: true,
+      combinePrompt: combinePromptTemplate,
+      // combineMapPrompt: mapPromptTemplate
     });
-    const result = await chain.call({
+    const result = await summaryChain.call({
       input_documents: splitTranscript,
     });
 
