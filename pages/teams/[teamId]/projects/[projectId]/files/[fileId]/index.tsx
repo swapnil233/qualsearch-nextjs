@@ -225,7 +225,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             src={mediaUrl}
             controls
             ref={mediaRef}
-            className="md:fixed md:bottom-2 md:right-2 md:w-1/3 z-50 w-full"
+            className="md:fixed md:bottom-2 md:right-2 md:w-1/5 z-50 w-full"
           />
         ) : (
           <audio
