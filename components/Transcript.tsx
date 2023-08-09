@@ -169,7 +169,11 @@ const Transcript: React.FC<ITranscriptProps> = ({
 
   const getSelectedTextDetails = () => {
     const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
+    if (
+      selection &&
+      selection.rangeCount > 0 &&
+      !selection.isCollapsed // This ensures that there's an actual selection
+    ) {
       const range = selection.getRangeAt(0);
       const startElement = range.startContainer.parentElement as HTMLElement;
       const endElement = range.endContainer.parentElement as HTMLElement;
