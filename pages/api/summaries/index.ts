@@ -1,5 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { Paragraph } from "@/types";
 import prisma from "@/utils/prisma";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { loadSummarizationChain } from "langchain/chains";
@@ -9,6 +10,22 @@ import { PromptTemplate } from "langchain/prompts";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]";
+
+const removeUnwantedKeys = (data: { paragraphs: Paragraph[] }): { paragraphs: Paragraph[] } => {
+  data.paragraphs.forEach((paragraph) => {
+    delete paragraph.start;
+    delete paragraph.end;
+    delete paragraph.num_words;
+
+    paragraph.sentences.forEach((sentence) => {
+      delete sentence.start;
+      delete sentence.end;
+    });
+  });
+  return data;
+};
 
 /**
  * Handler for the '/api/summaries' API endpoint.
@@ -28,11 +45,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   // Get the server session and authenticate the request.
-  // const session = await getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
 
-  // if (!session) {
-  //   return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
-  // }
+  if (!session) {
+    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  }
 
   // Handle the request depending on its HTTP method.
   switch (req.method) {
@@ -67,7 +84,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Get the transcript from DB
-    const transcript = await prisma.transcript.findUniqueOrThrow({
+    const transcript = await prisma.transcript.findUnique({
       where: {
         id: transcriptId,
       },
@@ -85,69 +102,63 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     });
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
 
-    // Split transcript into 1,000 char chunks with 200 char overlap
+    // Split transcript into 10,000 char chunks with 500 char overlap
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: 10000,
       chunkOverlap: 500,
-      separators: ["\n\n", "\n"]
     });
 
+    // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
+    const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
+
     const splitTranscript = await splitter.createDocuments([
-      transcript.transcriptString as string,
+      JSON.stringify(cleanParagraphs)
     ]);
 
     // Upsert transcript embeddings to Pinecone vector store.
-    const pineconeStore = await PineconeStore.fromDocuments(
+    await PineconeStore.fromDocuments(
       splitTranscript,
       new OpenAIEmbeddings({
         openAIApiKey: process.env.OPENAI_API_KEY,
       }),
       {
         pineconeIndex,
-        namespace: `file-${transcript.fileId}-transcript-${transcript.id}`,
+        namespace: `file-${transcript.fileId}-transcript-${transcript.id}-5`,
         // @TODO figure out what textKey is
         textKey: "text",
       }
     );
 
-    console.log(pineconeStore)
-
     const model = new OpenAI({
-      // @TODO figure out why gpt-4 doesn't work??
-      modelName: "gpt-3.5-turbo",
-      temperature: 0,
+      // @TODO figure out why gpt-4 doesn't work??tr
+      modelName: "gpt-4",
+      temperature: 0.3,
     });
 
-    const mapPromptTemplate = new PromptTemplate({
-      inputVariables: ["text"],
-      template: `Write a concise summary of the following: 
-      "{text}"
-      CONCISE SUMMARY:
-      `
-    })
-
     const combinePromptTemplate = new PromptTemplate({
-      inputVariables: [],
+      inputVariables: ["text"],
       template: `
-      Given text is a UX team's usability test transcript. Produce a summary including two sections:
+      Given text is a UX team's usability test transcript. Produce a summary including two sections, styled as such:
       
       **Overview**: Briefly encapsulate key discussions or outcomes.
   
-      **Key Findings**: Enumerate 5-10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". 
+      **Key Findings**: Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement" Start with issues and problems the user had during the user test, then cover the remaining items. 
   
       The summary targets UX professionals and web app development engineers; UX jargon usage is acceptable. 
   
-      If the text isn't a usability test transcript, return an appropriate message.`
+      If the text isn't a usability test transcript, return an appropriate message.
+      
+      {text}`
     })
 
     // Generate a summary
     // https://js.langchain.com/docs/modules/chains/popular/summarize
     const summaryChain = loadSummarizationChain(model, {
       type: "map_reduce",
-      // verbose: true,
+      verbose: true,
       combinePrompt: combinePromptTemplate,
-      // combineMapPrompt: mapPromptTemplate
     });
+
     const result = await summaryChain.call({
       input_documents: splitTranscript,
     });

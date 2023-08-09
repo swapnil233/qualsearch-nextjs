@@ -148,8 +148,6 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
     },
     event: React.FormEvent
   ) => {
-    console.log("handleCreateNewFile invoked");
-    console.log(form.values);
     // Prevent the default form submission
     event.preventDefault();
 
@@ -230,7 +228,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
         form.reset();
         setCreating(false);
         setButtonText("Create");
-        // close();
+        close();
         form.reset();
       }
     } catch (error) {
