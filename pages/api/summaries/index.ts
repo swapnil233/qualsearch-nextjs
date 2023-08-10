@@ -130,8 +130,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     );
 
     const model = new OpenAI({
-      // @TODO figure out why gpt-4 doesn't work??tr
-      modelName: "gpt-4",
+      modelName: "gpt-3.5-turbo",
       temperature: 0.3,
     });
 
@@ -142,11 +141,22 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       
       **Overview**: Briefly encapsulate key discussions or outcomes.
   
-      **Key Findings**: Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement" Start with issues and problems the user had during the user test, then cover the remaining items. 
+      **Key Findings**: Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items.
   
-      The summary targets UX professionals and web app development engineers; UX jargon usage is acceptable. 
+      The summary targets UX professionals and web application developers; UX jargon usage is acceptable. 
   
       If the text isn't a usability test transcript, return an appropriate message.
+
+      Text:
+      
+      {text}`
+    })
+
+    const combineMapPromptTemplate = new PromptTemplate({
+      inputVariables: ["text"],
+      template: `The following is a large chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Please summarize the text. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
+      
+      Text:
       
       {text}`
     })
@@ -157,6 +167,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       type: "map_reduce",
       verbose: true,
       combinePrompt: combinePromptTemplate,
+      combineMapPrompt: combineMapPromptTemplate
     });
 
     const result = await summaryChain.call({
