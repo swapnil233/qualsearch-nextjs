@@ -216,8 +216,9 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
       if (response.status === 200) {
         const data = await response.json();
         notifications.show({
-          title: "File created",
-          message: "Your new project has been created for this team.",
+          title: "Transcribing...",
+          message:
+            "We'll email you once this file has been transcribed. This shouldn't take too long.",
           color: "teal",
           icon: <IconCheck />,
         });
