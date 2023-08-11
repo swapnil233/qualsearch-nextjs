@@ -3,6 +3,27 @@ import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
+import nodemailer from 'nodemailer';
+
+const sendEmail = async (recipients: (string | null)[], subject: string, text: string, htmlTemplate?: string) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  })
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: recipients.join(","),
+    subject: subject,
+    text: text,
+    htmlTemplate: htmlTemplate
+  }
+
+  await transporter.sendMail(mailOptions)
+}
 
 const cors = Cors({
   allowMethods: ["POST", "HEAD"],
@@ -79,6 +100,36 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         status: "COMPLETED",
       },
     });
+
+    const teamWithUsers = await prisma.team.findUnique({
+      where: {
+        id: fileWithThisRequestId.file.teamId
+      },
+      select: {
+        id: true,
+        users: {
+          select: {
+            email: true
+          }
+        }
+      }
+    })
+
+    const userEmails = teamWithUsers?.users.map(user => user.email);
+    const linkToTranscribedFile = process.env.AMPLIFY_URL
+      ? `${process.env.AMPLIFY_URL}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`
+      : `https://${process.env.VERCEL_URL}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`
+
+    // send email
+    try {
+      userEmails && sendEmail(
+        userEmails,
+        "Transcription complete",
+        `Your file has been transcribed! Visit the file at ${linkToTranscribedFile}`,
+        `<h1>Transcription complete</h1><p>Your file has been transcribed! Visit the file at ${linkToTranscribedFile}</p>`)
+    } catch (error: any) {
+      console.log(error.message)
+    }
 
     return res.status(HttpStatus.Ok).send({
       fileWithThisRequestId: fileWithThisRequestId.file.id,

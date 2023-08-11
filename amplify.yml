@@ -21,6 +21,8 @@ frontend:
         - echo "DEEPGRAM_PROJECT_ID=$DEEPGRAM_PROJECT_ID" >> .env
         - echo "AMPLIFY=$AMPLIFY" >> .env
         - echo "AMPLIFY_URL=$AMPLIFY_URL" >> .env
+        - echo "EMAIL_USER=$EMAIL_USER" >> .env
+        - echo "EMAIL_PASS=$EMAIL_PASS" >> .env
         - npm ci
     build:
       commands:
