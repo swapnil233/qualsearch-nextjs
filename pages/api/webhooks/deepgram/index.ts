@@ -2,6 +2,7 @@ import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import { sendEmail } from "@/lib/sendEmail";
 import prisma from "@/utils/prisma";
+import { getSizeInBytes } from "@/utils/setSizeInBytes";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -10,6 +11,9 @@ const cors = Cors({
 });
 
 const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  console.log(`Running in environment: ${process.env.NODE_ENV}`);
+  console.log("webhookHandler started.");
+
   // Only allow POST
   if (req.method !== "POST")
     return res
@@ -23,6 +27,8 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const dgResponse = req.body.results.channels[0].alternatives[0];
   const metadata = req.body.metadata;
 
+  console.log(`Request body size: ${getSizeInBytes(req.body)} bytes`);
+
   try {
     // Find the file that has this request ID
     const fileWithThisRequestId =
@@ -35,6 +41,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
+    console.log(`Searching for file with request_id: ${request_id}`);
     if (!fileWithThisRequestId?.file) {
       return res
         .status(HttpStatus.BadRequest)
@@ -82,6 +89,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           },
         }),
       ]);
+      console.log(`Transcript created with ID: ${newTranscript.id}. File status updated to ${updatedFile.status}.`);
 
       const teamWithUsers = await prisma.team.findUnique({
         where: {
@@ -112,6 +120,8 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       } catch (emailError: any) {
         console.log("Email sending error:", emailError.message);
       }
+
+      console.log("webhookHandler completed.");
 
       return res.status(HttpStatus.Ok).send({
         fileWithThisRequestId: fileWithThisRequestId.file.id,
