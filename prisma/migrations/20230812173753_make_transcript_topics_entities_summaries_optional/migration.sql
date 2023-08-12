@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Transcript" ALTER COLUMN "topics" DROP NOT NULL,
+ALTER COLUMN "entities" DROP NOT NULL,
+ALTER COLUMN "summaries" DROP NOT NULL;

@@ -185,9 +185,9 @@ model Transcript {
   createdAt        DateTime @default(now())
   confidence       Float
   words            Json
-  topics           Json
-  entities         Json
-  summaries        Json
+  topics           Json?
+  entities         Json?
+  summaries        Json?
   paragraphs       Json
   transcriptString String
 
