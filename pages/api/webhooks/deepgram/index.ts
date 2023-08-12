@@ -51,9 +51,9 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     const transcriptData = {
       confidence: dgResponse.confidence,
       words: dgResponse.words,
-      topics: dgResponse.topics,
-      entities: dgResponse.entities,
-      summaries: dgResponse.summaries,
+      topics: dgResponse.topics || {},
+      entities: dgResponse.entities || {},
+      summaries: dgResponse.summaries || {},
       paragraphs: dgResponse.paragraphs,
       transcriptString: dgResponse.transcript,
       metadata: {
