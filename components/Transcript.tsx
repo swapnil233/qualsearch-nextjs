@@ -1,6 +1,16 @@
-import { Avatar, Button, Popover, Text, TextInput } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Group,
+  Popover,
+  Text,
+  TextInput,
+  Textarea,
+  Title,
+} from "@mantine/core";
 import { User } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
+import { CommentCard } from "./comment/CommentCard";
 
 const speakerColor: Record<number, string> = {
   0: "#00159c",
@@ -16,7 +26,7 @@ interface ITranscriptProps {
     punctuated_word: string;
   }[];
   audioRef: React.MutableRefObject<HTMLAudioElement | null>;
-  user: User | null;
+  user: User;
 }
 
 /**
@@ -65,7 +75,7 @@ interface CustomPopoverProps {
 interface CommentPopoverProps {
   position: { top: number; left: number };
   comment: any;
-  user: User | null;
+  user: User;
 }
 
 // Structure of the selected text.
@@ -76,7 +86,7 @@ type SelectedTextType = {
 };
 
 // Structure of a comment.
-type CommentType = {
+export type CommentType = {
   start: number;
   end: number;
   note: string;
@@ -91,33 +101,44 @@ const CustomPopover: React.FC<CustomPopoverProps> = ({
   const [newComment, setNewComment] = useState<string>("");
 
   return (
-    <div
-      style={{
+    <Box
+      p={"md"}
+      bg={"white"}
+      sx={{
         position: "absolute",
         top: position.top,
         left: position.left,
-        zIndex: 10,
-        backgroundColor: "white",
-        padding: "10px",
         borderRadius: "5px",
         boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
       }}
     >
-      <TextInput
-        placeholder="Add a note"
+      <Title order={4} fw={500} mb={"sm"}>
+        Add a comment
+      </Title>
+      <Textarea
+        placeholder="Comment..."
         value={newComment}
         onChange={(e) => setNewComment(e.target.value)}
+        minRows={6}
+        w={300}
+        mb="md"
       />
-      <Button
-        onClick={() => {
-          onSubmit(newComment);
-          setNewComment("");
-          onClose();
-        }}
-      >
-        Create
-      </Button>
-    </div>
+      <Group position="apart">
+        <Button radius={"xs"} variant="default" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button
+          radius={"xs"}
+          onClick={() => {
+            onSubmit(newComment);
+            setNewComment("");
+            onClose();
+          }}
+        >
+          Comment
+        </Button>
+      </Group>
+    </Box>
   );
 };
 
@@ -128,30 +149,20 @@ const CommentPopover: React.FC<CommentPopoverProps> = ({
 }) => {
   return (
     <div
-      className="absolute bg-white p-4 rounded-md shadow-md"
+      className="absolute"
       style={{
         top: position.top,
-        left: position.left + 32,
+        left: position.left,
         zIndex: 10,
-        width: "250px",
+        width: "400px",
       }}
     >
-      <div className="flex items-center mb-4">
-        <Avatar
-          src={user?.image || ""}
-          alt={`${user?.name}'s profile picture` || "Default profile picture"}
-          radius="xl"
-          size={32}
-        />
-        <h3 className="ml-2 font-medium text-lg">{user?.name}</h3>
-      </div>
-      <p className="mb-2 font-regular">{comment.note}</p>
-      <div className="text-sm text-gray-500">
-        <p>{`Commented on ${new Date().toLocaleDateString()}`}</p>
-        <p>
-          From {comment.start} to {comment.end}
-        </p>
-      </div>
+      <CommentCard
+        author={user}
+        body={comment}
+        position={position}
+        postedAt={new Date().toDateString()}
+      />
     </div>
   );
 };
