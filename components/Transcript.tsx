@@ -1,12 +1,13 @@
-import { Avatar, Button, Popover, Text, TextInput, rem } from "@mantine/core";
+import { Avatar, Button, Popover, Text, TextInput } from "@mantine/core";
 import { User } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const speakerColor: Record<number, string> = {
   0: "#00159c",
   1: "#0b7525",
 };
 
+// Props for the main component.
 interface ITranscriptProps {
   transcript: {
     start: number;
@@ -18,6 +19,31 @@ interface ITranscriptProps {
   user: User | null;
 }
 
+/**
+ words = [
+    {
+      "end": 3.12,
+      "word": "you've",
+      "start": 2.96,
+      "speaker": 0,
+      "confidence": 0.90185547,
+      "punctuated_word": "You've",
+      "speaker_confidence": 0.568578
+    },
+    {
+      "end": 3.36,
+      "word": "been",
+      "start": 3.12,
+      "speaker": 0,
+      "confidence": 0.9995117,
+      "punctuated_word": "been",
+      "speaker_confidence": 0.568578
+    },
+    ...
+  ]
+ */
+
+// How words are grouped by their speaker.
 interface IGroup {
   speaker: number;
   words: {
@@ -25,6 +51,7 @@ interface IGroup {
     end: number;
     speaker: number;
     punctuated_word: string;
+    // @TODO what is index?
     index: number;
   }[];
 }
@@ -35,12 +62,20 @@ interface CustomPopoverProps {
   position: { top: number; left: number };
 }
 
+interface CommentPopoverProps {
+  position: { top: number; left: number };
+  comment: any;
+  user: User | null;
+}
+
+// Structure of the selected text.
 type SelectedTextType = {
   start: number;
   end: number;
   position?: { top: number; left: number };
 };
 
+// Structure of a comment.
 type CommentType = {
   start: number;
   end: number;
@@ -86,12 +121,6 @@ const CustomPopover: React.FC<CustomPopoverProps> = ({
   );
 };
 
-interface CommentPopoverProps {
-  position: { top: number; left: number };
-  comment: any;
-  user: User | null;
-}
-
 const CommentPopover: React.FC<CommentPopoverProps> = ({
   position,
   comment,
@@ -102,7 +131,7 @@ const CommentPopover: React.FC<CommentPopoverProps> = ({
       className="absolute bg-white p-4 rounded-md shadow-md"
       style={{
         top: position.top,
-        left: position.left,
+        left: position.left + 32,
         zIndex: 10,
         width: "250px",
       }}
@@ -134,7 +163,6 @@ const Transcript: React.FC<ITranscriptProps> = ({
 }) => {
   const [currentWord, setCurrentWord] = useState<number>(0);
   const [comments, setComments] = useState<CommentType[]>([]);
-  // Text selection
   const [selectedText, setSelectedText] = useState<SelectedTextType | null>(
     null
   );
@@ -145,49 +173,74 @@ const Transcript: React.FC<ITranscriptProps> = ({
   const [newComment, setNewComment] = useState<string>("");
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
+  const transcriptRef = useRef<HTMLDivElement>(null);
+  const [selectedTextTop, setSelectedTextTop] = useState<number>(0);
+  const [selectedTextRightEdge, setSelectedTextRightEdge] = useState<number>(
+    () => transcriptRef.current?.getBoundingClientRect().right || 0
+  );
 
-  const handleSpeakerNameChange = (speaker: number, name: string) => {
-    setSpeakerNames((prev) => ({ ...prev, [speaker]: name }));
-    setNewSpeakerName("");
-  };
+  console.log(transcriptRef.current);
 
   const handleTextSelect = (start: number, end: number) => {
     const selection = window.getSelection();
     if (selection) {
+      // The range is the selected text.
       const range = selection.getRangeAt(0);
+
+      // The rect is the position of the selected text.
       const rect = range.getBoundingClientRect();
+
       setSelectedText({
         start,
         end,
         position: {
           top: rect.top + window.scrollY,
-          left: rect.left + rect.width + window.scrollX,
+          left: rect.left + rect.width + window.scrollX + 16,
         },
       });
+
+      setSelectedTextTop(rect.top + window.scrollY);
+      setSelectedTextRightEdge(rect.left + rect.width + window.scrollX);
     }
   };
 
   const getSelectedTextDetails = () => {
     const selection = window.getSelection();
+
     if (
       selection &&
       selection.rangeCount > 0 &&
       !selection.isCollapsed // This ensures that there's an actual selection
     ) {
       const range = selection.getRangeAt(0);
+
+      // Returns something like <span data-start="45.06" data-end="45.34" style="...">Word</span> for the start and end elements
       const startElement = range.startContainer.parentElement as HTMLElement;
       const endElement = range.endContainer.parentElement as HTMLElement;
 
       if (startElement && endElement) {
+        // Get the start and end times from the data attributes.
         const start = parseFloat(startElement.dataset.start as string);
         const end = parseFloat(endElement.dataset.end as string);
-        const rect = range.getBoundingClientRect();
-        const lineRect = startElement.getBoundingClientRect();
-        const position = {
-          top: rect.top + window.scrollY,
-          left: lineRect.left + lineRect.width + window.scrollX,
-        };
 
+        // The rect is the position of the selected text.
+        const rect = range.getBoundingClientRect();
+
+        // The lineRect is the position of the line that the selected text is on.
+        const lineRect = startElement.getBoundingClientRect();
+
+        // The absolute right edge of the transcript container
+        // const rightEdge = transcriptRef.current
+        //   ? transcriptRef.current.getBoundingClientRect().right + 16
+        //   : rect.left + rect.width + 16;
+
+        const rightEdge =
+          transcriptRef.current?.getBoundingClientRect().right! + 16;
+
+        const position = {
+          top: rect.top + window.scrollY, // Top of the selected text
+          left: rightEdge, // The absolute right edge
+        };
         return { start, end, position };
       }
     }
@@ -195,25 +248,25 @@ const Transcript: React.FC<ITranscriptProps> = ({
     return null;
   };
 
-  // check word's time range with current audio time
-  useEffect(() => {
-    const checkTime = () => {
-      if (audioRef.current) {
-        const currentTime = audioRef.current.currentTime;
+  const checkTime = () => {
+    if (audioRef.current) {
+      const currentTime = audioRef.current.currentTime;
 
-        // loop through transcript to find the word that matches the current time
-        for (let i = 0; i < transcript.length; i++) {
-          if (
-            currentTime >= transcript[i].start &&
-            currentTime <= transcript[i].end
-          ) {
-            setCurrentWord(i);
-            break;
-          }
+      // loop through transcript to find the word that matches the current time
+      for (let i = 0; i < transcript.length; i++) {
+        if (
+          currentTime >= transcript[i].start &&
+          currentTime <= transcript[i].end
+        ) {
+          setCurrentWord(i);
+          break;
         }
       }
-    };
+    }
+  };
 
+  // Check word's time range with current audio time
+  useEffect(() => {
     // add timeupdate event listener to audioRef
     if (audioRef.current) {
       audioRef.current.addEventListener("timeupdate", checkTime);
@@ -227,14 +280,22 @@ const Transcript: React.FC<ITranscriptProps> = ({
     };
   }, [audioRef, transcript]);
 
-  // group words by speakers
-  // @TODO there might be only 1 speaker, in which case this throws an error
+  /**
+   * Group words by speaker
+   * @param transcript
+   * @returns {IGroup[]}
+   * @example [{ speaker: 0, words: [{ word: 'Hello', start: 0, end: 1, index: 0 }] }]
+   */
   const groupedTranscript = transcript.reduce<IGroup[]>(
     (groups, word, index) => {
+      // Check if the current word's speaker is the same as the previous word's speaker
       const prevSpeaker = groups[groups.length - 1]?.speaker;
+
+      // If the speaker is different, add a new group
       if (word.speaker !== prevSpeaker) {
         groups.push({ speaker: word.speaker, words: [{ ...word, index }] });
       } else {
+        // Otherwise, add the word to the current group
         groups[groups.length - 1].words.push({ ...word, index });
       }
       return groups;
@@ -242,9 +303,22 @@ const Transcript: React.FC<ITranscriptProps> = ({
     []
   );
 
+  /**
+   * Handle the change of the speaker name by updating the state and clearing the input
+   * @param speaker
+   * @param name
+   */
+  const handleSpeakerNameChange = (speaker: number, name: string) => {
+    setSpeakerNames((prev) => ({
+      ...prev,
+      [speaker]: name,
+    }));
+    setNewSpeakerName("");
+  };
+
   return (
     <>
-      <div>
+      <div ref={transcriptRef}>
         {groupedTranscript.map((group, groupIndex) => (
           <div key={groupIndex} className="flex flex-col">
             <Popover
@@ -263,6 +337,7 @@ const Transcript: React.FC<ITranscriptProps> = ({
                   fw={"bold"}
                   w={"100%"}
                 >
+                  {/* Either use the speaker name from the state or the speaker name from the transcript */}
                   {speakerNames[group.speaker] || group.speaker}
                 </Text>
               </Popover.Target>
@@ -275,10 +350,9 @@ const Transcript: React.FC<ITranscriptProps> = ({
                 })}
               >
                 <TextInput
-                  label="Speaker name"
-                  placeholder="eg Product Manager"
-                  size="xs"
-                  mb={rem(10)}
+                  label="Change speaker name"
+                  placeholder="e.g Product Manager or John Doe"
+                  mb="md"
                   value={newSpeakerName}
                   onChange={(e) => setNewSpeakerName(e.target.value)}
                 />
@@ -299,13 +373,13 @@ const Transcript: React.FC<ITranscriptProps> = ({
               key={groupIndex}
               onMouseUp={() => {
                 const selectedText = getSelectedTextDetails();
-                if (selectedText) {
+                selectedText &&
                   handleTextSelect(selectedText.start, selectedText.end);
-                }
               }}
             >
+              {/* Check if there's a comment for the current word */}
               {group.words.map((word) => {
-                const comment = comments.some(
+                const comment: Boolean = comments.some(
                   (comment) =>
                     word.start >= comment.start && word.end <= comment.end
                 );
@@ -321,7 +395,6 @@ const Transcript: React.FC<ITranscriptProps> = ({
                             color: "#190041",
                             cursor: "pointer",
                             fontSize: "1.5rem",
-                            // lineHeight: "48px",
                             boxShadow: "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px",
                             background: "rgba(160, 0, 100, 0.2)",
                             borderRadius: "3px",
@@ -331,7 +404,6 @@ const Transcript: React.FC<ITranscriptProps> = ({
                             backgroundColor: comment ? "yellow" : "transparent",
                             cursor: "pointer",
                             fontSize: "1.5rem",
-                            // lineHeight: "28px",
                           }
                     }
                     onClick={() => {
@@ -350,25 +422,30 @@ const Transcript: React.FC<ITranscriptProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Popover for adding comments */}
       {selectedText && (
         <CustomPopover
           position={selectedText.position!}
           onClose={() => setSelectedText(null)}
           onSubmit={(note) => {
             setComments([
-              // @ts-ignore
               ...comments,
               {
                 ...selectedText,
                 note: note,
-                // @ts-ignore
-                position: selectedText.position,
+                position: {
+                  top: selectedText.position!.top,
+                  left:
+                    transcriptRef.current?.getBoundingClientRect().right! + 16,
+                },
               },
             ]);
             setSelectedText(null);
           }}
         />
       )}
+
       {comments.map((comment, i) => (
         <CommentPopover
           key={i}
