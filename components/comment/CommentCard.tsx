@@ -1,11 +1,4 @@
-import {
-  Avatar,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  TypographyStylesProvider,
-} from "@mantine/core";
+import { Avatar, Group, Paper, Stack, Text } from "@mantine/core";
 import { User } from "@prisma/client";
 import { CommentType } from "../Transcript";
 
@@ -29,7 +22,7 @@ export function CommentCard({
     <Paper
       withBorder
       radius="md"
-      p="md"
+      p="sm"
       top={position.top}
       left={position.left}
     >
@@ -44,9 +37,7 @@ export function CommentCard({
               {postedAt}
             </Text>
           </Stack>
-          <TypographyStylesProvider>
-            <div dangerouslySetInnerHTML={{ __html: body.note }} />
-          </TypographyStylesProvider>
+          <Text fz={"sm"}>{body.note}</Text>
         </Stack>
       </Group>
     </Paper>
