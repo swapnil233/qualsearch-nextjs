@@ -1,16 +1,8 @@
-import {
-  Box,
-  Button,
-  Group,
-  Popover,
-  Text,
-  TextInput,
-  Textarea,
-  Title,
-} from "@mantine/core";
+import { Button, Popover, Text, TextInput } from "@mantine/core";
 import { User } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
 import { CommentCard } from "./comment/CommentCard";
+import { CreateCommentPopover } from "./comment/CreateCommentPopover";
 
 const speakerColor: Record<number, string> = {
   0: "#00159c",
@@ -66,12 +58,6 @@ interface IGroup {
   }[];
 }
 
-interface CustomPopoverProps {
-  onClose: () => void;
-  onSubmit: (note: string) => void;
-  position: { top: number; left: number };
-}
-
 interface CommentPopoverProps {
   position: { top: number; left: number };
   comment: any;
@@ -91,55 +77,6 @@ export type CommentType = {
   end: number;
   note: string;
   position: { top: number; left: number };
-};
-
-const CustomPopover: React.FC<CustomPopoverProps> = ({
-  onClose,
-  onSubmit,
-  position,
-}) => {
-  const [newComment, setNewComment] = useState<string>("");
-
-  return (
-    <Box
-      p={"md"}
-      bg={"white"}
-      sx={{
-        position: "absolute",
-        top: position.top,
-        left: position.left,
-        borderRadius: "5px",
-        boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
-      }}
-    >
-      <Title order={4} fw={500} mb={"sm"}>
-        Add a comment
-      </Title>
-      <Textarea
-        placeholder="Comment..."
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
-        minRows={6}
-        w={300}
-        mb="md"
-      />
-      <Group position="apart">
-        <Button radius={"xs"} variant="default" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button
-          radius={"xs"}
-          onClick={() => {
-            onSubmit(newComment);
-            setNewComment("");
-            onClose();
-          }}
-        >
-          Comment
-        </Button>
-      </Group>
-    </Box>
-  );
 };
 
 const CommentPopover: React.FC<CommentPopoverProps> = ({
@@ -181,7 +118,6 @@ const Transcript: React.FC<ITranscriptProps> = ({
     top: number;
     left: number;
   } | null>(null);
-  const [newComment, setNewComment] = useState<string>("");
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
   const transcriptRef = useRef<HTMLDivElement>(null);
@@ -237,20 +173,12 @@ const Transcript: React.FC<ITranscriptProps> = ({
         // The rect is the position of the selected text.
         const rect = range.getBoundingClientRect();
 
-        // The lineRect is the position of the line that the selected text is on.
-        const lineRect = startElement.getBoundingClientRect();
-
-        // The absolute right edge of the transcript container
-        // const rightEdge = transcriptRef.current
-        //   ? transcriptRef.current.getBoundingClientRect().right + 16
-        //   : rect.left + rect.width + 16;
-
         const rightEdge =
           transcriptRef.current?.getBoundingClientRect().right! + 16;
 
         const position = {
           top: rect.top + window.scrollY, // Top of the selected text
-          left: rightEdge, // The absolute right edge
+          left: rightEdge, // The right edge of the div containing the transcript + 16px
         };
         return { start, end, position };
       }
@@ -297,22 +225,28 @@ const Transcript: React.FC<ITranscriptProps> = ({
    * @returns {IGroup[]}
    * @example [{ speaker: 0, words: [{ word: 'Hello', start: 0, end: 1, index: 0 }] }]
    */
-  const groupedTranscript = transcript.reduce<IGroup[]>(
-    (groups, word, index) => {
-      // Check if the current word's speaker is the same as the previous word's speaker
-      const prevSpeaker = groups[groups.length - 1]?.speaker;
+  const groupedTranscript: IGroup[] = [];
 
-      // If the speaker is different, add a new group
-      if (word.speaker !== prevSpeaker) {
-        groups.push({ speaker: word.speaker, words: [{ ...word, index }] });
-      } else {
-        // Otherwise, add the word to the current group
-        groups[groups.length - 1].words.push({ ...word, index });
-      }
-      return groups;
-    },
-    []
-  );
+  for (let i = 0; i < transcript.length; i++) {
+    const word = transcript[i];
+    // If the groupedTranscript is empty or the speaker of the last group is different from the current word's speaker,
+    // push a new group.
+    if (
+      groupedTranscript.length === 0 ||
+      groupedTranscript[groupedTranscript.length - 1].speaker !== word.speaker
+    ) {
+      groupedTranscript.push({
+        speaker: word.speaker,
+        words: [{ ...word, index: i }],
+      });
+    } else {
+      // Otherwise, add the word to the last group.
+      groupedTranscript[groupedTranscript.length - 1].words.push({
+        ...word,
+        index: i,
+      });
+    }
+  }
 
   /**
    * Handle the change of the speaker name by updating the state and clearing the input
@@ -349,7 +283,8 @@ const Transcript: React.FC<ITranscriptProps> = ({
                   w={"100%"}
                 >
                   {/* Either use the speaker name from the state or the speaker name from the transcript */}
-                  {speakerNames[group.speaker] || group.speaker}
+                  {speakerNames[group.speaker] ||
+                    `Speaker ${group.speaker + 1}`}
                 </Text>
               </Popover.Target>
               <Popover.Dropdown
@@ -362,10 +297,16 @@ const Transcript: React.FC<ITranscriptProps> = ({
               >
                 <TextInput
                   label="Change speaker name"
-                  placeholder="e.g Product Manager or John Doe"
+                  placeholder={
+                    speakerNames[group.speaker] ||
+                    `Speaker ${group.speaker + 1}`
+                  }
                   mb="md"
                   value={newSpeakerName}
-                  onChange={(e) => setNewSpeakerName(e.target.value)}
+                  onChange={(e) => {
+                    setNewSpeakerName(e.target.value);
+                    // Close the popover after setting the new speaker name
+                  }}
                 />
                 <Button
                   size="xs"
@@ -395,6 +336,11 @@ const Transcript: React.FC<ITranscriptProps> = ({
                     word.start >= comment.start && word.end <= comment.end
                 );
 
+                const isComment = comments.some(
+                  (comment) =>
+                    word.start >= comment.start && word.end <= comment.end
+                );
+
                 return (
                   <span
                     key={word.index}
@@ -412,7 +358,9 @@ const Transcript: React.FC<ITranscriptProps> = ({
                           }
                         : {
                             color: speakerColor[word.speaker],
-                            backgroundColor: comment ? "yellow" : "transparent",
+                            boxShadow: isComment
+                              ? "rgb(255 115 0 / 60%) 0px 3px 0px 0px"
+                              : "none",
                             cursor: "pointer",
                             fontSize: "1.5rem",
                           }
@@ -436,7 +384,8 @@ const Transcript: React.FC<ITranscriptProps> = ({
 
       {/* Popover for adding comments */}
       {selectedText && (
-        <CustomPopover
+        <CreateCommentPopover
+          user={user}
           position={selectedText.position!}
           onClose={() => setSelectedText(null)}
           onSubmit={(note) => {
