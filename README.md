@@ -1,5 +1,7 @@
 <h1> Transcription and summarization web application </h1>
 
+<img width="1865" alt="TC Architecture" src="https://github.com/swapnil233/next-transcriptions/assets/36313876/f9e9f178-4b15-4c4f-a5d0-b6858e117b04">
+
 #### How to run on your machine:
 
 1. `git clone https://github.com/swapnil233/next-transcriptions.git`
