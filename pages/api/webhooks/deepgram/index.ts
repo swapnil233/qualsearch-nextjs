@@ -22,7 +22,9 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { request_id } = req.body.metadata;
   if (!request_id)
-    return res.status(HttpStatus.BadRequest).send("400 Bad request: request_id was not found in the request body.");
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("400 Bad request: request_id was not found in the request body.");
 
   const dgResponse = req.body.results.channels[0].alternatives[0];
   const metadata = req.body.metadata;
@@ -73,7 +75,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           id: fileWithThisRequestId.file.id,
         },
       },
-    }
+    };
 
     try {
       const [newTranscript, updatedFile] = await prisma.$transaction([
@@ -89,34 +91,37 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           },
         }),
       ]);
-      console.log(`Transcript created with ID: ${newTranscript.id}. File status updated to ${updatedFile.status}.`);
+      console.log(
+        `Transcript created with ID: ${newTranscript.id}. File status updated to ${updatedFile.status}.`
+      );
 
       const teamWithUsers = await prisma.team.findUnique({
         where: {
-          id: fileWithThisRequestId.file.teamId
+          id: fileWithThisRequestId.file.teamId,
         },
         select: {
           id: true,
           users: {
             select: {
-              email: true
-            }
-          }
-        }
+              email: true,
+            },
+          },
+        },
       });
 
-      const userEmails = teamWithUsers?.users.map(user => user.email);
+      const userEmails = teamWithUsers?.users.map((user) => user.email);
       const linkToTranscribedFile = process.env.AMPLIFY_URL
         ? `${process.env.AMPLIFY_URL}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`
         : `https://${process.env.VERCEL_URL}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`;
 
       try {
-        userEmails && sendEmail(
-          userEmails,
-          "Transcription complete",
-          `Your file has been transcribed! Visit the file at ${linkToTranscribedFile}`,
-          `<h1>Transcription complete</h1><p>Your file has been transcribed! Visit the file at ${linkToTranscribedFile}</p>`
-        );
+        userEmails &&
+          sendEmail(
+            userEmails,
+            "Transcription complete",
+            `Your file has been transcribed! Visit the file at ${linkToTranscribedFile}`,
+            `<h1>Transcription complete</h1><p>Your file has been transcribed! Visit the file at ${linkToTranscribedFile}</p>`
+          );
       } catch (emailError: any) {
         console.log("Email sending error:", emailError.message);
       }
@@ -128,7 +133,6 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         newTranscriptId: newTranscript.id,
         updatedFileStatus: updatedFile.status,
       });
-
     } catch (transactionError) {
       console.error("Transaction failed:", transactionError);
 
@@ -142,7 +146,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      throw transactionError;  // Propagate the error to the outer catch
+      throw transactionError; // Propagate the error to the outer catch
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -150,7 +154,9 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.status(HttpStatus.InternalServerError).send(error.message);
     } else {
       console.error(error);
-      res.status(HttpStatus.InternalServerError).send(ErrorMessages.InternalServerError);
+      res
+        .status(HttpStatus.InternalServerError)
+        .send(ErrorMessages.InternalServerError);
     }
   }
 };

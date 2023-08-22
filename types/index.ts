@@ -13,3 +13,10 @@ export type Paragraph = {
   num_words?: number;
   sentences: Array<{ end?: number; text: string; start?: number }>;
 };
+
+export type Transcript = {
+  start: number;
+  end: number;
+  speaker: number;
+  punctuated_word: string;
+}[];

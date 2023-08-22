@@ -120,10 +120,10 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     let cb = process.env.VERCEL
       ? "https://transcription-eight.vercel.app/api/webhooks/deepgram"
       : process.env.AMPLIFY_URL
-        ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
-        : "https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/";
+      ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
+      : "https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/";
 
-    console.log("Callback URL", cb)
+    console.log("Callback URL", cb);
 
     const req_expensive = `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`;
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;

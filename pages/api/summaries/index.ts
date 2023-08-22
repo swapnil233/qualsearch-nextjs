@@ -13,7 +13,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
-const removeUnwantedKeys = (data: { paragraphs: Paragraph[] }): { paragraphs: Paragraph[] } => {
+const removeUnwantedKeys = (data: {
+  paragraphs: Paragraph[];
+}): { paragraphs: Paragraph[] } => {
   data.paragraphs.forEach((paragraph) => {
     delete paragraph.start;
     delete paragraph.end;
@@ -112,7 +114,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
 
     const splitTranscript = await splitter.createDocuments([
-      JSON.stringify(cleanParagraphs)
+      JSON.stringify(cleanParagraphs),
     ]);
 
     // Upsert transcript embeddings to Pinecone vector store.
@@ -149,8 +151,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
       Text:
       
-      {text}`
-    })
+      {text}`,
+    });
 
     const combineMapPromptTemplate = new PromptTemplate({
       inputVariables: ["text"],
@@ -158,8 +160,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       
       Text:
       
-      {text}`
-    })
+      {text}`,
+    });
 
     // Generate a summary
     // https://js.langchain.com/docs/modules/chains/popular/summarize
@@ -167,7 +169,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       type: "map_reduce",
       verbose: true,
       combinePrompt: combinePromptTemplate,
-      combineMapPrompt: combineMapPromptTemplate
+      combineMapPrompt: combineMapPromptTemplate,
     });
 
     const result = await summaryChain.call({
