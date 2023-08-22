@@ -1,3 +1,7 @@
+import {
+  IGroup,
+  groupTranscriptBySpeaker,
+} from "@/utils/groupTranscriptBySpeaker";
 import { Button, Popover, Text, TextInput } from "@mantine/core";
 import { User } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +14,7 @@ const speakerColor: Record<number, string> = {
 };
 
 // Props for the main component.
-interface ITranscriptProps {
+export interface ITranscriptProps {
   transcript: {
     start: number;
     end: number;
@@ -19,43 +23,6 @@ interface ITranscriptProps {
   }[];
   audioRef: React.MutableRefObject<HTMLAudioElement | null>;
   user: User;
-}
-
-/**
- words = [
-    {
-      "end": 3.12,
-      "word": "you've",
-      "start": 2.96,
-      "speaker": 0,
-      "confidence": 0.90185547,
-      "punctuated_word": "You've",
-      "speaker_confidence": 0.568578
-    },
-    {
-      "end": 3.36,
-      "word": "been",
-      "start": 3.12,
-      "speaker": 0,
-      "confidence": 0.9995117,
-      "punctuated_word": "been",
-      "speaker_confidence": 0.568578
-    },
-    ...
-  ]
- */
-
-// How words are grouped by their speaker.
-interface IGroup {
-  speaker: number;
-  words: {
-    start: number;
-    end: number;
-    speaker: number;
-    punctuated_word: string;
-    // @TODO what is index?
-    index: number;
-  }[];
 }
 
 interface CommentPopoverProps {
@@ -114,17 +81,9 @@ const Transcript: React.FC<ITranscriptProps> = ({
   const [selectedText, setSelectedText] = useState<SelectedTextType | null>(
     null
   );
-  const [popoverPosition, setPopoverPosition] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
   const transcriptRef = useRef<HTMLDivElement>(null);
-  const [selectedTextTop, setSelectedTextTop] = useState<number>(0);
-  const [selectedTextRightEdge, setSelectedTextRightEdge] = useState<number>(
-    () => transcriptRef.current?.getBoundingClientRect().right || 0
-  );
 
   console.log(transcriptRef.current);
 
@@ -145,9 +104,6 @@ const Transcript: React.FC<ITranscriptProps> = ({
           left: rect.left + rect.width + window.scrollX + 16,
         },
       });
-
-      setSelectedTextTop(rect.top + window.scrollY);
-      setSelectedTextRightEdge(rect.left + rect.width + window.scrollX);
     }
   };
 
@@ -187,25 +143,25 @@ const Transcript: React.FC<ITranscriptProps> = ({
     return null;
   };
 
-  const checkTime = () => {
-    if (audioRef.current) {
-      const currentTime = audioRef.current.currentTime;
-
-      // loop through transcript to find the word that matches the current time
-      for (let i = 0; i < transcript.length; i++) {
-        if (
-          currentTime >= transcript[i].start &&
-          currentTime <= transcript[i].end
-        ) {
-          setCurrentWord(i);
-          break;
-        }
-      }
-    }
-  };
-
   // Check word's time range with current audio time
   useEffect(() => {
+    const checkTime = () => {
+      if (audioRef.current) {
+        const currentTime = audioRef.current.currentTime;
+
+        // loop through transcript to find the word that matches the current time
+        for (let i = 0; i < transcript.length; i++) {
+          if (
+            currentTime >= transcript[i].start &&
+            currentTime <= transcript[i].end
+          ) {
+            setCurrentWord(i);
+            break;
+          }
+        }
+      }
+    };
+
     // add timeupdate event listener to audioRef
     if (audioRef.current) {
       audioRef.current.addEventListener("timeupdate", checkTime);
@@ -219,34 +175,7 @@ const Transcript: React.FC<ITranscriptProps> = ({
     };
   }, [audioRef, transcript]);
 
-  /**
-   * Group words by speaker
-   * @param transcript
-   * @returns {IGroup[]}
-   * @example [{ speaker: 0, words: [{ word: 'Hello', start: 0, end: 1, index: 0 }] }]
-   */
-  const groupedTranscript: IGroup[] = [];
-
-  for (let i = 0; i < transcript.length; i++) {
-    const word = transcript[i];
-    // If the groupedTranscript is empty or the speaker of the last group is different from the current word's speaker,
-    // push a new group.
-    if (
-      groupedTranscript.length === 0 ||
-      groupedTranscript[groupedTranscript.length - 1].speaker !== word.speaker
-    ) {
-      groupedTranscript.push({
-        speaker: word.speaker,
-        words: [{ ...word, index: i }],
-      });
-    } else {
-      // Otherwise, add the word to the last group.
-      groupedTranscript[groupedTranscript.length - 1].words.push({
-        ...word,
-        index: i,
-      });
-    }
-  }
+  const groupedTranscript: IGroup[] = groupTranscriptBySpeaker(transcript);
 
   /**
    * Handle the change of the speaker name by updating the state and clearing the input
@@ -331,11 +260,6 @@ const Transcript: React.FC<ITranscriptProps> = ({
             >
               {/* Check if there's a comment for the current word */}
               {group.words.map((word) => {
-                const comment: Boolean = comments.some(
-                  (comment) =>
-                    word.start >= comment.start && word.end <= comment.end
-                );
-
                 const isComment = comments.some(
                   (comment) =>
                     word.start >= comment.start && word.end <= comment.end
