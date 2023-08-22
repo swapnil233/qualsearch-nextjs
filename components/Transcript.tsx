@@ -25,11 +25,20 @@ export interface ITranscriptProps {
   user: User;
 }
 
+type SelectedTextRectangle = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+  width: number;
+  height: number;
+};
+
 // Structure of the selected text.
 type SelectedTextType = {
   start: number;
   end: number;
-  position?: { top: number; left: number };
+  selectedTextRectangle: SelectedTextRectangle;
 };
 
 const Transcript: React.FC<ITranscriptProps> = ({
@@ -46,62 +55,55 @@ const Transcript: React.FC<ITranscriptProps> = ({
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
   const transcriptRef = useRef<HTMLDivElement>(null);
 
-  console.log(transcriptRef.current);
-
   const handleTextSelect = (start: number, end: number) => {
     const selection = window.getSelection();
-    if (selection) {
-      // The range is the selected text.
-      const range = selection.getRangeAt(0);
+    if (!selection) return;
 
-      // The rect is the position of the selected text.
-      const rect = range.getBoundingClientRect();
+    const selectedTextRectangle = selection
+      .getRangeAt(0)
+      .getBoundingClientRect();
 
-      setSelectedText({
-        start,
-        end,
-        position: {
-          top: rect.top + window.scrollY,
-          left: rect.left + rect.width + window.scrollX + 16,
-        },
-      });
-    }
+    setSelectedText({
+      start,
+      end,
+      selectedTextRectangle,
+    });
   };
 
   const getSelectedTextDetails = () => {
     const selection = window.getSelection();
 
-    if (
-      selection &&
-      selection.rangeCount > 0 &&
-      !selection.isCollapsed // This ensures that there's an actual selection
-    ) {
-      const range = selection.getRangeAt(0);
-
-      // Returns something like <span data-start="45.06" data-end="45.34" style="...">Word</span> for the start and end elements
-      const startElement = range.startContainer.parentElement as HTMLElement;
-      const endElement = range.endContainer.parentElement as HTMLElement;
-
-      if (startElement && endElement) {
-        // Get the start and end times from the data attributes.
-        const start = parseFloat(startElement.dataset.start as string);
-        const end = parseFloat(endElement.dataset.end as string);
-
-        // The rect is the position of the selected text.
-        const rect = range.getBoundingClientRect();
-
-        const rightEdge =
-          transcriptRef.current?.getBoundingClientRect().right! + 16;
-
-        const position = {
-          top: rect.top + window.scrollY, // Top of the selected text
-          left: rightEdge, // The right edge of the div containing the transcript + 16px
-        };
-        return { start, end, position };
-      }
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+      return null;
     }
 
-    return null;
+    const range = selection.getRangeAt(0);
+
+    // Extract the start and end elements from the range
+    const startElement = range.startContainer.parentElement as HTMLElement;
+    const endElement = range.endContainer.parentElement as HTMLElement;
+
+    if (!startElement?.dataset.start || !endElement?.dataset.end) {
+      return null;
+    }
+
+    // Parse the start and end times from the data attributes
+    const start = parseFloat(startElement.dataset.start);
+    const end = parseFloat(endElement.dataset.end);
+
+    // Calculate the position of the selected text
+    const boundingRectangle = range.getBoundingClientRect();
+    const rightEdge =
+      (transcriptRef.current?.getBoundingClientRect().right || 0) + 16;
+
+    return {
+      start,
+      end,
+      position: {
+        top: boundingRectangle.top + window.scrollY,
+        left: rightEdge,
+      },
+    };
   };
 
   // Check word's time range with current audio time
@@ -308,7 +310,16 @@ const Transcript: React.FC<ITranscriptProps> = ({
       {selectedText && (
         <CreateCommentPopover
           user={user}
-          position={selectedText.position!}
+          position={{
+            top:
+              selectedText.selectedTextRectangle.bottom + window.scrollY + 16,
+            // Left = bounding rect's middle - 1/2 the width of CreateCommentPopover
+            left:
+              selectedText.selectedTextRectangle.left +
+              selectedText.selectedTextRectangle.width / 2 -
+              150 +
+              window.scrollX,
+          }}
           onClose={() => setSelectedText(null)}
           onSubmit={(note) => {
             setComments([
@@ -317,7 +328,7 @@ const Transcript: React.FC<ITranscriptProps> = ({
                 ...selectedText,
                 note: note,
                 position: {
-                  top: selectedText.position!.top,
+                  top: selectedText.selectedTextRectangle.top + window.scrollY,
                   left:
                     transcriptRef.current?.getBoundingClientRect().right! + 16,
                 },
