@@ -5,7 +5,7 @@ import {
 import { Button, Popover, Text, TextInput } from "@mantine/core";
 import { User } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
-import { CommentCard } from "./comment/CommentCard";
+import { CommentCard, CommentType } from "./comment/CommentCard";
 import { CreateCommentPopover } from "./comment/CreateCommentPopover";
 
 const speakerColor: Record<number, string> = {
@@ -25,50 +25,11 @@ export interface ITranscriptProps {
   user: User;
 }
 
-interface CommentPopoverProps {
-  position: { top: number; left: number };
-  comment: any;
-  user: User;
-}
-
 // Structure of the selected text.
 type SelectedTextType = {
   start: number;
   end: number;
   position?: { top: number; left: number };
-};
-
-// Structure of a comment.
-export type CommentType = {
-  start: number;
-  end: number;
-  note: string;
-  position: { top: number; left: number };
-};
-
-const CommentPopover: React.FC<CommentPopoverProps> = ({
-  position,
-  comment,
-  user,
-}) => {
-  return (
-    <div
-      className="absolute"
-      style={{
-        top: position.top,
-        left: position.left,
-        zIndex: 10,
-        width: "400px",
-      }}
-    >
-      <CommentCard
-        author={user}
-        body={comment}
-        position={position}
-        postedAt={new Date().toDateString()}
-      />
-    </div>
-  );
 };
 
 const Transcript: React.FC<ITranscriptProps> = ({
@@ -190,6 +151,37 @@ const Transcript: React.FC<ITranscriptProps> = ({
     setNewSpeakerName("");
   };
 
+  // Add event listener for spacebar to play/pause audio
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.code === "Space") {
+        // If the event's target is the video element, just return
+        if (event.target === audioRef.current) {
+          return;
+        }
+
+        event.preventDefault();
+
+        // Toggle play/pause of the audio/video
+        if (audioRef.current) {
+          if (audioRef.current.paused) {
+            audioRef.current.play();
+          } else {
+            audioRef.current.pause();
+          }
+        }
+      }
+    };
+
+    // Add the event listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup - remove the event listener
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [audioRef]);
+
   return (
     <>
       <div ref={transcriptRef}>
@@ -210,6 +202,12 @@ const Transcript: React.FC<ITranscriptProps> = ({
                   mb={"8px"}
                   fw={"bold"}
                   w={"100%"}
+                  sx={{
+                    cursor: "pointer",
+                    ":hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
                 >
                   {/* Either use the speaker name from the state or the speaker name from the transcript */}
                   {speakerNames[group.speaker] ||
@@ -331,11 +329,12 @@ const Transcript: React.FC<ITranscriptProps> = ({
       )}
 
       {comments.map((comment, i) => (
-        <CommentPopover
+        <CommentCard
           key={i}
           position={comment.position}
-          comment={comment}
-          user={user}
+          body={comment}
+          author={user}
+          postedAt={new Date().toDateString()}
         />
       ))}
     </>
