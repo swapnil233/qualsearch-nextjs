@@ -5,7 +5,6 @@ export type CommentType = {
   start: number;
   end: number;
   note: string;
-  position: { top: number; left: number };
 };
 
 interface ICommentCardProps {
