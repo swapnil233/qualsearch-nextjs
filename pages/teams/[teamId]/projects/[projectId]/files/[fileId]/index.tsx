@@ -1,7 +1,7 @@
-import Transcript from "@/components/Transcript";
 import SummaryCard from "@/components/card/summary/SummaryCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import Transcript from "@/components/transcript/Transcript";
 import {
   getTeamIdFromProjectId,
   validateUserIsTeamMember,
@@ -14,6 +14,7 @@ import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Box } from "@mantine/core";
 import {
   File,
+  Note,
   Transcript as PrismaTranscript,
   Summary,
   User,
@@ -53,6 +54,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       });
       transcript = formatDatesToIsoString(transcript);
 
+      let notes = await prisma.note.findMany({
+        where: {
+          fileId: fileId as string,
+        },
+      });
+      notes = formatDatesToIsoString(notes);
+
       // Get the team ID of the project
       const teamId = await getTeamIdFromProjectId(file.projectId);
 
@@ -73,6 +81,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           props: {
             user,
             file,
+            notes,
             transcript,
             mediaUrl,
             teamId,
@@ -93,6 +102,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface IFilePage {
   file: File;
+  notes: Note[];
   transcript: PrismaTranscript;
   teamId: string;
   mediaUrl: string;
@@ -101,6 +111,7 @@ interface IFilePage {
 
 const FilePage: NextPageWithLayout<IFilePage> = ({
   file,
+  notes,
   transcript,
   mediaUrl,
   user,
@@ -225,7 +236,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             src={mediaUrl}
             controls
             ref={mediaRef}
-            className="md:fixed md:bottom-2 md:right-2 md:w-1/5 z-50 w-full"
+            className="md:fixed md:bottom-2 md:left-2 md:w-1/5 z-50 w-full"
           />
         ) : (
           <audio
@@ -247,12 +258,19 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           )}
         </Box>
 
-        <Transcript
-          // @ts-ignore
-          transcript={words}
-          audioRef={mediaRef}
-          user={user}
-        />
+        <Box
+          sx={{
+            width: "75%",
+          }}
+        >
+          <Transcript
+            // @ts-ignore
+            transcript={words}
+            audioRef={mediaRef}
+            user={user}
+            notes={notes}
+          />
+        </Box>
       </div>
     </>
   );
