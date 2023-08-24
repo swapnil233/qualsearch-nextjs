@@ -18,6 +18,8 @@ const Transcript: React.FC<ITranscriptProps> = ({
   const [currentWord, setCurrentWord] = useState<number>(0);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
+  const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
+  const [newSpeakerName, setNewSpeakerName] = useState<string>("");
   const transcriptRef = useRef<HTMLDivElement>(null);
 
   // Update the comments state when the window is resized
@@ -144,7 +146,13 @@ const Transcript: React.FC<ITranscriptProps> = ({
       <Box ref={transcriptRef}>
         {groupedTranscript.map((group, groupIndex) => (
           <Box key={groupIndex} className="flex flex-col">
-            <SpeakerName group={group} />
+            <SpeakerName
+              group={group}
+              speakerNames={speakerNames}
+              newSpeakerName={newSpeakerName}
+              setNewSpeakerName={setNewSpeakerName}
+              setSpeakerNames={setSpeakerNames}
+            />
             <TranscriptText
               group={group}
               comments={comments}

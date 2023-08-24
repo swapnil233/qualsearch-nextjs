@@ -1,15 +1,22 @@
 import { IGroup } from "@/utils/groupTranscriptBySpeaker";
 import { Button, Popover, Text, TextInput } from "@mantine/core";
-import { FC, useState } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 
 interface ISpeakerName {
   group: IGroup;
+  speakerNames: Record<number, string>;
+  setSpeakerNames: Dispatch<SetStateAction<Record<number, string>>>;
+  newSpeakerName: string;
+  setNewSpeakerName: Dispatch<SetStateAction<string>>;
 }
 
-export const SpeakerName: FC<ISpeakerName> = ({ group }) => {
-  const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
-  const [newSpeakerName, setNewSpeakerName] = useState<string>("");
-
+export const SpeakerName: FC<ISpeakerName> = ({
+  group,
+  speakerNames,
+  setSpeakerNames,
+  newSpeakerName,
+  setNewSpeakerName,
+}) => {
   /**
    * Handle the change of the speaker name by updating the state and clearing the input
    * @param speaker
