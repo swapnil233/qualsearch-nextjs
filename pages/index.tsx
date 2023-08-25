@@ -1,16 +1,17 @@
+import Dots from "@/components/landing/Dots";
 import HomePageLayout from "@/components/layout/home/HomePageLayout";
 import { NextPageWithLayout } from "@/pages/page";
 import {
   Button,
   Container,
-  Overlay,
+  Image,
   Text,
   Title,
   createStyles,
-  rem,
+  useMantineTheme,
 } from "@mantine/core";
 import { User } from "@prisma/client";
-import { useRouter } from "next/router";
+import { signIn, useSession } from "next-auth/react";
 
 interface TranscriptionPageProps {
   user: User | null;
@@ -19,14 +20,12 @@ interface TranscriptionPageProps {
 const useStyles = createStyles((theme) => ({
   wrapper: {
     position: "relative",
-    paddingTop: rem(180),
-    paddingBottom: rem(130),
-    backgroundImage: `url(hero.jpeg)`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    [theme.fn.smallerThan("xs")]: {
-      paddingTop: rem(80),
-      paddingBottom: rem(50),
+    paddingTop: 120,
+    paddingBottom: 80,
+
+    "@media (max-width: 755px)": {
+      paddingTop: 80,
+      paddingBottom: 60,
     },
   },
 
@@ -35,119 +34,160 @@ const useStyles = createStyles((theme) => ({
     zIndex: 1,
   },
 
-  title: {
-    fontWeight: 800,
-    fontSize: rem(64),
-    letterSpacing: rem(-1),
-    paddingLeft: theme.spacing.md,
-    paddingRight: theme.spacing.md,
-    color: theme.white,
-    marginBottom: theme.spacing.xs,
-    textAlign: "center",
+  dots: {
+    position: "absolute",
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[5]
+        : theme.colors.gray[1],
 
-    [theme.fn.smallerThan("xs")]: {
-      fontSize: rem(28),
-      textAlign: "left",
+    "@media (max-width: 755px)": {
+      display: "none",
+    },
+  },
+
+  dotsLeft: {
+    left: 0,
+    top: 0,
+  },
+
+  title: {
+    textAlign: "center",
+    fontWeight: 800,
+    fontSize: 50,
+    letterSpacing: -1,
+    color: theme.colorScheme === "dark" ? theme.white : theme.black,
+    marginBottom: theme.spacing.xs,
+    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+
+    "@media (max-width: 520px)": {
+      fontSize: 40,
     },
   },
 
   highlight: {
-    color: theme.colors[theme.primaryColor][4],
+    color:
+      theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 4 : 6],
   },
 
   description: {
-    color: theme.white,
     textAlign: "center",
-    fontSize: theme.spacing.md,
 
-    [theme.fn.smallerThan("xs")]: {
+    "@media (max-width: 520px)": {
       fontSize: theme.fontSizes.md,
-      textAlign: "left",
     },
   },
 
   controls: {
-    marginTop: `calc(${theme.spacing.xl} * 1.5)`,
+    marginTop: theme.spacing.lg,
     display: "flex",
     justifyContent: "center",
-    paddingLeft: theme.spacing.md,
-    paddingRight: theme.spacing.md,
 
-    [theme.fn.smallerThan("xs")]: {
+    "@media (max-width: 520px)": {
       flexDirection: "column",
     },
   },
 
   control: {
-    height: rem(42),
-    fontSize: theme.fontSizes.md,
-
     "&:not(:first-of-type)": {
       marginLeft: theme.spacing.md,
     },
 
-    [theme.fn.smallerThan("xs")]: {
+    "@media (max-width: 520px)": {
+      height: 42,
+      fontSize: theme.fontSizes.md,
+
       "&:not(:first-of-type)": {
-        marginTop: theme.spacing.md,
+        marginTop: 25,
         marginLeft: 0,
       },
     },
   },
 
-  secondaryControl: {
-    color: theme.white,
-    backgroundColor: "rgba(255, 255, 255, .4)",
+  demoImage: {
+    marginTop: 64,
 
-    "&:hover": {
-      backgroundColor: "rgba(255, 255, 255, .45) !important",
+    "@media (max-width: 500px)": {
+      display: "none",
     },
   },
 }));
 
 const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
-  const { classes, cx } = useStyles();
-  const router = useRouter();
+  const { classes } = useStyles();
+  const theme = useMantineTheme();
+  const { data: session, status } = useSession();
+
+  const demoImage =
+    theme.colorScheme === "dark" ? "/demo-dark.png" : "/demo-light.png";
 
   return (
-    <section className={classes.wrapper}>
-      <Overlay color="#000" opacity={0.65} zIndex={1} />
+    <>
+      <Container className={classes.wrapper} size={1400}>
+        <Dots className={classes.dots} style={{ left: 60, top: 0 }} />
+        <Dots className={classes.dots} style={{ left: 0, top: 140 }} />
+        <Dots className={classes.dots} style={{ right: 0, top: 60 }} />
 
-      <div className={classes.inner}>
-        <Title className={classes.title}>
-          AI powered analysis for{" "}
-          <Text component="span" className={classes.highlight} inherit>
-            UX teams
-          </Text>
-        </Title>
+        <div className={classes.inner}>
+          <Title className={classes.title}>
+            Steamlined{" "}
+            <Text component="span" className={classes.highlight} inherit>
+              UX Research
+            </Text>{" "}
+            <br />
+            With the Power of AI.
+          </Title>
 
-        <Container size={640}>
-          <Text size="lg" className={classes.description}>
-            Elevate your research by uploading and converting your interviews
-            into transcripts. Use our AI-powered platform to spotlight pivotal
-            moments, uncover recurring themes and patterns, and harness these
-            insights to drive informed decisions. Collaborate effectively by
-            sharing these evidence-backed findings with your team.
-          </Text>
-        </Container>
+          <Container p={20} size={600}>
+            <Text size="lg" color="dimmed" className={classes.description}>
+              Collaborate with your team to easily analyze user interviews
+              <br />
+              using transcript tagging and AI powered insights and summaries.
+            </Text>
+          </Container>
 
-        <div className={classes.controls}>
-          <Button
-            className={classes.control}
-            variant="white"
-            size="lg"
-            onClick={() => router.push("/teams")}
-          >
-            Get started
-          </Button>
-          <Button
-            className={cx(classes.control, classes.secondaryControl)}
-            size="lg"
-          >
-            Live demo
-          </Button>
+          <div className={classes.controls}>
+            <Button
+              className={classes.control}
+              size="lg"
+              variant="default"
+              color="gray"
+              component="a"
+            >
+              Try demo
+            </Button>
+
+            {status === "authenticated" ? (
+              <>
+                <Button
+                  className={classes.control}
+                  size="lg"
+                  component="a"
+                  href="/teams"
+                >
+                  Go to teams
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  className={classes.control}
+                  size="lg"
+                  component="a"
+                  onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
+                >
+                  Log in
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
+
+        <div className={classes.demoImage}>
+          <Image src={demoImage} radius={10} alt="Demo image" />
+        </div>
+      </Container>
+    </>
   );
 };
 
