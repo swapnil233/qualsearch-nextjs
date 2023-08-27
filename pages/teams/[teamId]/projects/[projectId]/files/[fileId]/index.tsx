@@ -135,6 +135,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const mediaRef = useRef(null);
   const words = transcript.words;
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
   // Fetch summary if it exists, else create one.
   useEffect(() => {
@@ -148,6 +149,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
         if (response.status === 200) {
           const summaryData = await response.json();
           setSummary(summaryData);
+          setSummaryHasLoaded(true);
         }
 
         // Create new summary since it doesn't exist in DB.
@@ -166,6 +168,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             if (response.status === 200) {
               const newSummary = await response.json();
               setSummary(newSummary.summary);
+              setSummaryHasLoaded(true);
             }
           } catch (error) {
             console.log(error);
@@ -291,6 +294,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             existingNotes={notes}
             fileId={fileId}
             projectId={projectId}
+            summaryHasLoaded={summaryHasLoaded}
           />
         </Box>
       </div>

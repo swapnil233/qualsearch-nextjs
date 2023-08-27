@@ -14,6 +14,7 @@ export interface ITranscriptProps {
   existingNotes: NotesAndUsers[]
   fileId: string;
   projectId: string;
+  summaryHasLoaded: Boolean;
 }
 
 export type SelectedTextRectangle = {
