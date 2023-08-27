@@ -1,31 +1,18 @@
+import { NotesAndUsers } from "@/types";
 import { Avatar, Box, Group, Paper, Stack, Text } from "@mantine/core";
-import { User } from "@prisma/client";
 
-export type CommentType = {
-  start: number;
-  end: number;
-  note: string;
-};
-
-interface ICommentCardProps {
+interface INoteCardProps {
   position: {
     top: number;
     left: number;
   };
-  postedAt: string;
-  body: CommentType;
-  author: User;
+  note: NotesAndUsers;
 }
 
-export function CommentCard({
-  position,
-  postedAt,
-  body,
-  author,
-}: ICommentCardProps) {
+export function NoteCard({ position, note }: INoteCardProps) {
   return (
     <Box
-      w={400}
+      w={264}
       sx={{
         position: "absolute",
         top: position.top,
@@ -42,16 +29,20 @@ export function CommentCard({
       >
         <Group align="flex-start">
           <Stack justify="flex-start" align="flex-start">
-            <Avatar src={author.image} alt={author.name || ""} radius="xl" />
+            <Avatar
+              src={note.createdBy.image}
+              alt={note.createdBy.name || ""}
+              radius="xl"
+            />
           </Stack>
           <Stack justify="flex-start">
             <Stack spacing={0}>
-              <Text fz="md">{author.name}</Text>
+              <Text fz="md">{note.createdBy.name}</Text>
               <Text fz="xs" c="dimmed">
-                {postedAt}
+                {new Date(note.createdAt).toDateString()}
               </Text>
             </Stack>
-            <Text fz={"sm"}>{body.note}</Text>
+            <Text fz={"sm"}>{note.text}</Text>
           </Stack>
         </Group>
       </Paper>

@@ -2,20 +2,20 @@ import { Avatar, Box, Button, Group, Text, Textarea } from "@mantine/core";
 import { User } from "@prisma/client";
 import { FC, useState } from "react";
 
-interface ICreateCommentPopover {
+interface ICreateNotePopover {
   user: User;
   onClose: () => void;
-  onSubmit: (note: string) => void;
+  onSubmit: (_note: string) => void;
   position: { top: number; left: number };
 }
 
-export const CreateCommentPopover: FC<ICreateCommentPopover> = ({
+export const CreateNotePopover: FC<ICreateNotePopover> = ({
   user,
   onClose,
   onSubmit,
   position,
 }) => {
-  const [newComment, setNewComment] = useState<string>("");
+  const [newNote, setNewNote] = useState<string>("");
   return (
     <Box
       p={"md"}
@@ -33,9 +33,9 @@ export const CreateCommentPopover: FC<ICreateCommentPopover> = ({
         <Text fz="md">{user.name}</Text>
       </Group>
       <Textarea
-        placeholder="Comment..."
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
+        placeholder="Note..."
+        value={newNote}
+        onChange={(e) => setNewNote(e.target.value)}
         minRows={6}
         w={300}
         mb="md"
@@ -47,8 +47,8 @@ export const CreateCommentPopover: FC<ICreateCommentPopover> = ({
         <Button
           radius={"xs"}
           onClick={() => {
-            onSubmit(newComment);
-            setNewComment("");
+            onSubmit(newNote);
+            setNewNote("");
             onClose();
           }}
         >
