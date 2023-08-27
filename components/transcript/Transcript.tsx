@@ -158,6 +158,12 @@ const Transcript: React.FC<ITranscriptProps> = ({
     };
   };
 
+  /**
+   * Create a new note in the database.
+   *
+   * @param { string } note - The text content of the note.
+   * @returns { NotesAndUsers } A NotesAndUsers object, containing the newly created note and the ID, name and image of the user who created it.
+   */
   const handleNoteSubmission = useCallback(
     async (note: string) => {
       try {
