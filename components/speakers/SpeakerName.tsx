@@ -1,6 +1,6 @@
-import { IGroup } from "@/utils/groupTranscriptBySpeaker";
 import { Button, Popover, Text, TextInput } from "@mantine/core";
 import { Dispatch, FC, SetStateAction } from "react";
+import { IGroup } from "../transcript/interfaces";
 
 interface ISpeakerName {
   group: IGroup;
