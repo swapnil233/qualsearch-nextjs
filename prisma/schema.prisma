@@ -30,6 +30,8 @@ model User {
   invitationsSent     Invitation[] @relation("InvitationsSent")
   invitationsRecieved Invitation[] @relation("InvitationsReceived")
   Speaker             Speaker[]
+  Note                Note[]
+  Tag                 Tag[]
 }
 
 model Account {
@@ -282,11 +284,12 @@ model Note {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 
-  // 1-n -> A note can have many tags
+  // m-n -> A note can have many tags
   tags Tag[]
 
-  // A note must be created by a user
-  createdByUserId String?
+  // 1-1 -> A note is created by a user
+  createdBy       User   @relation(fields: [createdByUserId], references: [id])
+  createdByUserId String
 }
 
 model Tag {
@@ -294,22 +297,20 @@ model Tag {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String
-  start     Float
-  end       Float
 
-  // 1-n -> Tag can belong to 1 file
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId String
-
-  // 1-n -> Tag can belong to 1 project
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-
-  // 1-n -> A tag can belong to many notes
+  // m-n -> A tag can belong to many notes
   notes Note[]
 
-  // A tag must be created by a user
-  createdByUserId String?
+  // 1-1 -> A tag is created by a user
+  createdBy       User   @relation(fields: [createdByUserId], references: [id])
+  createdByUserId String
+
+  // 1-n -> A tag must belong to a project
+  Project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+
+  File   File?   @relation(fields: [fileId], references: [id])
+  fileId String?
 }
 
 enum InvitationStatus {
