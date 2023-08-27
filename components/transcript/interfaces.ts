@@ -1,4 +1,5 @@
-import { Note, User } from "@prisma/client";
+import { NotesAndUsers } from "@/types";
+import { User } from "@prisma/client";
 
 // Props for the main component.
 export interface ITranscriptProps {
@@ -10,7 +11,9 @@ export interface ITranscriptProps {
   }[];
   audioRef: React.MutableRefObject<HTMLAudioElement | null>;
   user: User;
-  notes: Note[];
+  existingNotes: NotesAndUsers[]
+  fileId: string;
+  projectId: string;
 }
 
 export type SelectedTextRectangle = {
@@ -28,3 +31,21 @@ export type SelectedText = {
   end: number;
   selectedTextRectangle: SelectedTextRectangle;
 };
+
+export interface IGroup {
+  speaker: number;
+  words: {
+    start: number;
+    end: number;
+    speaker: number;
+    punctuated_word: string;
+    index: number;
+  }[];
+}
+
+export interface ITranscript {
+  start: number;
+  end: number;
+  speaker: number;
+  punctuated_word: string;
+}

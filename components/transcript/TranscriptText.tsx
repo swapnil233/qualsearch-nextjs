@@ -1,6 +1,6 @@
 import useSelectedTextDetails from "@/hooks/useSelectedTextDetails";
-import { IGroup } from "@/utils/groupTranscriptBySpeaker";
-import { CommentType } from "../comment/CommentCard";
+import { NotesAndUsers } from "@/types";
+import { IGroup } from "./interfaces";
 
 const speakerColor: Record<number, string> = {
   0: "#00159c",
@@ -9,7 +9,7 @@ const speakerColor: Record<number, string> = {
 
 interface ITranscriptTextProps {
   group: IGroup;
-  comments: CommentType[];
+  notes: NotesAndUsers[];
   currentWord: number;
   onTextSelect: (_start: number, _end: number) => void;
   onWordClick: (_start: number) => void;
@@ -17,7 +17,7 @@ interface ITranscriptTextProps {
 
 const TranscriptText: React.FC<ITranscriptTextProps> = ({
   group,
-  comments,
+  notes,
   currentWord,
   onTextSelect,
   onWordClick,
@@ -32,17 +32,15 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
       }}
     >
       {group.words.map((word) => {
-        const isComment = comments.some(
-          (comment) => word.start >= comment.start && word.end <= comment.end
+        const isNote = notes.some(
+          (note) => word.start >= note.start && word.end <= note.end
         );
 
         const isCurrentWord = word.index === currentWord;
 
         const defaultStyle = {
           color: speakerColor[word.speaker],
-          boxShadow: isComment
-            ? "rgb(255 115 0 / 60%) 0px 3px 0px 0px"
-            : "none",
+          boxShadow: isNote ? "rgb(255 115 0 / 60%) 0px 3px 0px 0px" : "none",
           cursor: "pointer",
           fontSize: "1.2rem",
         };

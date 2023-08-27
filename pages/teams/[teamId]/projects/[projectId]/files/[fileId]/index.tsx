@@ -7,6 +7,7 @@ import {
   validateUserIsTeamMember,
 } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
+import { NotesAndUsers } from "@/types";
 import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
@@ -14,7 +15,6 @@ import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Box } from "@mantine/core";
 import {
   File,
-  Note,
   Transcript as PrismaTranscript,
   Summary,
   User,
@@ -26,7 +26,7 @@ import { useEffect, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
-    const { fileId } = context.query;
+    const { fileId, projectId } = context.query;
     const user = await prisma.user.findUnique({
       where: {
         id: session.user.id,
@@ -58,6 +58,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         where: {
           fileId: fileId as string,
         },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
       });
       notes = formatDatesToIsoString(notes);
 
@@ -85,6 +94,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             transcript,
             mediaUrl,
             teamId,
+            fileId,
+            projectId,
           },
         };
       } else {
@@ -102,11 +113,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface IFilePage {
   file: File;
-  notes: Note[];
+  notes: NotesAndUsers[];
   transcript: PrismaTranscript;
   teamId: string;
   mediaUrl: string;
   user: User;
+  fileId: string;
+  projectId: string;
 }
 
 const FilePage: NextPageWithLayout<IFilePage> = ({
@@ -116,6 +129,8 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   mediaUrl,
   user,
   teamId,
+  fileId,
+  projectId,
 }) => {
   const mediaRef = useRef(null);
   const words = transcript.words;
@@ -128,12 +143,15 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
         const response = await fetch(
           `/api/summaries?transcriptId=${transcript.id}`
         );
+
         // Summary exists in DB
         if (response.status === 200) {
           const summaryData = await response.json();
           setSummary(summaryData);
-          // Create new summary since it doesn't exist in DB.
-        } else if (response.status === 404) {
+        }
+
+        // Create new summary since it doesn't exist in DB.
+        else if (response.status === 404) {
           try {
             const response = await fetch("/api/summaries/", {
               headers: {
@@ -143,6 +161,8 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               method: "POST",
               body: JSON.stringify({ transcriptId: transcript.id }),
             });
+
+            // Summary created successfully
             if (response.status === 200) {
               const newSummary = await response.json();
               setSummary(newSummary.summary);
@@ -247,7 +267,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           />
         )}
 
-        <Box mt={"lg"}>
+        <Box mt={"lg"} id="summary-box">
           {summary ? (
             <SummaryCard
               summary={summary.content}
@@ -268,7 +288,9 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             transcript={words}
             audioRef={mediaRef}
             user={user}
-            notes={notes}
+            existingNotes={notes}
+            fileId={fileId}
+            projectId={projectId}
           />
         </Box>
       </div>

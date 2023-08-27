@@ -1,11 +1,11 @@
-import {
-  IGroup,
-  groupTranscriptBySpeaker,
-} from "@/utils/groupTranscriptBySpeaker";
+import { NotesAndUsers } from "@/types";
+import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { Box } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import { IconX } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
-import { CommentCard, CommentType } from "../comment/CommentCard";
-import { CreateCommentPopover } from "../comment/CreateCommentPopover";
+import { CreateNotePopover } from "../note/CreateNotePopover";
+import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
 import TranscriptText from "./TranscriptText";
 import { ITranscriptProps, SelectedText } from "./interfaces";
@@ -14,25 +14,31 @@ const Transcript: React.FC<ITranscriptProps> = ({
   transcript,
   audioRef,
   user,
+  fileId,
+  projectId,
+  existingNotes,
 }) => {
+  const groupedTranscript = new TranscriptGrouper(transcript).groupBySpeaker();
   const [currentWord, setCurrentWord] = useState<number>(0);
-  const [comments, setComments] = useState<CommentType[]>([]);
+
+  const transcriptRef = useRef<HTMLDivElement>(null);
+  const [notes, setNotes] = useState<NotesAndUsers[]>(existingNotes);
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
+
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
-  const transcriptRef = useRef<HTMLDivElement>(null);
 
-  // Update the comments state when the window is resized
+  // Update the notes state when the window is resized
   useEffect(() => {
-    const handleResize = () => {
-      setComments([...comments]);
+    const handleContentChange = () => {
+      setNotes((prevNotes) => [...prevNotes]);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleContentChange);
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", handleContentChange);
     };
-  }, [comments]);
+  }, [notes]);
 
   // Check word's time range with current audio time
   useEffect(() => {
@@ -94,13 +100,13 @@ const Transcript: React.FC<ITranscriptProps> = ({
   };
 
   /**
-   * Calculate the position of a comment based on the start and end times of the selected text.
+   * Calculate the position of a note based on the start and end times of the selected text.
    *
    * @param {number} start - The start time of the selected text.
    * @param {number} end - The end time of the selected text.
-   * @returns { {top: number, left: number} | null } The position object containing 'top' and 'left' coordinates of the comment or null if the start and end elements are not found.
+   * @returns { {top: number, left: number} | null } The position object containing 'top' and 'left' coordinates of the note or null if the start and end elements are not found.
    */
-  const calculateCommentPosition = (
+  const calculateNoteCardPosition = (
     start: number,
     end: number
   ): { top: number; left: number } | null => {
@@ -132,14 +138,12 @@ const Transcript: React.FC<ITranscriptProps> = ({
     const rightEdge =
       (transcriptRef.current?.getBoundingClientRect().right || 0) + 16;
 
-    // Return the top and left positions for the comment.
+    // Return the top and left positions for the note.
     return {
       top: boundingRectangle.top + window.scrollY,
       left: rightEdge,
     };
   };
-
-  const groupedTranscript: IGroup[] = groupTranscriptBySpeaker(transcript);
 
   return (
     <>
@@ -155,7 +159,7 @@ const Transcript: React.FC<ITranscriptProps> = ({
             />
             <TranscriptText
               group={group}
-              comments={comments}
+              notes={notes}
               currentWord={currentWord}
               onTextSelect={handleTextSelect}
               onWordClick={(start: number) => {
@@ -169,14 +173,14 @@ const Transcript: React.FC<ITranscriptProps> = ({
         ))}
       </Box>
 
-      {/* Render the CreateCommentPopover if there's a selected text */}
+      {/* Render the CreateNotePopover if there's a selected text */}
       {selectedText && (
-        <CreateCommentPopover
+        <CreateNotePopover
           user={user}
           position={{
             top:
               selectedText.selectedTextRectangle.bottom + window.scrollY + 16,
-            // Left = bounding rect's middle - 1/2 the width of CreateCommentPopover
+            // Left = bounding rect's middle - 1/2 the width of CreateNotePopover
             left:
               selectedText.selectedTextRectangle.left +
               selectedText.selectedTextRectangle.width / 2 -
@@ -184,31 +188,59 @@ const Transcript: React.FC<ITranscriptProps> = ({
               window.scrollX,
           }}
           onClose={() => setSelectedText(null)}
-          onSubmit={(note) => {
-            setComments([
-              ...comments,
-              { start: selectedText.start, end: selectedText.end, note },
-            ]);
-            setSelectedText(null);
+          onSubmit={async (note) => {
+            try {
+              const noteData = {
+                text: note,
+                start: selectedText.start,
+                end: selectedText.end,
+                fileId: fileId,
+                projectId: projectId,
+                createdByUserId: user.id,
+              };
+
+              // Send it off to the DB
+              const response = await fetch("/api/notes/", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(noteData),
+              });
+
+              // Check if the response is successful
+              if (!response.ok) {
+                notifications.show({
+                  withCloseButton: true,
+                  autoClose: 5000,
+                  title: "We couldn't create that note",
+                  message:
+                    "Something went wrong on our end. Try again in a few minutes.",
+                  color: "red",
+                  icon: <IconX />,
+                  loading: false,
+                });
+                throw new Error("Network response was not ok");
+              }
+
+              const newNote: NotesAndUsers = await response.json();
+
+              setNotes([...notes, newNote]);
+              setSelectedText(null);
+            } catch (error) {
+              console.log(error);
+            }
           }}
         />
       )}
 
-      {/* Render the comment cards */}
-      {comments.map((comment, i) => {
-        const position = calculateCommentPosition(
-          comment.start,
-          comment.end
-        ) || { top: 0, left: 0 };
-        return (
-          <CommentCard
-            key={i}
-            position={position}
-            body={comment}
-            author={user}
-            postedAt={new Date().toDateString()}
-          />
-        );
+      {/* Render the note cards */}
+      {notes.map((note, i) => {
+        const position = calculateNoteCardPosition(note.start, note.end) || {
+          top: 0,
+          left: 0,
+        };
+        return <NoteCard key={i} position={position} note={note} />;
       })}
     </>
   );

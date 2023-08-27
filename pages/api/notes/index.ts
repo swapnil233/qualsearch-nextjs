@@ -63,21 +63,22 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           fileId,
           projectId,
           createdByUserId,
-          tags: {
-            create: {
-              name: "",
-              start: start,
-              end: end,
-              fileId: fileId,
-              projectId: projectId,
-              createdByUserId: createdByUserId,
-            },
-          },
         },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            }
+          }
+        }
       });
 
-      res.status(201).json(newNote);
+      console.log("Created note:", newNote);
+      res.status(201).json(newNote); // Return the created note
     } catch (error) {
+      console.error("Error creating note:", error);
       res.status(500).json({ error: "Failed to create note." });
     }
   } else {
