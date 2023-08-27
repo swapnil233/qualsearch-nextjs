@@ -1,11 +1,7 @@
 import useSelectedTextDetails from "@/hooks/useSelectedTextDetails";
 import { NotesAndUsers } from "@/types";
+import { Box, useMantineTheme } from "@mantine/core";
 import { IGroup } from "./interfaces";
-
-const speakerColor: Record<number, string> = {
-  0: "#00159c",
-  1: "#0b7525",
-};
 
 interface ITranscriptTextProps {
   group: IGroup;
@@ -23,9 +19,28 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   onWordClick,
 }) => {
   const getSelectedTextDetails = useSelectedTextDetails();
+  const theme = useMantineTheme();
+
+  const noteUnderline =
+    theme.colorScheme === "light"
+      ? "rgb(255 149 62 / 60%) 0px 3px 0px 0px"
+      : "rgb(122 48 0) 0px 3px 0px 0px";
+
+  const noteBackground =
+    theme.colorScheme === "light" ? "rgb(255 245 239)" : "rgb(62 23 0)";
+
+  const currentWordOuterDecoration =
+    theme.colorScheme === "light"
+      ? "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px"
+      : "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px";
+
+  const currentWordInnerDecoration =
+    theme.colorScheme === "light"
+      ? "rgba(160, 0, 100, 0.2)"
+      : "rgba(160, 0, 100, 0.2)";
 
   return (
-    <p
+    <Box
       onMouseUp={() => {
         const selectedText = getSelectedTextDetails();
         selectedText && onTextSelect(selectedText.start, selectedText.end);
@@ -39,16 +54,15 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
         const isCurrentWord = word.index === currentWord;
 
         const defaultStyle = {
-          color: speakerColor[word.speaker],
-          boxShadow: isNote ? "rgb(255 115 0 / 60%) 0px 3px 0px 0px" : "none",
+          boxShadow: isNote ? noteUnderline : "none",
+          background: isNote ? noteBackground : "",
           cursor: "pointer",
           fontSize: "1.2rem",
         };
 
         const currentWordStyle = {
-          color: "#190041",
-          boxShadow: "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px",
-          background: "rgba(160, 0, 100, 0.2)",
+          boxShadow: currentWordOuterDecoration,
+          background: currentWordInnerDecoration,
           borderRadius: "3px",
         };
 
@@ -69,7 +83,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
           </span>
         );
       })}
-    </p>
+    </Box>
   );
 };
 

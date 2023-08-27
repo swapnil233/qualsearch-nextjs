@@ -1,4 +1,10 @@
-import { Button, Popover, Text, TextInput } from "@mantine/core";
+import {
+  Button,
+  Popover,
+  Text,
+  TextInput,
+  useMantineTheme,
+} from "@mantine/core";
 import { Dispatch, FC, SetStateAction } from "react";
 import { IGroup } from "../transcript/interfaces";
 
@@ -17,6 +23,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
   newSpeakerName,
   setNewSpeakerName,
 }) => {
+  const theme = useMantineTheme();
   /**
    * Handle the change of the speaker name by updating the state and clearing the input
    * @param speaker
@@ -41,7 +48,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
     >
       <Popover.Target>
         <Text
-          color="#190041"
+          color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
           fs={"1.2rem"}
           mt={"2rem"}
           mb={"8px"}
@@ -58,12 +65,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
           {speakerNames[group.speaker] || `Speaker ${group.speaker + 1}`}
         </Text>
       </Popover.Target>
-      <Popover.Dropdown
-        sx={(theme) => ({
-          background:
-            theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
-        })}
-      >
+      <Popover.Dropdown>
         <TextInput
           label="Change speaker name"
           placeholder={
@@ -78,7 +80,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
         />
         <Button
           size="xs"
-          variant="light"
+          variant="default"
           onClick={() => {
             if (newSpeakerName !== "") {
               handleSpeakerNameChange(group.speaker, newSpeakerName);
