@@ -3,7 +3,13 @@ import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
@@ -17,8 +23,8 @@ const Transcript: React.FC<ITranscriptProps> = ({
   fileId,
   projectId,
   existingNotes,
+  summaryHasLoaded,
 }) => {
-  const groupedTranscript = new TranscriptGrouper(transcript).groupBySpeaker();
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const transcriptRef = useRef<HTMLDivElement>(null);
@@ -28,11 +34,18 @@ const Transcript: React.FC<ITranscriptProps> = ({
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
 
+  const groupedTranscript = useMemo(() => {
+    return new TranscriptGrouper(transcript).groupBySpeaker();
+  }, [transcript]);
+
+  // Update note positions after summary loads
+  useEffect(() => {
+    setNotes((prevNotes) => [...prevNotes]);
+  }, [summaryHasLoaded]);
+
   // Update the notes state when the window is resized
   useEffect(() => {
-    const handleContentChange = () => {
-      setNotes((prevNotes) => [...prevNotes]);
-    };
+    const handleContentChange = () => setNotes((prevNotes) => [...prevNotes]);
 
     window.addEventListener("resize", handleContentChange);
     return () => {
@@ -145,6 +158,51 @@ const Transcript: React.FC<ITranscriptProps> = ({
     };
   };
 
+  const handleNoteSubmission = useCallback(
+    async (note: string) => {
+      try {
+        const noteData = {
+          text: note,
+          start: selectedText?.start,
+          end: selectedText?.end,
+          fileId: fileId,
+          projectId: projectId,
+          createdByUserId: user.id,
+        };
+
+        const response = await fetch("/api/notes/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(noteData),
+        });
+
+        if (!response.ok) {
+          notifications.show({
+            withCloseButton: true,
+            autoClose: 5000,
+            title: "We couldn't create that note",
+            message:
+              "Something went wrong on our end. Try again in a few minutes.",
+            color: "red",
+            icon: <IconX />,
+            loading: false,
+          });
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const newNote: NotesAndUsers = await response.json();
+
+        setNotes((prevNotes) => [...prevNotes, newNote]);
+        setSelectedText(null);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [selectedText, fileId, projectId, user.id]
+  );
+
   return (
     <>
       <Box ref={transcriptRef}>
@@ -188,49 +246,7 @@ const Transcript: React.FC<ITranscriptProps> = ({
               window.scrollX,
           }}
           onClose={() => setSelectedText(null)}
-          onSubmit={async (note) => {
-            try {
-              const noteData = {
-                text: note,
-                start: selectedText.start,
-                end: selectedText.end,
-                fileId: fileId,
-                projectId: projectId,
-                createdByUserId: user.id,
-              };
-
-              // Send it off to the DB
-              const response = await fetch("/api/notes/", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(noteData),
-              });
-
-              // Check if the response is successful
-              if (!response.ok) {
-                notifications.show({
-                  withCloseButton: true,
-                  autoClose: 5000,
-                  title: "We couldn't create that note",
-                  message:
-                    "Something went wrong on our end. Try again in a few minutes.",
-                  color: "red",
-                  icon: <IconX />,
-                  loading: false,
-                });
-                throw new Error("Network response was not ok");
-              }
-
-              const newNote: NotesAndUsers = await response.json();
-
-              setNotes([...notes, newNote]);
-              setSelectedText(null);
-            } catch (error) {
-              console.log(error);
-            }
-          }}
+          onSubmit={handleNoteSubmission}
         />
       )}
 
@@ -246,4 +262,4 @@ const Transcript: React.FC<ITranscriptProps> = ({
   );
 };
 
-export default Transcript;
+export default React.memo(Transcript);
