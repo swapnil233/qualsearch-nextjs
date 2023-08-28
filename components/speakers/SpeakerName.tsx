@@ -1,27 +1,33 @@
+import convertToTimestamp from "@/utils/convertToTimestamp";
 import {
   Button,
+  Group,
   Popover,
   Text,
   TextInput,
   useMantineTheme,
 } from "@mantine/core";
-import { Dispatch, FC, SetStateAction } from "react";
-import { IGroup } from "../transcript/interfaces";
+import { IconPlayerPlay } from "@tabler/icons-react";
+import { Dispatch, FC, SetStateAction, useMemo } from "react";
 
 interface ISpeakerName {
-  group: IGroup;
+  speaker: number;
   speakerNames: Record<number, string>;
   setSpeakerNames: Dispatch<SetStateAction<Record<number, string>>>;
   newSpeakerName: string;
   setNewSpeakerName: Dispatch<SetStateAction<string>>;
+  startingTimestamp: number;
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
 }
 
 export const SpeakerName: FC<ISpeakerName> = ({
-  group,
+  speaker,
   speakerNames,
   setSpeakerNames,
   newSpeakerName,
   setNewSpeakerName,
+  startingTimestamp,
+  audioRef,
 }) => {
   const theme = useMantineTheme();
   /**
@@ -38,58 +44,75 @@ export const SpeakerName: FC<ISpeakerName> = ({
     setNewSpeakerName("");
   };
 
+  const formattedTimestamp = useMemo(() => {
+    return convertToTimestamp(startingTimestamp);
+  }, [startingTimestamp]);
+
+  const handleTimestampClick = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = startingTimestamp;
+      audioRef.current.play();
+    }
+  };
+
   return (
-    <Popover
-      width={300}
-      trapFocus
-      position="bottom-start"
-      withArrow
-      shadow="lg"
-    >
-      <Popover.Target>
-        <Text
-          color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
-          fs={"1.2rem"}
-          mt={"2rem"}
-          mb={"8px"}
-          fw={"bold"}
-          w={"100%"}
-          sx={{
-            cursor: "pointer",
-            ":hover": {
-              textDecoration: "underline",
-            },
-          }}
-        >
-          {/* Either use the speaker name from the state or the speaker name from the transcript */}
-          {speakerNames[group.speaker] || `Speaker ${group.speaker + 1}`}
-        </Text>
-      </Popover.Target>
-      <Popover.Dropdown>
-        <TextInput
-          label="Change speaker name"
-          placeholder={
-            speakerNames[group.speaker] || `Speaker ${group.speaker + 1}`
-          }
-          mb="md"
-          value={newSpeakerName}
-          onChange={(e) => {
-            setNewSpeakerName(e.target.value);
-            // Close the popover after setting the new speaker name
-          }}
-        />
-        <Button
-          size="xs"
-          variant="default"
-          onClick={() => {
-            if (newSpeakerName !== "") {
-              handleSpeakerNameChange(group.speaker, newSpeakerName);
-            }
-          }}
-        >
-          Change
-        </Button>
-      </Popover.Dropdown>
-    </Popover>
+    <Group mt={"2rem"} mb={"8px"}>
+      <Popover
+        width={300}
+        trapFocus
+        position="bottom-start"
+        withArrow
+        shadow="lg"
+      >
+        <Popover.Target>
+          <Text
+            color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
+            fs={"1.2rem"}
+            fw={"bold"}
+            sx={{
+              cursor: "pointer",
+              ":hover": {
+                textDecoration: "underline",
+              },
+            }}
+          >
+            {/* Either use the speaker name from the state or the speaker name from the transcript */}
+            {speakerNames[speaker] || `Speaker ${speaker + 1}`}
+          </Text>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <TextInput
+            label="Change speaker name"
+            placeholder={speakerNames[speaker] || `Speaker ${speaker + 1}`}
+            mb="md"
+            value={newSpeakerName}
+            onChange={(e) => {
+              setNewSpeakerName(e.target.value);
+              // Close the popover after setting the new speaker name
+            }}
+          />
+          <Button
+            size="xs"
+            variant="default"
+            onClick={() => {
+              if (newSpeakerName !== "") {
+                handleSpeakerNameChange(speaker, newSpeakerName);
+              }
+            }}
+          >
+            Change
+          </Button>
+        </Popover.Dropdown>
+      </Popover>
+      <Button
+        variant="subtle"
+        color="gray.7"
+        size="xs"
+        leftIcon={<IconPlayerPlay size={"0.8rem"} />}
+        onClick={handleTimestampClick}
+      >
+        {formattedTimestamp}
+      </Button>
+    </Group>
   );
 };

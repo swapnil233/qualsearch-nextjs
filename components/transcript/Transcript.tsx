@@ -209,29 +209,36 @@ const Transcript: React.FC<ITranscriptProps> = ({
     [selectedText, fileId, projectId, user.id]
   );
 
+  const handleWordClick = useCallback(
+    (start: number) => {
+      if (audioRef.current) {
+        audioRef.current.currentTime = start;
+        audioRef.current.play();
+      }
+    },
+    [audioRef]
+  );
+
   return (
     <>
       <Box ref={transcriptRef}>
         {groupedTranscript.map((group, groupIndex) => (
-          <Box key={groupIndex} className="flex flex-col">
+          <Box key={groupIndex}>
             <SpeakerName
-              group={group}
+              speaker={group.speaker}
               speakerNames={speakerNames}
               newSpeakerName={newSpeakerName}
               setNewSpeakerName={setNewSpeakerName}
               setSpeakerNames={setSpeakerNames}
+              startingTimestamp={group.words[0].start}
+              audioRef={audioRef}
             />
             <TranscriptText
               group={group}
               notes={notes}
               currentWord={currentWord}
               onTextSelect={handleTextSelect}
-              onWordClick={(start: number) => {
-                if (audioRef.current) {
-                  audioRef.current.currentTime = start;
-                  audioRef.current.play();
-                }
-              }}
+              onWordClick={handleWordClick}
             />
           </Box>
         ))}
