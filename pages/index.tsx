@@ -2,6 +2,7 @@ import Dots from "@/components/landing/Dots";
 import HomePageLayout from "@/components/layout/home/HomePageLayout";
 import { NextPageWithLayout } from "@/pages/page";
 import {
+  Box,
   Button,
   Container,
   Image,
@@ -11,6 +12,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { User } from "@prisma/client";
+import { IconPlayerPlay } from "@tabler/icons-react";
 import { signIn, useSession } from "next-auth/react";
 
 interface TranscriptionPageProps {
@@ -54,7 +56,8 @@ const useStyles = createStyles((theme) => ({
   title: {
     textAlign: "center",
     fontWeight: 800,
-    fontSize: 50,
+    lineHeight: 1.1,
+    fontSize: 60,
     letterSpacing: -1,
     color: theme.colorScheme === "dark" ? theme.white : theme.black,
     marginBottom: theme.spacing.xs,
@@ -71,10 +74,12 @@ const useStyles = createStyles((theme) => ({
   },
 
   description: {
+    width: "100%",
     textAlign: "center",
+    fontSize: 24,
 
     "@media (max-width: 520px)": {
-      fontSize: theme.fontSizes.md,
+      fontSize: 20,
     },
   },
 
@@ -94,11 +99,8 @@ const useStyles = createStyles((theme) => ({
     },
 
     "@media (max-width: 520px)": {
-      height: 42,
-      fontSize: theme.fontSizes.md,
-
       "&:not(:first-of-type)": {
-        marginTop: 25,
+        marginTop: 15,
         marginLeft: 0,
       },
     },
@@ -106,9 +108,16 @@ const useStyles = createStyles((theme) => ({
 
   demoImage: {
     marginTop: 64,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
 
-    "@media (max-width: 500px)": {
-      display: "none",
+    // Make image 70% width on laptop screens
+    "@media (min-width: 1024px) and (max-width: 1440px)": {
+      width: "70%",
+      marginTop: 48,
+      marginLeft: "auto",
+      marginRight: "auto",
     },
   },
 }));
@@ -119,7 +128,9 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
   const { data: session, status } = useSession();
 
   const demoImage =
-    theme.colorScheme === "dark" ? "/demo-dark.png" : "/demo-light.png";
+    theme.colorScheme === "dark"
+      ? "/demo-dark-no-border.png"
+      : "/demo-light-no-border.png";
 
   return (
     <>
@@ -140,21 +151,21 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
 
           <Container p={20} size={600}>
             <Text size="lg" color="dimmed" className={classes.description}>
-              Collaborate with your team to easily analyze user interviews
-              <br />
-              using transcript tagging and AI powered insights and summaries.
+              Collaborate with your team to easily analyze user interviews using
+              transcript tagging and AI powered insights.
             </Text>
           </Container>
 
-          <div className={classes.controls}>
+          <Box className={classes.controls}>
             <Button
               className={classes.control}
               size="lg"
               variant="default"
               color="gray"
               component="a"
+              leftIcon={<IconPlayerPlay size={20} />}
             >
-              Try demo
+              Demo
             </Button>
 
             {status === "authenticated" ? (
@@ -165,7 +176,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
                   component="a"
                   href="/teams"
                 >
-                  Go to teams
+                  Dashboard
                 </Button>
               </>
             ) : (
@@ -180,11 +191,11 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
                 </Button>
               </>
             )}
-          </div>
+          </Box>
         </div>
 
         <div className={classes.demoImage}>
-          <Image src={demoImage} radius={10} alt="Demo image" />
+          <Image src={demoImage} alt="Demo image" />
         </div>
       </Container>
     </>
