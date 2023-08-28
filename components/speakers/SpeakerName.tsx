@@ -1,5 +1,6 @@
 import convertToTimestamp from "@/utils/convertToTimestamp";
 import {
+  Avatar,
   Button,
   Group,
   Popover,
@@ -55,6 +56,13 @@ export const SpeakerName: FC<ISpeakerName> = ({
     }
   };
 
+  const firstTwoLettersOfName = useMemo(() => {
+    return speakerNames[speaker]
+      ?.split(" ")
+      .map((word) => word[0])
+      .join("");
+  }, [speakerNames, speaker]);
+
   return (
     <Group mt={"2rem"} mb={"8px"}>
       <Popover
@@ -65,20 +73,25 @@ export const SpeakerName: FC<ISpeakerName> = ({
         shadow="lg"
       >
         <Popover.Target>
-          <Text
-            color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
-            fs={"1.2rem"}
-            fw={"bold"}
-            sx={{
-              cursor: "pointer",
-              ":hover": {
-                textDecoration: "underline",
-              },
-            }}
-          >
-            {/* Either use the speaker name from the state or the speaker name from the transcript */}
-            {speakerNames[speaker] || `Speaker ${speaker + 1}`}
-          </Text>
+          <Group spacing={"xs"}>
+            <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
+              {firstTwoLettersOfName}
+            </Avatar>
+            <Text
+              color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
+              fs={"1.2rem"}
+              fw={"bold"}
+              sx={{
+                cursor: "pointer",
+                ":hover": {
+                  textDecoration: "underline",
+                },
+              }}
+            >
+              {/* Either use the speaker name from the state or the speaker name from the transcript */}
+              {speakerNames[speaker] || `Speaker ${speaker + 1}`}
+            </Text>
+          </Group>
         </Popover.Target>
         <Popover.Dropdown>
           <TextInput
@@ -105,10 +118,10 @@ export const SpeakerName: FC<ISpeakerName> = ({
         </Popover.Dropdown>
       </Popover>
       <Button
-        variant="subtle"
-        color="gray.7"
-        size="xs"
-        leftIcon={<IconPlayerPlay size={"0.8rem"} />}
+        variant="outline"
+        color={theme.colorScheme === "dark" ? "gray" : "dark"}
+        compact
+        leftIcon={<IconPlayerPlay size={"1rem"} />}
         onClick={handleTimestampClick}
       >
         {formattedTimestamp}
