@@ -269,7 +269,14 @@ const Transcript: React.FC<ITranscriptProps> = ({
           top: 0,
           left: 0,
         };
-        return <NoteCard key={i} position={position} note={note} />;
+        return (
+          <NoteCard
+            key={i}
+            position={position}
+            note={note}
+            audioRef={audioRef}
+          />
+        );
       })}
     </>
   );

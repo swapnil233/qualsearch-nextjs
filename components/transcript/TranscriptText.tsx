@@ -1,6 +1,6 @@
 import useSelectedTextDetails from "@/hooks/useSelectedTextDetails";
 import { NotesAndUsers } from "@/types";
-import { Box, useMantineTheme } from "@mantine/core";
+import { Text, useMantineTheme } from "@mantine/core";
 import { IGroup } from "./interfaces";
 
 interface ITranscriptTextProps {
@@ -40,11 +40,12 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
       : "rgba(160, 0, 100, 0.2)";
 
   return (
-    <Box
+    <Text
       onMouseUp={() => {
         const selectedText = getSelectedTextDetails();
         selectedText && onTextSelect(selectedText.start, selectedText.end);
       }}
+      lh={1.7}
     >
       {group.words.map((word) => {
         const isNote = notes.some(
@@ -83,7 +84,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
           </span>
         );
       })}
-    </Box>
+    </Text>
   );
 };
 

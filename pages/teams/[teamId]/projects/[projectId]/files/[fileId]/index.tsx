@@ -12,7 +12,7 @@ import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { Box } from "@mantine/core";
+import { Box, useMantineTheme } from "@mantine/core";
 import {
   File,
   Transcript as PrismaTranscript,
@@ -196,6 +196,8 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
     console.log("summarize");
   };
 
+  const theme = useMantineTheme();
+
   return (
     <>
       <Head>
@@ -259,7 +261,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             src={mediaUrl}
             controls
             ref={mediaRef}
-            className="md:fixed md:bottom-2 md:left-2 md:w-1/5 z-50 w-full"
+            className="lg:fixed lg:bottom-2 lg:left-2 lg:w-1/6 md:w-full z-50 w-full"
           />
         ) : (
           <audio
@@ -284,6 +286,12 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
         <Box
           sx={{
             width: "75%",
+            borderRight: `1px solid ${
+              theme.colorScheme === "light"
+                ? theme.colors.gray[1]
+                : theme.colors.dark[6]
+            }`,
+            paddingRight: "0.5rem",
           }}
         >
           <Transcript
