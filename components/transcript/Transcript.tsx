@@ -4,6 +4,7 @@ import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
 import React, {
+  FC,
   useCallback,
   useEffect,
   useMemo,
@@ -16,7 +17,7 @@ import { SpeakerName } from "../speakers/SpeakerName";
 import TranscriptText from "./TranscriptText";
 import { ITranscriptProps, SelectedText } from "./interfaces";
 
-const Transcript: React.FC<ITranscriptProps> = ({
+const Transcript: FC<ITranscriptProps> = ({
   transcript,
   audioRef,
   user,

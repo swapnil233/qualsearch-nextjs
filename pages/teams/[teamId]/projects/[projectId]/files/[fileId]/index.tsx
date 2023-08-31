@@ -1,11 +1,9 @@
 import SummaryCard from "@/components/card/summary/SummaryCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import { StatsGrid } from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
-import {
-  getTeamIdFromProjectId,
-  validateUserIsTeamMember,
-} from "@/infrastructure/services/team.service";
+import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { NotesAndUsers } from "@/types";
 import { getSignedUrl } from "@/utils/aws";
@@ -17,12 +15,13 @@ import {
   File,
   Transcript as PrismaTranscript,
   Summary,
+  Tag,
   User,
 } from "@prisma/client";
 import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -40,44 +39,49 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 
     try {
-      let file = await prisma.file.findUniqueOrThrow({
-        where: {
-          id: fileId as string,
-        },
-      });
-      file = formatDatesToIsoString(file);
+      let [file, transcript, notes, tags] = await Promise.all([
+        prisma.file.findUniqueOrThrow({
+          where: {
+            id: fileId as string,
+          },
+        }),
 
-      let transcript = await prisma.transcript.findUniqueOrThrow({
-        where: {
-          fileId: fileId as string,
-        },
-      });
-      transcript = formatDatesToIsoString(transcript);
+        prisma.transcript.findUniqueOrThrow({
+          where: {
+            fileId: fileId as string,
+          },
+        }),
 
-      let notes = await prisma.note.findMany({
-        where: {
-          fileId: fileId as string,
-        },
-        include: {
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
+        // Get all the notes in this file
+        prisma.note.findMany({
+          where: {
+            fileId: fileId as string,
+          },
+          include: {
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
             },
           },
-        },
-      });
+        }),
+
+        // Get all the tags available in this project
+        prisma.tag.findMany({
+          where: {
+            projectId: projectId as string,
+          },
+        }),
+      ]);
+
+      file = formatDatesToIsoString(file);
+      transcript = formatDatesToIsoString(transcript);
       notes = formatDatesToIsoString(notes);
+      tags = formatDatesToIsoString(tags);
 
-      // Get the team ID of the project
-      const teamId = await getTeamIdFromProjectId(file.projectId);
-
-      if (!teamId) {
-        return {
-          notFound: true,
-        };
-      }
+      const teamId = file.teamId;
 
       // Check if the user is in the team
       await validateUserIsTeamMember(teamId, user.id);
@@ -91,6 +95,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             user,
             file,
             notes,
+            tags,
             transcript,
             mediaUrl,
             teamId,
@@ -114,6 +119,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface IFilePage {
   file: File;
   notes: NotesAndUsers[];
+  tags: Tag[];
   transcript: PrismaTranscript;
   teamId: string;
   mediaUrl: string;
@@ -125,6 +131,7 @@ interface IFilePage {
 const FilePage: NextPageWithLayout<IFilePage> = ({
   file,
   notes,
+  tags,
   transcript,
   mediaUrl,
   user,
@@ -132,10 +139,15 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   fileId,
   projectId,
 }) => {
-  const mediaRef = useRef(null);
+  const theme = useMantineTheme();
+  const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
   const words = transcript.words;
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
+
+  let contributorsCount: number = useMemo(() => {
+    return new Set(notes.map((note) => note.createdByUserId)).size;
+  }, [notes]);
 
   // Fetch summary if it exists, else create one.
   useEffect(() => {
@@ -195,8 +207,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const handleSummarize = () => {
     console.log("summarize");
   };
-
-  const theme = useMantineTheme();
 
   return (
     <>
@@ -260,7 +270,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           <video
             src={mediaUrl}
             controls
-            ref={mediaRef}
+            ref={mediaRef as React.MutableRefObject<HTMLVideoElement>}
             className="lg:fixed lg:bottom-2 lg:left-2 lg:w-1/6 md:w-full z-50 w-full"
           />
         ) : (
@@ -283,6 +293,17 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           )}
         </Box>
 
+        <StatsGrid
+          duration={
+            mediaRef.current && mediaRef.current.duration
+              ? `${Math.floor(mediaRef.current.duration / 60)} minutes`
+              : "Error"
+          }
+          notesCount={notes.length}
+          tagsCount={tags.length}
+          contributorsCount={contributorsCount}
+        />
+
         <Box
           sx={{
             width: "75%",
@@ -295,7 +316,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           }}
         >
           <Transcript
-            // @ts-ignore
+            // @ts-ignore - Type 'JsonValue' from Prisma is not assignable to type '{ start: number; end: number; speaker: number; punctuated_word: string; }[]'.
             transcript={words}
             audioRef={mediaRef}
             user={user}
