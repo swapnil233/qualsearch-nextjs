@@ -9,9 +9,9 @@ export interface ITranscriptProps {
     speaker: number;
     punctuated_word: string;
   }[];
-  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+  audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   user: User;
-  existingNotes: NotesAndUsers[]
+  existingNotes: NotesAndUsers[];
   fileId: string;
   projectId: string;
   summaryHasLoaded: Boolean;
