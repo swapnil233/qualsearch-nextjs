@@ -9,7 +9,6 @@ import {
   Popover,
   Stack,
   Text,
-  useMantineTheme,
 } from "@mantine/core";
 import {
   IconDots,
@@ -30,7 +29,6 @@ interface INoteCardProps {
 
 export function NoteCard({ position, note, audioRef }: INoteCardProps) {
   const [noteIsPlaying, setNoteIsPlaying] = useState<boolean>(false);
-  const theme = useMantineTheme();
 
   const handlePlayNote = () => {
     if (audioRef.current) {
