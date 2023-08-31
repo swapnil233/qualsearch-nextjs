@@ -22,20 +22,23 @@ export type Transcript = {
   punctuated_word: string;
 }[];
 
-export type NotesAndUsers = ({
+export type NotesAndUsers = {
   createdBy: {
     id: string;
     name: string | null;
     image: string | null;
   };
-} & GetResult<{
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  text: string;
-  start: number;
-  end: number;
-  fileId: string;
-  projectId: string;
-  createdByUserId: string;
-}, any> & {})
+} & GetResult<
+  {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    text: string;
+    start: number;
+    end: number;
+    fileId: string;
+    projectId: string;
+    createdByUserId: string;
+  },
+  any
+> & {};

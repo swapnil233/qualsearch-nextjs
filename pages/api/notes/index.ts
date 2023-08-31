@@ -70,9 +70,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
               id: true,
               name: true,
               image: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       console.log("Created note:", newNote);
