@@ -1,25 +1,78 @@
-import { Avatar, Box, Button, Group, Text, Textarea } from "@mantine/core";
-import { User } from "@prisma/client";
-import { FC, useState } from "react";
+import {
+  Avatar,
+  Box,
+  Button,
+  Group,
+  MultiSelect,
+  Stack,
+  Text,
+  Textarea,
+  useMantineTheme,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { Tag, User } from "@prisma/client";
+import { IconTag } from "@tabler/icons-react";
+import { FC, useEffect, useState } from "react";
 
 interface ICreateNotePopover {
   user: User;
+  tags: Tag[];
   onClose: () => void;
-  onSubmit: (_note: string) => void;
+  noteIsCreating: boolean;
+  onSubmit: (_note: string, _tags: string[], _newTags: string[]) => void;
   position: { top: number; left: number };
+}
+
+interface IFormValues {
+  note: string;
+  tags: string[];
 }
 
 export const CreateNotePopover: FC<ICreateNotePopover> = ({
   user,
+  tags,
   onClose,
+  noteIsCreating,
   onSubmit,
   position,
 }) => {
-  const [newNote, setNewNote] = useState<string>("");
+  const theme = useMantineTheme();
+  const [tagsList, setTagsList] = useState<
+    {
+      value: string;
+      label: string;
+    }[]
+  >([]);
+  const [newTags, setNewTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    const transformTags = () => {
+      tags.map((tag) => {
+        setTagsList((prevTags) => [
+          ...prevTags,
+          {
+            label: tag.name,
+            value: tag.id,
+          },
+        ]);
+      });
+    };
+
+    transformTags();
+  }, [tags]);
+
+  const form = useForm<IFormValues>({
+    initialValues: {
+      note: "",
+      tags: [],
+    },
+  });
+
   return (
     <Box
       p={"md"}
-      bg={"white"}
+      bg={theme.colorScheme === "light" ? theme.white : "dark.9"}
+      w={350}
       sx={{
         position: "absolute",
         top: position.top,
@@ -28,33 +81,57 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
         boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
       }}
     >
-      <Group spacing={"sm"} mb={"md"}>
-        <Avatar src={user.image || ""} alt={user.name || ""} radius="xl" />
-        <Text fz="md">{user.name}</Text>
-      </Group>
-      <Textarea
-        placeholder="Note..."
-        value={newNote}
-        onChange={(e) => setNewNote(e.target.value)}
-        minRows={6}
-        w={300}
-        mb="md"
-      />
-      <Group position="apart">
-        <Button radius={"xs"} variant="default" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button
-          radius={"xs"}
-          onClick={() => {
-            onSubmit(newNote);
-            setNewNote("");
-            onClose();
-          }}
+      <Stack>
+        <Group spacing={"sm"}>
+          <Avatar src={user.image || ""} alt={user.name || ""} radius="xl" />
+          <Text fz="md">{user.name}</Text>
+        </Group>
+        <form
+          onSubmit={form.onSubmit((values) =>
+            onSubmit(values.note, values.tags, newTags)
+          )}
         >
-          Post
-        </Button>
-      </Group>
+          <Stack mb={"lg"}>
+            <Textarea
+              {...form.getInputProps("note")}
+              placeholder="E.g., The user found the report creation process confusing..."
+              label="Note"
+              minRows={3}
+            />
+            <MultiSelect
+              {...form.getInputProps("tags")}
+              label="Select tags"
+              data={tagsList}
+              clearSearchOnBlur
+              searchable
+              clearable
+              icon={<IconTag size={"1.1rem"} />}
+              creatable
+              getCreateLabel={(query) => `+ Create ${query}`}
+              onCreate={(query) => {
+                const item = { value: query, label: query };
+                setNewTags((prevTags) => [...prevTags, query]);
+                setTagsList((current) => [...current, item]);
+                return item;
+              }}
+            />
+          </Stack>
+
+          <Group position="apart">
+            <Button
+              disabled={noteIsCreating}
+              radius={"xs"}
+              variant="default"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button loading={noteIsCreating} type="submit" radius={"xs"}>
+              Post
+            </Button>
+          </Group>
+        </form>
+      </Stack>
     </Box>
   );
 };

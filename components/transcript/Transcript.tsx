@@ -1,7 +1,8 @@
-import { NotesAndUsers } from "@/types";
+import { NoteWithTagsAndCreator } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
 import React, {
   FC,
@@ -15,7 +16,23 @@ import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
 import TranscriptText from "./TranscriptText";
-import { ITranscriptProps, SelectedText } from "./interfaces";
+import { SelectedText, TagWithNotes } from "./interfaces";
+
+interface ITranscriptProps {
+  transcript: {
+    start: number;
+    end: number;
+    speaker: number;
+    punctuated_word: string;
+  }[];
+  audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
+  user: User;
+  existingNotes: NoteWithTagsAndCreator[];
+  tags: TagWithNotes[];
+  fileId: string;
+  projectId: string;
+  summaryHasLoaded: Boolean;
+}
 
 const Transcript: FC<ITranscriptProps> = ({
   transcript,
@@ -24,13 +41,15 @@ const Transcript: FC<ITranscriptProps> = ({
   fileId,
   projectId,
   existingNotes,
+  tags,
   summaryHasLoaded,
 }) => {
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const transcriptRef = useRef<HTMLDivElement>(null);
-  const [notes, setNotes] = useState<NotesAndUsers[]>(existingNotes);
+  const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(existingNotes);
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
+  const [noteIsCreating, setNoteIsCreating] = useState<boolean>(false);
 
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
@@ -163,11 +182,46 @@ const Transcript: FC<ITranscriptProps> = ({
    * Create a new note in the database.
    *
    * @param { string } note - The text content of the note.
+   * @param { string[] } tags - An array of tags
    * @returns { NotesAndUsers } A NotesAndUsers object, containing the newly created note and the ID, name and image of the user who created it.
    */
   const handleNoteSubmission = useCallback(
-    async (note: string) => {
+    async (note: string, tags: string[], newTags: string[]) => {
+      setNoteIsCreating(true);
       try {
+        // Check and create new tags at /api/tags
+        const newTagIdsResponse = await fetch("/api/tags", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            newTagNames: newTags,
+            projectId: projectId,
+            createdByUserId: user.id,
+          }),
+        });
+
+        if (!newTagIdsResponse.ok) {
+          notifications.show({
+            withCloseButton: true,
+            autoClose: 5000,
+            title: "We couldn't create those tags",
+            message:
+              "Something went wrong on our end. Try again in a few minutes.",
+            color: "red",
+            icon: <IconX />,
+            loading: false,
+          });
+          throw new Error(`Error: ${newTagIdsResponse.statusText}`);
+        }
+
+        // The response contains an array of the new tag IDs
+        const newTagIds: string[] = await newTagIdsResponse.json();
+
+        // Combine the new tag IDs with the existing tag IDs
+        const tagIds = [...tags, ...newTagIds];
+
         const noteData = {
           text: note,
           start: selectedText?.start,
@@ -175,9 +229,10 @@ const Transcript: FC<ITranscriptProps> = ({
           fileId: fileId,
           projectId: projectId,
           createdByUserId: user.id,
+          tags: tagIds,
         };
 
-        const response = await fetch("/api/notes/", {
+        const response = await fetch("/api/notes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -199,9 +254,10 @@ const Transcript: FC<ITranscriptProps> = ({
           throw new Error(`Error: ${response.statusText}`);
         }
 
-        const newNote: NotesAndUsers = await response.json();
+        const newNote: NoteWithTagsAndCreator = await response.json();
 
         setNotes((prevNotes) => [...prevNotes, newNote]);
+        setNoteIsCreating(false);
         setSelectedText(null);
       } catch (error) {
         console.error(error);
@@ -249,6 +305,7 @@ const Transcript: FC<ITranscriptProps> = ({
       {selectedText && (
         <CreateNotePopover
           user={user}
+          tags={tags}
           position={{
             top:
               selectedText.selectedTextRectangle.bottom + window.scrollY + 16,
@@ -260,6 +317,7 @@ const Transcript: FC<ITranscriptProps> = ({
               window.scrollX,
           }}
           onClose={() => setSelectedText(null)}
+          noteIsCreating={noteIsCreating}
           onSubmit={handleNoteSubmission}
         />
       )}
@@ -270,6 +328,7 @@ const Transcript: FC<ITranscriptProps> = ({
           top: 0,
           left: 0,
         };
+
         return (
           <NoteCard
             key={i}

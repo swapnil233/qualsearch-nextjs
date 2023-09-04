@@ -1,14 +1,17 @@
-import { NotesAndUsers } from "@/types";
+import { NoteWithTagsAndCreator } from "@/types";
 import {
   ActionIcon,
   Avatar,
+  Badge,
   Box,
   Button,
   Group,
   Menu,
   Popover,
+  SimpleGrid,
   Stack,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import {
   IconDots,
@@ -23,7 +26,7 @@ interface INoteCardProps {
     top: number;
     left: number;
   };
-  note: NotesAndUsers;
+  note: NoteWithTagsAndCreator;
   audioRef: React.MutableRefObject<HTMLAudioElement | null>;
 }
 
@@ -40,8 +43,8 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
       const stopAtNoteEnd = () => {
         if (audioRef.current && audioRef.current.currentTime >= note.end) {
           audioRef.current.pause();
-          setNoteIsPlaying(false);
           audioRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
+          setNoteIsPlaying(false);
         }
       };
 
@@ -49,16 +52,8 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
     }
   };
 
-  const handlePauseNote = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setNoteIsPlaying(false);
-    }
-  };
-
   return (
     <Box
-      w={264}
       sx={{
         position: "absolute",
         top: position.top,
@@ -80,52 +75,86 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
           </Popover.Target>
 
           <Popover.Dropdown>
-            <Stack align="flex-start">
-              <Stack justify="flex-start" align="flex-start" w={"100%"}>
-                <Group position="apart" w={"100%"}>
-                  <Group>
-                    <Avatar
-                      src={note.createdBy.image}
-                      alt={note.createdBy.name || ""}
-                      radius="xl"
-                    />
-                    <Stack spacing={0}>
-                      <Text fz="md">{note.createdBy.name}</Text>
-                      <Text fz="xs" c="dimmed">
-                        {new Date(note.createdAt).toDateString()}
-                      </Text>
-                    </Stack>
+            <Stack align="flex-start" spacing={"xl"}>
+              <Stack spacing={"sm"} w={"100%"}>
+                <Stack justify="space-between" align="center" w={"100%"}>
+                  <Group position="apart" w={"100%"}>
+                    <Group>
+                      <Avatar
+                        src={note.createdBy.image}
+                        alt={note.createdBy.name || ""}
+                        radius="xl"
+                      />
+                      <Stack spacing={0}>
+                        <Text fz="md">{note.createdBy.name}</Text>
+                        <Text fz="xs" c="dimmed">
+                          {new Date(note.createdAt).toDateString()}
+                        </Text>
+                      </Stack>
+                    </Group>
+
+                    <Menu shadow="md" width={200}>
+                      <Menu.Target>
+                        <ActionIcon variant="transparent">
+                          <IconDots size="1rem" />
+                        </ActionIcon>
+                      </Menu.Target>
+
+                      <Menu.Dropdown>
+                        <Menu.Item icon={<IconEdit size={14} />}>
+                          Edit
+                        </Menu.Item>
+                        <Menu.Item color="red" icon={<IconTrash size={14} />}>
+                          Delete
+                        </Menu.Item>
+                      </Menu.Dropdown>
+                    </Menu>
                   </Group>
-
-                  <Menu shadow="md" width={200}>
-                    <Menu.Target>
-                      <ActionIcon variant="transparent">
-                        <IconDots size="1rem" />
-                      </ActionIcon>
-                    </Menu.Target>
-
-                    <Menu.Dropdown>
-                      <Menu.Item icon={<IconEdit size={14} />}>Edit</Menu.Item>
-                      <Menu.Item color="red" icon={<IconTrash size={14} />}>
-                        Delete
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Group>
+                </Stack>
+                <Stack justify="flex-start">
+                  <Text fz={"sm"}>{note.text}</Text>
+                </Stack>
               </Stack>
-              <Stack justify="flex-start">
-                <Text fz={"sm"}>{note.text}</Text>
-              </Stack>
+              <SimpleGrid
+                w={"100%"}
+                cols={2}
+                spacing={"xs"}
+                verticalSpacing={"xs"}
+              >
+                {note.tags.map((tag, index) => {
+                  return (
+                    <Tooltip key={index} label={tag.name}>
+                      <Badge
+                        fullWidth
+                        radius="xs"
+                        variant="filled"
+                        size="sm"
+                        color="red"
+                      >
+                        {tag.name}
+                      </Badge>
+                    </Tooltip>
+                  );
+                })}
+              </SimpleGrid>
             </Stack>
           </Popover.Dropdown>
         </Popover>
+        {note.tags.length > 0 && (
+          <Badge radius={"xs"} size="lg">
+            {note.tags.length > 1
+              ? `${note.tags.length} tags`
+              : `${note.tags.length} tag`}
+          </Badge>
+        )}
         <Button
           variant="filled"
           compact
           leftIcon={<IconPlayerPlayFilled size={"0.8rem"} />}
-          onClick={noteIsPlaying ? handlePauseNote : handlePlayNote}
+          onClick={handlePlayNote}
+          disabled={noteIsPlaying}
         >
-          {noteIsPlaying ? "Pause" : "Play note"}
+          {noteIsPlaying ? "Playing..." : "Play"}
         </Button>
       </Group>
     </Box>
