@@ -3,9 +3,10 @@ import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { StatsGrid } from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
+import { TagWithNotes } from "@/components/transcript/interfaces";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
-import { NotesAndUsers } from "@/types";
+import { NoteWithTagsAndCreator } from "@/types";
 import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
@@ -15,7 +16,6 @@ import {
   File,
   Transcript as PrismaTranscript,
   Summary,
-  Tag,
   User,
 } from "@prisma/client";
 import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
@@ -39,7 +39,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
 
     try {
-      let [file, transcript, notes, tags] = await Promise.all([
+      type BatchRequest = [
+        file: File,
+        transcript: PrismaTranscript,
+        notes: NoteWithTagsAndCreator[],
+        tags: TagWithNotes[]
+      ];
+
+      let [file, transcript, notes, tags]: BatchRequest = await Promise.all([
         prisma.file.findUniqueOrThrow({
           where: {
             id: fileId as string,
@@ -65,6 +72,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 image: true,
               },
             },
+            tags: true,
           },
         }),
 
@@ -72,6 +80,18 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         prisma.tag.findMany({
           where: {
             projectId: projectId as string,
+          },
+          include: {
+            createdBy: {
+              select: {
+                id: true,
+              },
+            },
+            notes: {
+              select: {
+                id: true,
+              },
+            },
           },
         }),
       ]);
@@ -118,8 +138,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface IFilePage {
   file: File;
-  notes: NotesAndUsers[];
-  tags: Tag[];
+  notes: NoteWithTagsAndCreator[];
+  tags: TagWithNotes[];
   transcript: PrismaTranscript;
   teamId: string;
   mediaUrl: string;
@@ -300,13 +320,15 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               : "Error"
           }
           notesCount={notes.length}
-          tagsCount={tags.length}
+          tagsCount={
+            new Set(notes.map((note) => note.tags.map((tag) => tag.id))).size
+          }
           contributorsCount={contributorsCount}
         />
 
         <Box
           sx={{
-            width: "75%",
+            width: "60%",
             borderRight: `1px solid ${
               theme.colorScheme === "light"
                 ? theme.colors.gray[1]
@@ -324,6 +346,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             fileId={fileId}
             projectId={projectId}
             summaryHasLoaded={summaryHasLoaded}
+            tags={tags}
           />
         </Box>
       </div>

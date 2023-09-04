@@ -1,21 +1,4 @@
-import { NotesAndUsers } from "@/types";
-import { User } from "@prisma/client";
-
-// Props for the main component.
-export interface ITranscriptProps {
-  transcript: {
-    start: number;
-    end: number;
-    speaker: number;
-    punctuated_word: string;
-  }[];
-  audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
-  user: User;
-  existingNotes: NotesAndUsers[];
-  fileId: string;
-  projectId: string;
-  summaryHasLoaded: Boolean;
-}
+import { Prisma } from "@prisma/client";
 
 export type SelectedTextRectangle = {
   top: number;
@@ -50,3 +33,18 @@ export interface ITranscript {
   speaker: number;
   punctuated_word: string;
 }
+
+export type TagWithNotes = Prisma.TagGetPayload<{
+  include: {
+    createdBy: {
+      select: {
+        id: true;
+      };
+    };
+    notes: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;

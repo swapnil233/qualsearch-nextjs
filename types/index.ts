@@ -1,5 +1,4 @@
-import { File, Team, User } from "@prisma/client";
-import { GetResult } from "@prisma/client/runtime/library";
+import { File, Prisma, Team, User } from "@prisma/client";
 
 export type TeamWithUsers = Team & {
   users: User[];
@@ -22,23 +21,15 @@ export type Transcript = {
   punctuated_word: string;
 }[];
 
-export type NotesAndUsers = {
-  createdBy: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
-} & GetResult<
-  {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    text: string;
-    start: number;
-    end: number;
-    fileId: string;
-    projectId: string;
-    createdByUserId: string;
+export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
+  include: {
+    createdBy: {
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+    },
+    tags: true
   },
-  any
-> & {};
+}>;

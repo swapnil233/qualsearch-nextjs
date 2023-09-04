@@ -1,11 +1,11 @@
 import useSelectedTextDetails from "@/hooks/useSelectedTextDetails";
-import { NotesAndUsers } from "@/types";
+import { NoteWithTagsAndCreator } from "@/types";
 import { Text, useMantineTheme } from "@mantine/core";
 import { IGroup } from "./interfaces";
 
 interface ITranscriptTextProps {
   group: IGroup;
-  notes: NotesAndUsers[];
+  notes: NoteWithTagsAndCreator[];
   currentWord: number;
   onTextSelect: (_start: number, _end: number) => void;
   onWordClick: (_start: number) => void;
