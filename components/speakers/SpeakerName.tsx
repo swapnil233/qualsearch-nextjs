@@ -102,6 +102,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
             onChange={(e) => {
               setNewSpeakerName(e.target.value);
               // Close the popover after setting the new speaker name
+              close();
             }}
           />
           <Button
