@@ -12,10 +12,10 @@ This document contains the ongoing tasks and improvements for the next.js projec
 
 ## Frontend Tasks
 
-| Task   | Description                                                                |
-| ------ | -------------------------------------------------------------------------- |
-| Task 1 | Implement a working "last active" function for team table                  |
-| Task 2 | Re-create all styles to use Mantine theme, so dark-mode functions properly |
+| Task   | Description                                               |
+| ------ | --------------------------------------------------------- |
+| Task 1 | Implement a working "last active" function for team table |
+| Task 2 | Implement a search and filters bar                        |
 
 ## Backend Tasks
 
@@ -38,8 +38,6 @@ This document contains the ongoing tasks and improvements for the next.js projec
 | Task 1 | Re-create the "role" property for users. Roles are team-dependant, not a global role that the user has for all teams they're in |
 | Task 2 | Implement project statuses. Projects can be in-progress, completed, archived, or terminated                                     |
 | Task 3 | Implement a pinning feature for teams, projects and files                                                                       |
-| Task 4 | Implement transcript summary and sentiment using GPT                                                                            |
-| Task 5 | Look into using Prose Mirror for transcripts and tagging                                                                        |
 
 ## Database Tasks
 
