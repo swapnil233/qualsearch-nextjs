@@ -11,7 +11,7 @@ import { TeamWithUsers } from "@/types";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { SimpleGrid, Text, Title } from "@mantine/core";
+import { SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -389,33 +389,31 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         />
       ) : (
         <>
-          <Title order={3} fw={"normal"} mb={"xs"}>
-            Projects
-          </Title>
-          <Text mb={"lg"}>
-            Overview of this team&apos;s projects. Projects can be managed from
-            within their page.
-          </Text>
-          <SimpleGrid
-            cols={4}
-            spacing={"md"}
-            verticalSpacing={"md"}
-            breakpoints={[
-              { maxWidth: "62rem", cols: 3, spacing: "md" },
-              { maxWidth: "48rem", cols: 2, spacing: "sm" },
-              { maxWidth: "36rem", cols: 1, spacing: "sm" },
-            ]}
-          >
-            {showingProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                fileCount={project._count.files}
-                noteCount={project._count.notes}
-                tagCount={project._count.tags}
-              />
-            ))}
-          </SimpleGrid>
+          <Stack w={"100%"}>
+            <Title order={3} fw={"normal"}>
+              Projects
+            </Title>
+            <SimpleGrid
+              cols={4}
+              spacing={"md"}
+              verticalSpacing={"md"}
+              breakpoints={[
+                { maxWidth: "62rem", cols: 3, spacing: "md" },
+                { maxWidth: "48rem", cols: 2, spacing: "sm" },
+                { maxWidth: "36rem", cols: 1, spacing: "sm" },
+              ]}
+            >
+              {showingProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  fileCount={project._count.files}
+                  noteCount={project._count.notes}
+                  tagCount={project._count.tags}
+                />
+              ))}
+            </SimpleGrid>
+          </Stack>
         </>
       )}
 
