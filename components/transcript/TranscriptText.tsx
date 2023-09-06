@@ -1,6 +1,7 @@
 import useSelectedTextDetails from "@/hooks/useSelectedTextDetails";
 import { NoteWithTagsAndCreator } from "@/types";
 import { Text, useMantineTheme } from "@mantine/core";
+import React, { useMemo } from "react";
 import { IGroup } from "./interfaces";
 
 interface ITranscriptTextProps {
@@ -11,6 +12,11 @@ interface ITranscriptTextProps {
   onWordClick: (_start: number) => void;
 }
 
+const DEFAULT_STYLE = {
+  cursor: "pointer",
+  fontSize: "1.2rem",
+};
+
 const TranscriptText: React.FC<ITranscriptTextProps> = ({
   group,
   notes,
@@ -18,35 +24,29 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   onTextSelect,
   onWordClick,
 }) => {
+  console.log("TranscriptText rendered");
   const getSelectedTextDetails = useSelectedTextDetails();
   const theme = useMantineTheme();
 
-  const noteUnderline =
-    theme.colorScheme === "light"
-      ? "rgb(255 149 62 / 60%) 0px 3px 0px 0px"
-      : "rgb(122 48 0) 0px 3px 0px 0px";
+  const styles = useMemo(() => {
+    console.log("styles useMemo");
+    const lightScheme = theme.colorScheme === "light";
+    return {
+      noteUnderline: lightScheme
+        ? "rgb(255 149 62 / 60%) 0px 3px 0px 0px"
+        : "rgb(122 48 0) 0px 3px 0px 0px",
+      noteBackground: lightScheme ? "rgb(255 245 239)" : "rgb(62 23 0)",
+      currentWordDecoration: "rgba(160, 0, 100, 0.2)",
+    };
+  }, [theme]);
 
-  const noteBackground =
-    theme.colorScheme === "light" ? "rgb(255 245 239)" : "rgb(62 23 0)";
-
-  const currentWordOuterDecoration =
-    theme.colorScheme === "light"
-      ? "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px"
-      : "rgba(160, 0, 100, 0.2) 0px 0px 0px 3px";
-
-  const currentWordInnerDecoration =
-    theme.colorScheme === "light"
-      ? "rgba(160, 0, 100, 0.2)"
-      : "rgba(160, 0, 100, 0.2)";
+  const handleMouseUp = () => {
+    const selectedText = getSelectedTextDetails();
+    selectedText && onTextSelect(selectedText.start, selectedText.end);
+  };
 
   return (
-    <Text
-      onMouseUp={() => {
-        const selectedText = getSelectedTextDetails();
-        selectedText && onTextSelect(selectedText.start, selectedText.end);
-      }}
-      lh={1.7}
-    >
+    <Text onMouseUp={handleMouseUp} lh={1.7}>
       {group.words.map((word) => {
         const isNote = notes.some(
           (note) => word.start >= note.start && word.end <= note.end
@@ -54,22 +54,19 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
 
         const isCurrentWord = word.index === currentWord;
 
-        const defaultStyle = {
-          boxShadow: isNote ? noteUnderline : "none",
-          background: isNote ? noteBackground : "",
-          cursor: "pointer",
-          fontSize: "1.2rem",
-        };
-
-        const currentWordStyle = {
-          boxShadow: currentWordOuterDecoration,
-          background: currentWordInnerDecoration,
-          borderRadius: "3px",
-        };
+        const currentWordStyle = isCurrentWord
+          ? {
+              boxShadow: `rgba(160, 0, 100, 0.2) 0px 0px 0px 3px`,
+              background: styles.currentWordDecoration,
+              borderRadius: "3px",
+            }
+          : {};
 
         const combinedStyle = {
-          ...defaultStyle,
-          ...(isCurrentWord ? currentWordStyle : {}),
+          ...DEFAULT_STYLE,
+          boxShadow: isNote ? styles.noteUnderline : "none",
+          background: isNote ? styles.noteBackground : "",
+          ...currentWordStyle,
         };
 
         return (
@@ -88,4 +85,4 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   );
 };
 
-export default TranscriptText;
+export default React.memo(TranscriptText);
