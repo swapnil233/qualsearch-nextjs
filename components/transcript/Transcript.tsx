@@ -2,7 +2,7 @@ import { NoteWithTagsAndCreator } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
 import React, {
   FC,
@@ -186,23 +186,33 @@ const Transcript: FC<ITranscriptProps> = ({
    * @returns { NotesAndUsers } A NotesAndUsers object, containing the newly created note and the ID, name and image of the user who created it.
    */
   const handleNoteSubmission = useCallback(
-    async (note: string, tags: string[], newTags: string[]) => {
+    async (
+      note: string,
+      tags: string[],
+      newTagNamesFromMultiSelect: string[]
+    ) => {
       setNoteIsCreating(true);
+
       try {
-        // Check and create new tags at /api/tags
-        const newTagIdsResponse = await fetch("/api/tags", {
+        // Filter out any tags that match new tags created by the user frm the multi-select component
+        const filteredTags = tags.filter(
+          (tag) => !newTagNamesFromMultiSelect.includes(tag)
+        );
+
+        // Check if any of the tags selected are new. If so, create it, and return an array of newly created tags
+        const newTagsResponse = await fetch("/api/tags", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            newTagNames: newTags,
+            newTagNames: newTagNamesFromMultiSelect,
             projectId: projectId,
             createdByUserId: user.id,
           }),
         });
 
-        if (!newTagIdsResponse.ok) {
+        if (!newTagsResponse.ok) {
           notifications.show({
             withCloseButton: true,
             autoClose: 5000,
@@ -213,14 +223,14 @@ const Transcript: FC<ITranscriptProps> = ({
             icon: <IconX />,
             loading: false,
           });
-          throw new Error(`Error: ${newTagIdsResponse.statusText}`);
+          throw new Error(`Error: ${newTagsResponse.statusText}`);
         }
 
         // The response contains an array of the new tag IDs
-        const newTagIds: string[] = await newTagIdsResponse.json();
+        const newTags: Prisma.TagGetPayload<{}>[] =
+          await newTagsResponse.json();
 
-        // Combine the new tag IDs with the existing tag IDs
-        const tagIds = [...tags, ...newTagIds];
+        const tagIds = filteredTags.concat(newTags.map((tag) => tag.id));
 
         const noteData = {
           text: note,
@@ -229,10 +239,10 @@ const Transcript: FC<ITranscriptProps> = ({
           fileId: fileId,
           projectId: projectId,
           createdByUserId: user.id,
-          tags: tagIds,
+          tagIds: tagIds,
         };
 
-        const response = await fetch("/api/notes", {
+        const newNoteResponse = await fetch("/api/notes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -240,7 +250,7 @@ const Transcript: FC<ITranscriptProps> = ({
           body: JSON.stringify(noteData),
         });
 
-        if (!response.ok) {
+        if (!newNoteResponse.ok) {
           notifications.show({
             withCloseButton: true,
             autoClose: 5000,
@@ -251,10 +261,10 @@ const Transcript: FC<ITranscriptProps> = ({
             icon: <IconX />,
             loading: false,
           });
-          throw new Error(`Error: ${response.statusText}`);
+          throw new Error(`Error: ${newNoteResponse.statusText}`);
         }
 
-        const newNote: NoteWithTagsAndCreator = await response.json();
+        const newNote: NoteWithTagsAndCreator = await newNoteResponse.json();
 
         setNotes((prevNotes) => [...prevNotes, newNote]);
         setNoteIsCreating(false);

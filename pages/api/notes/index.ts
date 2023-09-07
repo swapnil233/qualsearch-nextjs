@@ -52,14 +52,14 @@ export default async function handler(
  */
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    const { text, start, end, fileId, projectId, createdByUserId, tags }: {
+    const { text, start, end, fileId, projectId, createdByUserId, tagIds }: {
       text: string,
       start: number,
       end: number,
       fileId: string,
       projectId: string,
       createdByUserId: string,
-      tags: string[],
+      tagIds: string[],
     } =
       req.body;
 
@@ -73,7 +73,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           projectId,
           createdByUserId,
           tags: {
-            connect: tags.map(tagId => ({ id: tagId }))
+            connect: tagIds.map(id => ({ id: id }))
           }
         },
         include: {

@@ -10,13 +10,14 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { Tag, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { IconTag } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
+import { TagWithNotes } from "../transcript/interfaces";
 
 interface ICreateNotePopover {
   user: User;
-  tags: Tag[];
+  tags: TagWithNotes[];
   onClose: () => void;
   noteIsCreating: boolean;
   onSubmit: (_note: string, _tags: string[], _newTags: string[]) => void;
@@ -28,6 +29,14 @@ interface IFormValues {
   tags: string[];
 }
 
+type MultiSelectData = {
+  // values are IDs
+  value: string;
+
+  // labels are the names
+  label: string;
+};
+
 export const CreateNotePopover: FC<ICreateNotePopover> = ({
   user,
   tags,
@@ -37,18 +46,19 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
   position,
 }) => {
   const theme = useMantineTheme();
-  const [tagsList, setTagsList] = useState<
-    {
-      value: string;
-      label: string;
-    }[]
+
+  const [multiSelectDataset, setMultiSelectDataset] = useState<
+    MultiSelectData[]
   >([]);
+
+  // Array of just the new tag's names
   const [newTags, setNewTags] = useState<string[]>([]);
 
+  // Iterate through tags prop, transform each to multiSelectDataset
   useEffect(() => {
     const transformTags = () => {
       tags.map((tag) => {
-        setTagsList((prevTags) => [
+        setMultiSelectDataset((prevTags) => [
           ...prevTags,
           {
             label: tag.name,
@@ -61,6 +71,7 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
     transformTags();
   }, [tags]);
 
+  // Form for the note creation submission.
   const form = useForm<IFormValues>({
     initialValues: {
       note: "",
@@ -101,7 +112,7 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
             <MultiSelect
               {...form.getInputProps("tags")}
               label="Select tags"
-              data={tagsList}
+              data={multiSelectDataset}
               clearSearchOnBlur
               searchable
               clearable
@@ -111,7 +122,8 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
               onCreate={(query) => {
                 const item = { value: query, label: query };
                 setNewTags((prevTags) => [...prevTags, query]);
-                setTagsList((current) => [...current, item]);
+                setMultiSelectDataset((current) => [...current, item]);
+
                 return item;
               }}
             />

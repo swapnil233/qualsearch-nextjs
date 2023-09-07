@@ -1,6 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
+import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -60,7 +61,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const { newTagNames, projectId, createdByUserId, }: IPostBody = req.body;
 
     try {
-        let newTagIDs: string[] = []
+        let newTags: Prisma.TagGetPayload<{}>[] = []
 
         const checkIfTagExistsOrCreateTag = async (tagName: string) => {
             // Check if there's a tag with that name in the project scope.
@@ -71,21 +72,17 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
                 }
             })
 
-            console.log(`Tag count for ${tagName}:`, tagCount)
-
             // If the tag doesn't exist, create it.
             if (tagCount === 0) {
-                const newTagId = await prisma.tag.create({
+                const newTag = await prisma.tag.create({
                     data: {
                         name: tagName,
                         projectId: projectId,
                         createdByUserId: createdByUserId
                     },
-                    select: {
-                        id: true
-                    }
                 })
-                newTagIDs.push(newTagId.id)
+
+                newTags.push(newTag)
             } else {
                 // If the tag does exist, do nothing.
                 console.log(`Tag ${tagName} already exists.`)
@@ -94,7 +91,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
         await Promise.all(newTagNames.map(tagName => checkIfTagExistsOrCreateTag(tagName)))
 
-        res.status(HttpStatus.Ok).send(newTagIDs)
+        res.status(HttpStatus.Ok).send(newTags)
     } catch (error) {
         console.error("Error creating note:", error);
         res.status(500).json({ error: "Failed to create tags." });
