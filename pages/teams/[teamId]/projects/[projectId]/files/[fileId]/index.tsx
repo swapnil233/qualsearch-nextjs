@@ -114,8 +114,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           props: {
             user,
             file,
-            notes,
-            tags,
+            initialNotes: notes,
+            initialTags: tags,
             transcript,
             mediaUrl,
             teamId,
@@ -138,8 +138,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface IFilePage {
   file: File;
-  notes: NoteWithTagsAndCreator[];
-  tags: TagWithNotes[];
+  initialNotes: NoteWithTagsAndCreator[];
+  initialTags: TagWithNotes[];
   transcript: PrismaTranscript;
   teamId: string;
   mediaUrl: string;
@@ -150,8 +150,8 @@ interface IFilePage {
 
 const FilePage: NextPageWithLayout<IFilePage> = ({
   file,
-  notes,
-  tags,
+  initialNotes,
+  initialTags,
   transcript,
   mediaUrl,
   user,
@@ -164,6 +164,17 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const words = transcript.words;
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
+
+  const [tags, setTags] = useState<TagWithNotes[]>(initialTags);
+  const [uniqueTagsCount, setUniqueTagsCount] = useState<number>(0);
+
+  const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
+
+  useEffect(() => {
+    setUniqueTagsCount(
+      new Set(notes.flatMap((note) => note.tags.map((tag) => tag.id))).size
+    );
+  }, [tags, notes]);
 
   let contributorsCount: number = useMemo(() => {
     return new Set(notes.map((note) => note.createdByUserId)).size;
@@ -227,6 +238,8 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const handleSummarize = () => {
     console.log("summarize");
   };
+
+  console.log("Tags", tags);
 
   return (
     <>
@@ -320,9 +333,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               : "Error"
           }
           notesCount={notes.length}
-          tagsCount={
-            new Set(notes.map((note) => note.tags.map((tag) => tag.id))).size
-          }
+          tagsCount={uniqueTagsCount}
           contributorsCount={contributorsCount}
         />
 
@@ -342,11 +353,13 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             transcript={words}
             audioRef={mediaRef}
             user={user}
-            existingNotes={notes}
+            notes={notes}
+            setNotes={setNotes}
             fileId={fileId}
             projectId={projectId}
             summaryHasLoaded={summaryHasLoaded}
             tags={tags}
+            setTags={setTags}
           />
         </Box>
       </div>

@@ -1,7 +1,7 @@
+import { TagWithNotes } from "@/components/transcript/interfaces";
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
-import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -61,7 +61,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const { newTagNames, projectId, createdByUserId, }: IPostBody = req.body;
 
     try {
-        let newTags: Prisma.TagGetPayload<{}>[] = []
+        let newTags: TagWithNotes[] = []
 
         const checkIfTagExistsOrCreateTag = async (tagName: string) => {
             // Check if there's a tag with that name in the project scope.
@@ -80,6 +80,18 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
                         projectId: projectId,
                         createdByUserId: createdByUserId
                     },
+                    include: {
+                        createdBy: {
+                            select: {
+                                id: true,
+                            }
+                        },
+                        notes: {
+                            select: {
+                                id: true,
+                            }
+                        }
+                    }
                 })
 
                 newTags.push(newTag)

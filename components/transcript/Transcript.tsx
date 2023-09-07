@@ -2,7 +2,7 @@ import { NoteWithTagsAndCreator } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { Prisma, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
 import React, {
   FC,
@@ -27,8 +27,10 @@ interface ITranscriptProps {
   }[];
   audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   user: User;
-  existingNotes: NoteWithTagsAndCreator[];
+  notes: NoteWithTagsAndCreator[];
+  setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>;
   tags: TagWithNotes[];
+  setTags: React.Dispatch<React.SetStateAction<TagWithNotes[]>>;
   fileId: string;
   projectId: string;
   summaryHasLoaded: Boolean;
@@ -40,14 +42,15 @@ const Transcript: FC<ITranscriptProps> = ({
   user,
   fileId,
   projectId,
-  existingNotes,
+  notes,
+  setNotes,
   tags,
+  setTags,
   summaryHasLoaded,
 }) => {
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const transcriptRef = useRef<HTMLDivElement>(null);
-  const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(existingNotes);
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
   const [noteIsCreating, setNoteIsCreating] = useState<boolean>(false);
 
@@ -183,6 +186,7 @@ const Transcript: FC<ITranscriptProps> = ({
    *
    * @param { string } note - The text content of the note.
    * @param { string[] } tags - An array of tags
+   * @param { string[] } newTagNamesFromMultiSelect - An array of new tag names created by the user from the multi-select component.
    * @returns { NotesAndUsers } A NotesAndUsers object, containing the newly created note and the ID, name and image of the user who created it.
    */
   const handleNoteSubmission = useCallback(
@@ -227,8 +231,7 @@ const Transcript: FC<ITranscriptProps> = ({
         }
 
         // The response contains an array of the new tag IDs
-        const newTags: Prisma.TagGetPayload<{}>[] =
-          await newTagsResponse.json();
+        const newTags: TagWithNotes[] = await newTagsResponse.json();
 
         const tagIds = filteredTags.concat(newTags.map((tag) => tag.id));
 
@@ -267,13 +270,14 @@ const Transcript: FC<ITranscriptProps> = ({
         const newNote: NoteWithTagsAndCreator = await newNoteResponse.json();
 
         setNotes((prevNotes) => [...prevNotes, newNote]);
+        setTags((prevTags) => [...prevTags, ...newTags]);
         setNoteIsCreating(false);
         setSelectedText(null);
       } catch (error) {
         console.error(error);
       }
     },
-    [selectedText, fileId, projectId, user.id]
+    [selectedText, fileId, projectId, user.id, setTags, setNotes]
   );
 
   const handleWordClick = useCallback(
