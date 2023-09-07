@@ -24,12 +24,10 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   onTextSelect,
   onWordClick,
 }) => {
-  console.log("TranscriptText rendered");
   const getSelectedTextDetails = useSelectedTextDetails();
   const theme = useMantineTheme();
 
   const styles = useMemo(() => {
-    console.log("styles useMemo");
     const lightScheme = theme.colorScheme === "light";
     return {
       noteUnderline: lightScheme

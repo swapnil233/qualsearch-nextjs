@@ -68,8 +68,6 @@ const CreateFileModal: FC<ICreateFileModal> = ({
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
 
-  console.log("Step", active);
-
   const goToNextStep = async () => {
     // if active step is the last one (3rd step, index 2), then handle form submission
     if (active === 2) {
