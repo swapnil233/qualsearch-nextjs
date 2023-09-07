@@ -52,16 +52,23 @@ export default async function handler(
  */
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
-    const { text, start, end, fileId, projectId, createdByUserId, tagIds }: {
-      text: string,
-      start: number,
-      end: number,
-      fileId: string,
-      projectId: string,
-      createdByUserId: string,
-      tagIds: string[],
-    } =
-      req.body;
+    const {
+      text,
+      start,
+      end,
+      fileId,
+      projectId,
+      createdByUserId,
+      tagIds,
+    }: {
+      text: string;
+      start: number;
+      end: number;
+      fileId: string;
+      projectId: string;
+      createdByUserId: string;
+      tagIds: string[];
+    } = req.body;
 
     try {
       const newNote = await prisma.note.create({
@@ -73,8 +80,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           projectId,
           createdByUserId,
           tags: {
-            connect: tagIds.map(id => ({ id: id }))
-          }
+            connect: tagIds.map((id) => ({ id: id })),
+          },
         },
         include: {
           createdBy: {
@@ -84,7 +91,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
               image: true,
             },
           },
-          tags: true
+          tags: true,
         },
       });
 

@@ -25,11 +25,11 @@ export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
   include: {
     createdBy: {
       select: {
-        id: true,
-        name: true,
-        image: true,
-      },
-    },
-    tags: true
-  },
+        id: true;
+        name: true;
+        image: true;
+      };
+    };
+    tags: true;
+  };
 }>;
