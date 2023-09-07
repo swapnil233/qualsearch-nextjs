@@ -1,4 +1,12 @@
-import { Button, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Modal,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import * as React from "react";
 
 interface IDeleteConfirmationModalProps {
@@ -21,15 +29,17 @@ const TeamDeletionConfirmationModal: React.FunctionComponent<
     <Modal
       opened={opened}
       onClose={close}
-      title={`Permanently delete "${teamName}"`}
+      title={<Title order={4}>Permanently delete team</Title>}
+      variant=""
       centered
       padding={"lg"}
     >
       <Stack spacing={"xl"}>
-        <Stack spacing={"xs"}>
+        <Stack>
           <Text>
-            Deleting this team will permanently erase all associated projects
-            and remove all members from the team.
+            This will permanently erase all associated projects and files, and
+            remove all members from the team. You will not be able to recover
+            any of this data.
           </Text>
           <TextInput
             label="To confirm deletion, type the team name below"
@@ -37,6 +47,9 @@ const TeamDeletionConfirmationModal: React.FunctionComponent<
             value={inputValue}
             onChange={(e) => setInputValue(e.currentTarget.value)}
             size="sm"
+            sx={{
+              fontStyle: "italic",
+            }}
             radius={"xs"}
             required
           />
