@@ -30,9 +30,11 @@ const EmptyState: FC<IEmptyState> = ({
         <Title order={3}>{title}</Title>
         <Text maw={"25rem"}>{description}</Text>
       </Stack>
-      <Button leftIcon={primaryButtonIcon} onClick={primaryButtonAction}>
-        {primaryButtonText}
-      </Button>
+      {primaryButtonAction && (
+        <Button leftIcon={primaryButtonIcon} onClick={primaryButtonAction}>
+          {primaryButtonText}
+        </Button>
+      )}
     </Stack>
   );
 };
