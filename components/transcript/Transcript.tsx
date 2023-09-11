@@ -1,17 +1,11 @@
 import { NoteWithTagsAndCreator } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
+import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
@@ -26,6 +20,7 @@ interface ITranscriptProps {
     punctuated_word: string;
   }[];
   audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
+  transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
   user: User;
   notes: NoteWithTagsAndCreator[];
   setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>;
@@ -39,6 +34,7 @@ interface ITranscriptProps {
 const Transcript: FC<ITranscriptProps> = ({
   transcript,
   audioRef,
+  transcriptContainerDivRef,
   user,
   fileId,
   projectId,
@@ -50,7 +46,6 @@ const Transcript: FC<ITranscriptProps> = ({
 }) => {
   const [currentWord, setCurrentWord] = useState<number>(0);
 
-  const transcriptRef = useRef<HTMLDivElement>(null);
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
   const [noteIsCreating, setNoteIsCreating] = useState<boolean>(false);
 
@@ -133,52 +128,6 @@ const Transcript: FC<ITranscriptProps> = ({
       end,
       selectedTextRectangle,
     });
-  };
-
-  /**
-   * Calculate the position of a note based on the start and end times of the selected text.
-   *
-   * @param {number} start - The start time of the selected text.
-   * @param {number} end - The end time of the selected text.
-   * @returns { {top: number, left: number} | null } The position object containing 'top' and 'left' coordinates of the note or null if the start and end elements are not found.
-   */
-  const calculateNoteCardPosition = (
-    start: number,
-    end: number
-  ): { top: number; left: number } | null => {
-    // Find the start and end elements based on data attributes.
-    const startElement = Array.from(
-      transcriptRef.current?.querySelectorAll(`[data-start="${start}"]`) || []
-    )[0] as HTMLElement;
-    const endElement = Array.from(
-      transcriptRef.current?.querySelectorAll(`[data-end="${end}"]`) || []
-    )[0] as HTMLElement;
-
-    // If either start or end element is not found, return null.
-    if (!startElement || !endElement) return null;
-
-    const range = document.createRange();
-    range.setStart(startElement, 0);
-
-    // Check if endElement is a text node and set the range accordingly.
-    if (endElement.nodeType === Node.TEXT_NODE) {
-      range.setEnd(endElement, endElement.textContent?.length ?? 0);
-    } else {
-      range.setEnd(endElement, endElement.childNodes.length);
-    }
-
-    // Calculate the bounding rectangle for the selected range.
-    const boundingRectangle = range.getBoundingClientRect();
-
-    // Calculate the right edge position.
-    const rightEdge =
-      (transcriptRef.current?.getBoundingClientRect().right || 0) + 16;
-
-    // Return the top and left positions for the note.
-    return {
-      top: boundingRectangle.top + window.scrollY,
-      left: rightEdge,
-    };
   };
 
   /**
@@ -292,7 +241,7 @@ const Transcript: FC<ITranscriptProps> = ({
 
   return (
     <>
-      <Box ref={transcriptRef}>
+      <Box ref={transcriptContainerDivRef}>
         {groupedTranscript.map((group, groupIndex) => (
           <Box key={groupIndex}>
             <SpeakerName
@@ -338,7 +287,11 @@ const Transcript: FC<ITranscriptProps> = ({
 
       {/* Render the note cards */}
       {notes.map((note, i) => {
-        const position = calculateNoteCardPosition(note.start, note.end) || {
+        const position = calculateNoteCardPosition(
+          note.start,
+          note.end,
+          transcriptContainerDivRef
+        ) || {
           top: 0,
           left: 0,
         };
