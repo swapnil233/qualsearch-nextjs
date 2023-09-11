@@ -4,15 +4,15 @@ import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { StatsGrid } from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
-import { TagWithNotes } from "@/components/transcript/interfaces";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
-import { NoteWithTagsAndCreator } from "@/types";
+import { NoteWithTagsAndCreator, TagWithNotes } from "@/types";
 import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Box, Group, useMantineTheme } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import {
   File,
   Transcript as PrismaTranscript,
@@ -175,6 +175,8 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
 
   const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
 
+  const largeScreen = useMediaQuery("(min-width: 60em)");
+
   useEffect(() => {
     setUniqueTagsCount(
       new Set(notes.flatMap((note) => note.tags.map((tag) => tag.id))).size
@@ -303,11 +305,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
         ]}
       ></PageHeading>
 
-      <div
-        style={{
-          width: "100%",
-        }}
-      >
+      <div>
         {file.type === "VIDEO" ? (
           <video
             src={mediaUrl}
@@ -375,13 +373,19 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             />
           </Box>
 
-          <TranscriptPageAside
-            notes={notes}
-            segment={segment}
-            setSegment={setSegment}
-            mediaRef={mediaRef}
-            transcriptContainerDivRef={transcriptContainerDivRef}
-          />
+          {largeScreen && (
+            <TranscriptPageAside
+              notes={notes}
+              tags={tags}
+              setTags={setTags}
+              segment={segment}
+              setSegment={setSegment}
+              mediaRef={mediaRef}
+              transcriptContainerDivRef={transcriptContainerDivRef}
+              user={user}
+              projectId={projectId}
+            />
+          )}
         </Group>
       </div>
     </>

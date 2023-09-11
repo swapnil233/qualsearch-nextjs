@@ -1,6 +1,6 @@
-import { TagWithNotes } from "@/components/transcript/interfaces";
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { TagWithNotes } from "@/types";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
