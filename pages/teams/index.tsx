@@ -239,8 +239,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
       </Head>
 
       <PageHeading
-        title="Teams"
-        // description="View and manage your teams. You can edit or leave teams from within the team's page."
+        title="Teams overview"
         primaryButtonText="Create new team"
         primaryButtonAction={open}
         primaryButtonIcon={<IconUsersGroup size={"1.2rem"} />}

@@ -55,7 +55,7 @@ export function StatsGrid({
       value: notesCount,
     },
     {
-      title: "Tags",
+      title: "Tags used",
       icon: "tags",
       value: tagsCount,
     },
