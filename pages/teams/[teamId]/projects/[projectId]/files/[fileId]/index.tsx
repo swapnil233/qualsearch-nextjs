@@ -1,3 +1,4 @@
+import { TranscriptPageAside } from "@/components/aside/TranscriptPageAside";
 import SummaryCard from "@/components/card/summary/SummaryCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
@@ -11,7 +12,7 @@ import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { Box, useMantineTheme } from "@mantine/core";
+import { Box, Group, useMantineTheme } from "@mantine/core";
 import {
   File,
   Transcript as PrismaTranscript,
@@ -170,6 +171,10 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
 
   const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
 
+  const [segment, setSegment] = useState<"tags" | "notes" | "chat">("notes");
+
+  const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setUniqueTagsCount(
       new Set(notes.flatMap((note) => note.tags.map((tag) => tag.id))).size
@@ -298,7 +303,11 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
         ]}
       ></PageHeading>
 
-      <div>
+      <div
+        style={{
+          width: "100%",
+        }}
+      >
         {file.type === "VIDEO" ? (
           <video
             src={mediaUrl}
@@ -337,31 +346,43 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
           contributorsCount={contributorsCount}
         />
 
-        <Box
-          sx={{
-            width: "60%",
-            borderRight: `1px solid ${
-              theme.colorScheme === "light"
-                ? theme.colors.gray[1]
-                : theme.colors.dark[6]
-            }`,
-            paddingRight: "0.5rem",
-          }}
-        >
-          <Transcript
-            // @ts-ignore - Type 'JsonValue' from Prisma is not assignable to type '{ start: number; end: number; speaker: number; punctuated_word: string; }[]'.
-            transcript={words}
-            audioRef={mediaRef}
-            user={user}
+        <Group>
+          <Box
+            sx={{
+              marginTop: "1rem",
+              width: "70%",
+              borderRight: `1px solid ${
+                theme.colorScheme === "light"
+                  ? theme.colors.gray[1]
+                  : theme.colors.dark[6]
+              }`,
+              paddingRight: "0.5rem",
+            }}
+          >
+            <Transcript
+              // @ts-ignore - Type 'JsonValue' from Prisma is not assignable to type '{ start: number; end: number; speaker: number; punctuated_word: string; }[]'.
+              transcript={words}
+              audioRef={mediaRef}
+              user={user}
+              notes={notes}
+              setNotes={setNotes}
+              fileId={fileId}
+              projectId={projectId}
+              summaryHasLoaded={summaryHasLoaded}
+              tags={tags}
+              setTags={setTags}
+              transcriptContainerDivRef={transcriptContainerDivRef}
+            />
+          </Box>
+
+          <TranscriptPageAside
             notes={notes}
-            setNotes={setNotes}
-            fileId={fileId}
-            projectId={projectId}
-            summaryHasLoaded={summaryHasLoaded}
-            tags={tags}
-            setTags={setTags}
+            segment={segment}
+            setSegment={setSegment}
+            mediaRef={mediaRef}
+            transcriptContainerDivRef={transcriptContainerDivRef}
           />
-        </Box>
+        </Group>
       </div>
     </>
   );
