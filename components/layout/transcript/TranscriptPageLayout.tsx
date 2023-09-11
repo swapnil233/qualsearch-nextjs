@@ -1,21 +1,26 @@
 import { Sidebar } from "@/components/navigation/sidebar/Sidebar";
 import {
   AppShell,
+  Aside,
+  Box,
   Burger,
+  Center,
   Header,
   MediaQuery,
+  SegmentedControl,
   Text,
   useMantineTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { IconNote, IconSparkles, IconTags } from "@tabler/icons-react";
 import Head from "next/head";
 import { FC, ReactNode, useState } from "react";
 
-export interface IPrimaryLayout {
+export interface ITranscriptPageLayout {
   children: ReactNode;
 }
 
-const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
+const TranscriptPageLayout: FC<ITranscriptPageLayout> = ({ children }) => {
   const [opened, setOpened] = useState<boolean>(false);
   const theme = useMantineTheme();
   const largeScreen = useMediaQuery("(min-width: 48em)");
@@ -69,6 +74,54 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
             <></>
           )
         }
+        aside={
+          <MediaQuery smallerThan="md" styles={{ display: "none" }}>
+            <Aside
+              p="sm"
+              hiddenBreakpoint="sm"
+              width={{ sm: 250, lg: 300 }}
+              bg={
+                theme.colorScheme === "dark"
+                  ? theme.colors.dark[6]
+                  : "rgb(249, 249, 248)"
+              }
+            >
+              <SegmentedControl
+                fullWidth
+                color="indigo"
+                data={[
+                  {
+                    value: "preview",
+                    label: (
+                      <Center>
+                        <IconTags size="1rem" />
+                        <Box ml={10}>Tags</Box>
+                      </Center>
+                    ),
+                  },
+                  {
+                    value: "code",
+                    label: (
+                      <Center>
+                        <IconNote size="1rem" />
+                        <Box ml={10}>Notes</Box>
+                      </Center>
+                    ),
+                  },
+                  {
+                    value: "export",
+                    label: (
+                      <Center>
+                        <IconSparkles size="1rem" />
+                        <Box ml={10}>Chat</Box>
+                      </Center>
+                    ),
+                  },
+                ]}
+              />
+            </Aside>
+          </MediaQuery>
+        }
       >
         <main>{children}</main>
       </AppShell>
@@ -76,4 +129,4 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
   );
 };
 
-export default PrimaryLayout;
+export default TranscriptPageLayout;
