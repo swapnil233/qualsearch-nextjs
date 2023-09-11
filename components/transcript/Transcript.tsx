@@ -1,4 +1,4 @@
-import { NoteWithTagsAndCreator } from "@/types";
+import { NoteWithTagsAndCreator, TagWithNotes } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box } from "@mantine/core";
@@ -10,7 +10,7 @@ import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
 import TranscriptText from "./TranscriptText";
-import { SelectedText, TagWithNotes } from "./interfaces";
+import { SelectedText } from "./interfaces";
 
 interface ITranscriptProps {
   transcript: {
@@ -59,7 +59,7 @@ const Transcript: FC<ITranscriptProps> = ({
   // Update note positions after summary loads
   useEffect(() => {
     setNotes((prevNotes) => [...prevNotes]);
-  }, [summaryHasLoaded]);
+  }, [summaryHasLoaded, setNotes]);
 
   // Update the notes state when the window is resized
   useEffect(() => {
@@ -69,7 +69,7 @@ const Transcript: FC<ITranscriptProps> = ({
     return () => {
       window.removeEventListener("resize", handleContentChange);
     };
-  }, [notes]);
+  }, [notes, setNotes]);
 
   // Check word's time range with current audio time
   useEffect(() => {

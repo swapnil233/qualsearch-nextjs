@@ -33,3 +33,18 @@ export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
     tags: true;
   };
 }>;
+
+export type TagWithNotes = Prisma.TagGetPayload<{
+  include: {
+    createdBy: {
+      select: {
+        id: true;
+      };
+    };
+    notes: {
+      select: {
+        id: true;
+      };
+    };
+  };
+}>;

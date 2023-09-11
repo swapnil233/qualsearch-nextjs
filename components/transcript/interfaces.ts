@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 
 export type SelectedTextRectangle = {
   top: number;
@@ -33,18 +32,3 @@ export interface ITranscript {
   speaker: number;
   punctuated_word: string;
 }
-
-export type TagWithNotes = Prisma.TagGetPayload<{
-  include: {
-    createdBy: {
-      select: {
-        id: true;
-      };
-    };
-    notes: {
-      select: {
-        id: true;
-      };
-    };
-  };
-}>;
