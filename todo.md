@@ -44,3 +44,9 @@ This document contains the ongoing tasks and improvements for the next.js projec
 | Task   | Description                                                                                              |
 | ------ | -------------------------------------------------------------------------------------------------------- |
 | Task 1 | Implement tags in Prisma schema. A project can have many tags. Each tag can be used in files/transcripts |
+
+## Bugs
+
+| Task   | Description                                                                                        |
+| ------ | -------------------------------------------------------------------------------------------------- |
+| Task 1 | Creating a new tag, then unselecting it still adds it to the list of tags associated with the note |
