@@ -1,3 +1,4 @@
+import { TagWithNotes } from "@/types";
 import {
   Avatar,
   Box,
@@ -13,7 +14,6 @@ import { useForm } from "@mantine/form";
 import { User } from "@prisma/client";
 import { IconTag } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
-import { TagWithNotes } from "../transcript/interfaces";
 
 interface ICreateNotePopover {
   user: User;
