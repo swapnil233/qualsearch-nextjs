@@ -3,15 +3,25 @@ import {
   Aside,
   Box,
   Center,
+  Group,
+  NativeSelect,
   ScrollArea,
   SegmentedControl,
   Stack,
+  Text,
+  TextInput,
   rem,
   useMantineTheme,
 } from "@mantine/core";
+import { useDebouncedState } from "@mantine/hooks";
 import { User } from "@prisma/client";
-import { IconNote, IconSparkles, IconTags } from "@tabler/icons-react";
-import React from "react";
+import {
+  IconNote,
+  IconSearch,
+  IconSparkles,
+  IconTags,
+} from "@tabler/icons-react";
+import React, { useEffect, useState } from "react";
 import EmptyState from "../states/empty/EmptyState";
 import { AsideNotes } from "./AsideNotes";
 import { AsideTags } from "./AsideTags";
@@ -28,6 +38,8 @@ interface ITranscriptPageAside {
   user: User;
 }
 
+type SortCategories = "newest-to-oldest" | "oldest-to-newest" | "chronological";
+
 export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   segment,
   setSegment,
@@ -40,6 +52,57 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   user,
 }) => {
   const theme = useMantineTheme();
+
+  console.log("notes", notes);
+
+  const [filteredNotes, setFilteredNotes] =
+    useState<NoteWithTagsAndCreator[]>(notes);
+  const [searchTerm, setSearchTerm] = useDebouncedState("", 200);
+
+  const [sort, setSort] = useState<SortCategories>();
+
+  useEffect(() => {
+    const filterNotesBySearchTerm = () => {
+      if (searchTerm.length > 0) {
+        const filteredNotes = notes.filter((note) =>
+          note.text.toLocaleLowerCase().includes(searchTerm)
+        );
+        return filteredNotes;
+      } else {
+        return notes;
+      }
+    };
+
+    const filteredNotes = filterNotesBySearchTerm();
+    setFilteredNotes(filteredNotes);
+  }, [searchTerm, notes]);
+
+  useEffect(() => {
+    let sortedNotes = [...filteredNotes];
+    switch (sort) {
+      case "newest-to-oldest":
+        console.log("newest-to-oldest");
+        sortedNotes.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        break;
+      case "oldest-to-newest":
+        console.log("oldest-to-newest");
+        sortedNotes.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        break;
+      case "chronological":
+        console.log("chronological");
+        sortedNotes.sort((a, b) => a.start - b.start);
+        break;
+      default:
+        console.log("sortNotes() error");
+    }
+    setFilteredNotes(sortedNotes);
+  }, [sort, notes]);
 
   return (
     <Aside
@@ -92,13 +155,39 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
       {segment === "notes" && (
         <>
           {notes.length > 0 ? (
-            <ScrollArea h={"100%"}>
-              <AsideNotes
-                mediaRef={mediaRef}
-                transcriptContainerDivRef={transcriptContainerDivRef}
-                notes={notes}
-              />
-            </ScrollArea>
+            <>
+              <Group noWrap mb={16} align="start">
+                <TextInput
+                  icon={<IconSearch size="1rem" />}
+                  placeholder="Search..."
+                  onChange={(e) =>
+                    setSearchTerm(e.currentTarget.value.toLocaleLowerCase())
+                  }
+                />
+                <NativeSelect
+                  data={[
+                    { value: "newest-to-oldest", label: "Newest to oldest" },
+                    { value: "oldest-to-newest", label: "Oldest to newest" },
+                    { value: "chronological", label: "Chronological" },
+                  ]}
+                  value={sort}
+                  variant="filled"
+                  onChange={(e) =>
+                    setSort(e.currentTarget.value as SortCategories)
+                  }
+                />
+              </Group>
+              <ScrollArea h={"90%"}>
+                <AsideNotes
+                  mediaRef={mediaRef}
+                  transcriptContainerDivRef={transcriptContainerDivRef}
+                  notes={filteredNotes}
+                />
+                {searchTerm.length > 0 && filteredNotes.length === 0 && (
+                  <Text color="dimmed">No matching notes found...</Text>
+                )}
+              </ScrollArea>
+            </>
           ) : (
             <Stack h={"60%"} justify="center">
               <EmptyState
