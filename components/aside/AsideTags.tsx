@@ -48,18 +48,32 @@ export const AsideTags: React.FC<IAsideTags> = ({
       }),
     });
 
-    if (!newTagRes.ok) {
+    if (newTagRes.status === 409) {
       notifications.show({
         withCloseButton: true,
         autoClose: 5000,
-        title: "We couldn't create that tag",
-        message: "Something went wrong on our end. Try again in a few minutes.",
+        title: "That tag already exists",
+        message: "Try creating a new tag with a different name.",
         color: "red",
         icon: <IconX />,
         loading: false,
       });
 
-      throw new Error(`Error: ${newTagRes.statusText}`);
+      setNewTag("");
+      setNewTagIsCreating(false);
+    } else if (newTagRes.status !== 201) {
+      notifications.show({
+        withCloseButton: true,
+        autoClose: 5000,
+        title: "Something went wrong",
+        message: "Try again later.",
+        color: "red",
+        icon: <IconX />,
+        loading: false,
+      });
+
+      setNewTag("");
+      setNewTagIsCreating(false);
     }
 
     const newTagData: TagWithNotes[] = await newTagRes.json();

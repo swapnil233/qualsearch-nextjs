@@ -68,7 +68,10 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
             const tagCount = await prisma.tag.count({
                 where: {
                     projectId: projectId,
-                    name: tagName
+                    name: {
+                        contains: tagName,
+                        mode: "insensitive"
+                    }
                 }
             })
 
@@ -96,8 +99,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
                 newTags.push(newTag)
             } else {
-                // If the tag does exist, do nothing.
                 console.log(`Tag ${tagName} already exists.`)
+                res.status(409).send(`Tag ${tagName} already exists.`)
             }
         }
 
