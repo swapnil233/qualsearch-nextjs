@@ -4,7 +4,6 @@ import {
   Avatar,
   Badge,
   Box,
-  Button,
   Group,
   Menu,
   Popover,
@@ -16,10 +15,14 @@ import {
 import {
   IconDots,
   IconEdit,
+  IconMessage,
   IconPlayerPlayFilled,
+  IconPlayerStopFilled,
   IconTrash,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 interface INoteCardProps {
   position: {
@@ -33,24 +36,52 @@ interface INoteCardProps {
 export function NoteCard({ position, note, audioRef }: INoteCardProps) {
   const [noteIsPlaying, setNoteIsPlaying] = useState<boolean>(false);
 
+  const router = useRouter();
+  const projectId = router.query.projectId as string;
+  const teamId = router.query.teamId as string;
+
   const handlePlayNote = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = note.start;
-      audioRef.current.play();
-      setNoteIsPlaying(true);
-
-      // Stop playing when the note's end time is reached
-      const stopAtNoteEnd = () => {
-        if (audioRef.current && audioRef.current.currentTime >= note.end) {
-          audioRef.current.pause();
-          audioRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
-          setNoteIsPlaying(false);
-        }
+      const playAudioAfterSeek = () => {
+        audioRef.current?.play().catch((error) => {
+          console.error("Audio playback error:", error);
+        });
+        setNoteIsPlaying(true);
+        audioRef.current?.removeEventListener("seeked", playAudioAfterSeek);
       };
 
-      audioRef.current.addEventListener("timeupdate", stopAtNoteEnd);
+      audioRef.current.addEventListener("seeked", playAudioAfterSeek);
+
+      audioRef.current.currentTime = note.start;
     }
   };
+
+  const handleStopNote = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setNoteIsPlaying(false);
+    }
+  };
+
+  useEffect(() => {
+    const stopAtNoteEnd = () => {
+      if (audioRef.current && audioRef.current.currentTime >= note.end) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
+        setNoteIsPlaying(false);
+      }
+    };
+
+    if (audioRef.current) {
+      audioRef.current.addEventListener("timeupdate", stopAtNoteEnd);
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
+      }
+    };
+  }, [audioRef, note.end]);
 
   return (
     <Box
@@ -63,14 +94,8 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
       <Group align="center" spacing={"sm"}>
         <Popover width={300} position="bottom" withArrow shadow="md">
           <Popover.Target>
-            <ActionIcon color="orange.1" radius="xl" variant="filled">
-              {/* <IconMessage color={theme.colors.orange[9]} size="1.125rem" /> */}
-              <Avatar
-                src={note.createdBy.image}
-                alt={note.createdBy.name || ""}
-                radius="xl"
-                size={"sm"}
-              />
+            <ActionIcon radius="xl" variant="default">
+              <IconMessage size={16} />
             </ActionIcon>
           </Popover.Target>
 
@@ -121,41 +146,46 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
                 spacing={"xs"}
                 verticalSpacing={"xs"}
               >
-                {note.tags.map((tag, index) => {
+                {note.tags.map((tag) => {
                   return (
-                    <Tooltip key={index} label={tag.name}>
-                      <Badge
-                        fullWidth
-                        radius="xs"
-                        variant="filled"
-                        size="sm"
-                        color="red"
-                      >
-                        {tag.name}
-                      </Badge>
-                    </Tooltip>
+                    <Link
+                      href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                      key={tag.id}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Tooltip label={tag.name}>
+                        <Badge
+                          fullWidth
+                          radius="xs"
+                          variant="filled"
+                          size="sm"
+                          color="red"
+                        >
+                          {tag.name}
+                        </Badge>
+                      </Tooltip>
+                    </Link>
                   );
                 })}
               </SimpleGrid>
             </Stack>
           </Popover.Dropdown>
         </Popover>
-        {note.tags.length > 0 && (
-          <Badge radius={"xs"} size="lg">
-            {note.tags.length > 1
-              ? `${note.tags.length} tags`
-              : `${note.tags.length} tag`}
-          </Badge>
-        )}
-        <Button
-          variant="filled"
-          compact
-          leftIcon={<IconPlayerPlayFilled size={"0.8rem"} />}
-          onClick={handlePlayNote}
-          disabled={noteIsPlaying}
-        >
-          {noteIsPlaying ? "Playing..." : "Play"}
-        </Button>
+        <ActionIcon color="blue" radius="xl" variant="filled">
+          {noteIsPlaying ? (
+            <IconPlayerStopFilled
+              color="blue"
+              size={16}
+              onClick={handleStopNote}
+            />
+          ) : (
+            <IconPlayerPlayFilled
+              color="blue"
+              size={16}
+              onClick={handlePlayNote}
+            />
+          )}
+        </ActionIcon>
       </Group>
     </Box>
   );
