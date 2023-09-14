@@ -119,9 +119,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             initialTags: tags,
             transcript,
             mediaUrl,
-            teamId,
-            fileId,
-            projectId,
           },
         };
       } else {
@@ -142,11 +139,8 @@ interface IFilePage {
   initialNotes: NoteWithTagsAndCreator[];
   initialTags: TagWithNotes[];
   transcript: PrismaTranscript;
-  teamId: string;
   mediaUrl: string;
   user: User;
-  fileId: string;
-  projectId: string;
 }
 
 const FilePage: NextPageWithLayout<IFilePage> = ({
@@ -156,9 +150,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   transcript,
   mediaUrl,
   user,
-  teamId,
-  fileId,
-  projectId,
 }) => {
   const theme = useMantineTheme();
   const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
@@ -177,12 +168,18 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
 
   const largeScreen = useMediaQuery("(min-width: 60em)");
 
+  const fileId = file.id;
+  const projectId = file.projectId;
+  const teamId = file.teamId;
+
+  // Get the number of unique tags being used in this file
   useEffect(() => {
     setUniqueTagsCount(
       new Set(notes.flatMap((note) => note.tags.map((tag) => tag.id))).size
     );
   }, [tags, notes]);
 
+  // Get the number of contributors in this file
   let contributorsCount: number = useMemo(() => {
     return new Set(notes.map((note) => note.createdByUserId)).size;
   }, [notes]);
