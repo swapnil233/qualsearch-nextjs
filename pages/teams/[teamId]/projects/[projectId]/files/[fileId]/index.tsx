@@ -380,7 +380,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               mediaRef={mediaRef}
               transcriptContainerDivRef={transcriptContainerDivRef}
               user={user}
-              projectId={projectId}
             />
           )}
         </Group>
