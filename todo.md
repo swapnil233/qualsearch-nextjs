@@ -12,10 +12,12 @@ This document contains the ongoing tasks and improvements for the next.js projec
 
 ## Frontend Tasks
 
-| Task   | Description                                               |
-| ------ | --------------------------------------------------------- |
-| Task 1 | Implement a working "last active" function for team table |
-| Task 2 | Implement a search and filters bar                        |
+| Task   | Description                                                                                                         |
+| ------ | ------------------------------------------------------------------------------------------------------------------- |
+| Task 1 | Implement a working "last active" function for team table                                                           |
+| Task 2 | Implement a search and filters bar                                                                                  |
+| Task 3 | Show timestamp of notes in the aside                                                                                |
+| Task 3 | Clicking on a text-note should scroll to that note in the sidebar and give it a slightly different background color |
 
 ## Backend Tasks
 
@@ -27,23 +29,25 @@ This document contains the ongoing tasks and improvements for the next.js projec
 
 ## Design Tasks
 
-| Task   | Description                       |
-| ------ | --------------------------------- |
-| Task 1 | Create a new page layout template |
+| Task | Description |
+| ---- | ----------- |
 
 ## Functionality Tasks
 
-| Task   | Description                                                                                                                     |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Task 1 | Re-create the "role" property for users. Roles are team-dependant, not a global role that the user has for all teams they're in |
-| Task 2 | Implement project statuses. Projects can be in-progress, completed, archived, or terminated                                     |
-| Task 3 | Implement a pinning feature for teams, projects and files                                                                       |
+| Task   | Description                                                                                                                            |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Task 1 | Re-create the "role" property for users. Roles are team-dependant, not a global role that the user has for all teams they're in        |
+| Task 2 | Implement project statuses. Projects can be in-progress, completed, archived, or terminated                                            |
+| Task 3 | Implement a pinning feature for teams, projects and files                                                                              |
+| Task 4 | Give users AI-generated suggestions when they are tagging                                                                              |
+| Task 5 | Allow users to enter contextual info before AI work: study goals, research questions, participant information, prior research findings |
+| Task 6 | ML model to process video, screen and webcam footage                                                                                   |
+| Task 6 | Slack & Teams integrations to notify when transcriptions are done                                                                      |
 
 ## Database Tasks
 
-| Task   | Description                                                                                              |
-| ------ | -------------------------------------------------------------------------------------------------------- |
-| Task 1 | Implement tags in Prisma schema. A project can have many tags. Each tag can be used in files/transcripts |
+| Task | Description |
+| ---- | ----------- |
 
 ## Bugs
 
