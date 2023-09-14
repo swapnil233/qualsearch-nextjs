@@ -3,12 +3,16 @@ import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import {
   ActionIcon,
   Avatar,
+  Badge,
   Button,
   Card,
   Group,
   Menu,
+  SimpleGrid,
   Stack,
   Text,
+  Tooltip,
+  useMantineTheme,
 } from "@mantine/core";
 import {
   IconDots,
@@ -17,6 +21,8 @@ import {
   IconPlayerPlay,
   IconTrash,
 } from "@tabler/icons-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface IAsideNotes {
   notes: NoteWithTagsAndCreator[];
@@ -29,6 +35,12 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
   mediaRef,
   transcriptContainerDivRef,
 }) => {
+  const router = useRouter();
+  const teamId = router.query.teamId as string;
+  const projectId = router.query.projectId as string;
+
+  const theme = useMantineTheme();
+
   const handlePlayClicked = (note: NoteWithTagsAndCreator) => {
     const notePosition = calculateNoteCardPosition(
       note.start,
@@ -73,26 +85,43 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
   };
 
   return (
-    <Stack h={"100%"} spacing={"lg"}>
+    <Stack spacing={"lg"}>
       {notes.map((note) => (
         <Card key={note.id} withBorder>
           <Stack align="flex-start" spacing={"xl"}>
             <Stack spacing={"sm"} w={"100%"}>
               <Stack justify="space-between" align="center" w={"100%"}>
                 <Group position="apart" w={"100%"}>
-                  <Group>
-                    <Avatar
-                      src={note.createdBy.image}
-                      alt={note.createdBy.name || ""}
-                      radius="xl"
-                    />
-                    <Stack spacing={0}>
-                      <Text fz="md">{note.createdBy.name}</Text>
-                      <Text fz="xs" c="dimmed">
-                        {new Date(note.createdAt).toDateString()}
-                      </Text>
-                    </Stack>
-                  </Group>
+                  <Link
+                    href={`/teams/${teamId}/people/${note.createdByUserId}`}
+                    style={{
+                      textDecoration: "none",
+                    }}
+                  >
+                    <Group>
+                      <Avatar
+                        src={note.createdBy.image}
+                        alt={note.createdBy.name || ""}
+                        radius="xl"
+                      />
+                      <Stack spacing={0}>
+                        <Text
+                          fz="md"
+                          truncate
+                          color={
+                            theme.colorScheme === "dark"
+                              ? "white"
+                              : theme.colors.dark[9]
+                          }
+                        >
+                          {note.createdBy.name}
+                        </Text>
+                        <Text fz="xs" c="dimmed">
+                          {new Date(note.createdAt).toDateString()}
+                        </Text>
+                      </Stack>
+                    </Group>
+                  </Link>
 
                   <Menu shadow="md" width={200}>
                     <Menu.Target>
@@ -111,7 +140,39 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                 </Group>
               </Stack>
               <Stack>
-                <Text fz={"sm"}>{note.text}</Text>
+                <Stack spacing={"xs"}>
+                  <Text fz={"sm"}>{note.text}</Text>
+                  <SimpleGrid
+                    w={"100%"}
+                    cols={3}
+                    spacing={"xs"}
+                    verticalSpacing={"xs"}
+                  >
+                    {note.tags.map((tag) => {
+                      return (
+                        <Link
+                          key={tag.id}
+                          href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                          style={{
+                            textDecoration: "none",
+                          }}
+                        >
+                          <Tooltip label={tag.name}>
+                            <Badge
+                              fullWidth
+                              radius="xs"
+                              variant="filled"
+                              size="sm"
+                              color="red"
+                            >
+                              {tag.name}
+                            </Badge>
+                          </Tooltip>
+                        </Link>
+                      );
+                    })}
+                  </SimpleGrid>
+                </Stack>
                 <Group grow>
                   <Button
                     compact
