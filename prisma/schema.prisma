@@ -269,12 +269,13 @@ model Clip {
 }
 
 model Note {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  text      String
-  start     Float
-  end       Float
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  text           String
+  transcriptText String
+  start          Float
+  end            Float
 
   // 1-n -> Note can belong to 1 file
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
