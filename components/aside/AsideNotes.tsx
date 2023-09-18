@@ -35,11 +35,9 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
   mediaRef,
   transcriptContainerDivRef,
 }) => {
-  const router = useRouter();
-  const teamId = router.query.teamId as string;
-  const projectId = router.query.projectId as string;
-
   const theme = useMantineTheme();
+  const router = useRouter();
+  const { teamId, projectId } = router.query;
 
   const handlePlayClicked = (note: NoteWithTagsAndCreator) => {
     const notePosition = calculateNoteCardPosition(
