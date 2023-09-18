@@ -36,6 +36,12 @@ export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
 
 export type TagWithNotes = Prisma.TagGetPayload<{
   include: {
+    notes: true,
+  }
+}>;
+
+export type TagWithNoteIds = Prisma.TagGetPayload<{
+  include: {
     createdBy: {
       select: {
         id: true;

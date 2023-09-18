@@ -1,6 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { TagWithNotes } from "@/types";
+import { TagWithNoteIds } from "@/types";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -61,7 +61,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const { newTagNames, projectId, createdByUserId, }: IPostBody = req.body;
 
     try {
-        let newTags: TagWithNotes[] = []
+        let newTags: TagWithNoteIds[] = []
 
         const checkIfTagExistsOrCreateTag = async (tagName: string) => {
             // Check if there's a tag with that name in the project scope.

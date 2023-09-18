@@ -1,4 +1,4 @@
-import { NoteWithTagsAndCreator, TagWithNotes } from "@/types";
+import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box } from "@mantine/core";
@@ -24,8 +24,8 @@ interface ITranscriptProps {
   user: User;
   notes: NoteWithTagsAndCreator[];
   setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>;
-  tags: TagWithNotes[];
-  setTags: React.Dispatch<React.SetStateAction<TagWithNotes[]>>;
+  tags: TagWithNoteIds[];
+  setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>;
   fileId: string;
   projectId: string;
   summaryHasLoaded: Boolean;
@@ -180,7 +180,7 @@ const Transcript: FC<ITranscriptProps> = ({
         }
 
         // The response contains an array of the new tag IDs
-        const newTags: TagWithNotes[] = await newTagsResponse.json();
+        const newTags: TagWithNoteIds[] = await newTagsResponse.json();
 
         const tagIds = filteredTags.concat(newTags.map((tag) => tag.id));
 

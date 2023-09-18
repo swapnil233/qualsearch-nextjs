@@ -1,4 +1,4 @@
-import { TagWithNotes } from "@/types";
+import { TagWithNoteIds } from "@/types";
 import {
   Avatar,
   Box,
@@ -17,7 +17,7 @@ import { FC, useEffect, useState } from "react";
 
 interface ICreateNotePopover {
   user: User;
-  tags: TagWithNotes[];
+  tags: TagWithNoteIds[];
   onClose: () => void;
   noteIsCreating: boolean;
   onSubmit: (_note: string, _tags: string[], _newTags: string[]) => void;

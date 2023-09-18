@@ -1,4 +1,4 @@
-import { NoteWithTagsAndCreator, TagWithNotes } from "@/types";
+import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import {
   Aside,
   Box,
@@ -35,8 +35,8 @@ interface ITranscriptPageAside {
   notes: NoteWithTagsAndCreator[];
   user: User;
 
-  tags: TagWithNotes[];
-  setTags: React.Dispatch<React.SetStateAction<TagWithNotes[]>>;
+  tags: TagWithNoteIds[];
+  setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>;
 
   segment: "tags" | "notes" | "chat";
   setSegment: React.Dispatch<React.SetStateAction<"tags" | "notes" | "chat">>;

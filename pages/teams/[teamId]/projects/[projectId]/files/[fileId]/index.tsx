@@ -6,7 +6,7 @@ import { StatsGrid } from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
-import { NoteWithTagsAndCreator, TagWithNotes } from "@/types";
+import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
@@ -44,7 +44,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         file: File,
         transcript: PrismaTranscript,
         notes: NoteWithTagsAndCreator[],
-        tags: TagWithNotes[]
+        tags: TagWithNoteIds[]
       ];
 
       let [file, transcript, notes, tags]: BatchRequest = await Promise.all([
@@ -137,7 +137,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface IFilePage {
   file: File;
   initialNotes: NoteWithTagsAndCreator[];
-  initialTags: TagWithNotes[];
+  initialTags: TagWithNoteIds[];
   transcript: PrismaTranscript;
   mediaUrl: string;
   user: User;
@@ -157,7 +157,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
-  const [tags, setTags] = useState<TagWithNotes[]>(initialTags);
+  const [tags, setTags] = useState<TagWithNoteIds[]>(initialTags);
   const [uniqueTagsCount, setUniqueTagsCount] = useState<number>(0);
 
   const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
