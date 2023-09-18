@@ -84,25 +84,6 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
     });
   };
 
-  const getNoteTextFromStartAndEnd = (start: number, end: number) => {
-    // Loop through each span in the transcript from note.start to note.end and turn it into a string
-    const transcriptSpans =
-      transcriptContainerDivRef.current?.querySelectorAll("span");
-
-    let noteText = "";
-
-    transcriptSpans?.forEach((span) => {
-      const spanStartTime = parseFloat(span.dataset.start || "0");
-      const spanEndTime = parseFloat(span.dataset.end || "0");
-
-      if (spanStartTime >= start && spanEndTime <= end) {
-        noteText += span.textContent;
-      }
-    });
-
-    return noteText;
-  };
-
   return (
     <Stack spacing={"lg"}>
       {notes.map((note) => (
@@ -174,7 +155,7 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                         paddingLeft: "0.5rem",
                       }}
                     >
-                      {`"${getNoteTextFromStartAndEnd(note.start, note.end)}"`}
+                      {`"${note.transcriptText.trim()}"`}
                     </Text>
                     <Text fw={500} fz={"sm"}>
                       {note.text}

@@ -70,10 +70,28 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       tagIds: string[];
     } = req.body;
 
+    // Get the punctuated_word in between start and end
+    let transcriptText = "";
+    const transcript = await prisma.transcript.findUniqueOrThrow({
+      where: {
+        fileId: fileId
+      },
+      select: {
+        words: true
+      }
+    })
+    // @ts-ignore - Prisma stores this as a generic JSON value
+    transcript.words.forEach((word) => {
+      if (word.start >= start && word.end <= end) {
+        transcriptText = transcriptText.concat(" ", word.punctuated_word)
+      }
+    })
+
     try {
       const newNote = await prisma.note.create({
         data: {
           text,
+          transcriptText,
           start,
           end,
           fileId,
