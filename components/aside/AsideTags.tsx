@@ -1,4 +1,4 @@
-import { TagWithNotes } from "@/types";
+import { TagWithNoteIds } from "@/types";
 import {
   Badge,
   Button,
@@ -12,11 +12,13 @@ import {
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconDownload, IconUpload, IconX } from "@tabler/icons-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
 
 interface IAsideTags {
-  tags: TagWithNotes[];
-  setTags: React.Dispatch<React.SetStateAction<TagWithNotes[]>>;
+  tags: TagWithNoteIds[];
+  setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>;
   projectId: string;
   user: User;
 }
@@ -76,13 +78,16 @@ export const AsideTags: React.FC<IAsideTags> = ({
       setNewTagIsCreating(false);
     }
 
-    const newTagData: TagWithNotes[] = await newTagRes.json();
+    const newTagData: TagWithNoteIds[] = await newTagRes.json();
 
     setTags((prevTags) => [...prevTags, newTagData[0]]);
 
     setNewTag("");
     setNewTagIsCreating(false);
   }, [newTagName, projectId, setTags, user.id]);
+
+  const router = useRouter();
+  const { teamId } = router.query;
 
   return (
     <Stack>
@@ -114,9 +119,12 @@ export const AsideTags: React.FC<IAsideTags> = ({
             <Text weight={500}>Tags repository ({tags.length} tags)</Text>
             <Group spacing={"xs"}>
               {tags.map((tag) => (
-                <Badge key={tag.id} variant="filled">
-                  {tag.name}
-                </Badge>
+                <Link
+                  href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                  key={tag.id}
+                >
+                  <Badge variant="filled">{tag.name}</Badge>
+                </Link>
               ))}
             </Group>
           </Stack>
