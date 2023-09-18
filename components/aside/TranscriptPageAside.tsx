@@ -223,7 +223,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
                 )}
               </>
             ) : (
-              <Stack h={"60%"} justify="center">
+              <Stack justify="center">
                 <EmptyState
                   description="Start by selecting some text in the transcript and adding a note."
                   imageUrl="/empty-state-images/files/empty-file.svg"
