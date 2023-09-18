@@ -60,10 +60,16 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   const theme = useMantineTheme();
 
   const router = useRouter();
-  const projectId = router.query.projectId as string;
+  const { projectId } = router.query;
 
   const [filteredNotes, setFilteredNotes] =
     useState<NoteWithTagsAndCreator[]>(notes);
+
+  useEffect(() => {
+    setFilteredNotes(notes);
+    console.log("Filtered notes", filteredNotes);
+  }, [notes, filteredNotes]);
+
   const [searchTerm, setSearchTerm] = useDebouncedState("", 200);
 
   const [sort, setSort] = useState<SortCategories>();
@@ -241,7 +247,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
                 <AsideTags
                   tags={tags}
                   setTags={setTags}
-                  projectId={projectId}
+                  projectId={projectId as string}
                   user={user}
                 />
               </ScrollArea>
