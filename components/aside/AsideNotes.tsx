@@ -144,6 +144,7 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                       fz={"sm"}
                       color="dimmed"
                       lineClamp={2}
+                      italic
                       sx={{
                         borderLeft: `3px solid ${
                           theme.colorScheme === "light"
