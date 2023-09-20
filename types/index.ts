@@ -40,6 +40,28 @@ export type TagWithNotes = Prisma.TagGetPayload<{
   }
 }>;
 
+export type TagWithNotesAndURIs = Prisma.TagGetPayload<{
+  include: {
+    notes: {
+      include: {
+        file: {
+          select: {
+            uri: true,
+            type: true
+          },
+        },
+        createdBy: {
+          select: {
+            id: true;
+            name: true;
+            image: true;
+          };
+        }
+      },
+    },
+  },
+}>;
+
 export type TagWithNoteIds = Prisma.TagGetPayload<{
   include: {
     createdBy: {
