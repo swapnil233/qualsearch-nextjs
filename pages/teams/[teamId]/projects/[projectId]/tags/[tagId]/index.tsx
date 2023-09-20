@@ -10,28 +10,28 @@ import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import {
   ActionIcon,
-  Avatar,
   Box,
   Button,
   Card,
   Group,
   SimpleGrid,
   Stack,
+  Switch,
   Text,
   Title,
   rem,
   useMantineTheme,
 } from "@mantine/core";
 import {
+  IconBrandFigma,
   IconEdit,
   IconExternalLink,
   IconPin,
+  IconShare,
   IconTrash,
-  IconWand,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -89,6 +89,7 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
   const [presignedUrls, setPresignedUrls] = useState<{ [key: string]: string }>(
     {}
   );
+  const [showQuote, setShowQuote] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchPresignedUrls() {
@@ -130,8 +131,8 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
 
       <PageHeading
         title={`Tag: ${tagWithNotes.name}`}
-        primaryButtonText="Consolidate"
-        primaryButtonIcon={<IconWand size={"1.2rem"} />}
+        primaryButtonText="Export to FigJam"
+        primaryButtonIcon={<IconBrandFigma size={"1.2rem"} />}
         primaryButtonAction={handleConsolidateTags}
         secondaryButtonMenuItems={[
           {
@@ -167,11 +168,19 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
 
       {tagWithNotes.notes.length !== 0 ? (
         <Stack w={"100%"}>
-          <Title order={3} fw={"normal"}>
-            {`${tagWithNotes.notes.length} ${
-              tagWithNotes.notes.length > 1 ? "notes" : "note"
-            } using this tag`}
-          </Title>
+          <Group align="center">
+            <Title order={3} fw={"normal"}>
+              {`${tagWithNotes.notes.length} ${
+                tagWithNotes.notes.length > 1 ? "notes" : "note"
+              } using this tag`}
+            </Title>
+            <Switch
+              label="Show quotes"
+              checked={showQuote}
+              size="md"
+              onChange={(event) => setShowQuote(event.currentTarget.checked)}
+            />
+          </Group>
           <SimpleGrid
             cols={6}
             spacing={"md"}
@@ -235,63 +244,47 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
                       className="fff"
                     >
                       <Box>
-                        <Text fz="lg" fw={500}>
+                        <Text fz="lg" fw={500} lh={1.4}>
                           {note.text}
                         </Text>
-                        <Text
-                          color="dimmed"
-                          mt={"md"}
-                          pl={rem(8)}
-                          sx={{
-                            borderLeft: `3px solid ${
-                              theme.colorScheme === "light"
-                                ? theme.colors.gray[3]
-                                : theme.colors.dark[4]
-                            }`,
-                          }}
-                        >
-                          {`"${note.transcriptText.trim()}"`}
-                        </Text>
+                        {showQuote && (
+                          <Text
+                            color="dimmed"
+                            mt={"md"}
+                            pl={rem(8)}
+                            italic
+                            sx={{
+                              borderLeft: `3px solid ${
+                                theme.colorScheme === "light"
+                                  ? theme.colors.gray[3]
+                                  : theme.colors.dark[4]
+                              }`,
+                            }}
+                          >
+                            {`"${note.transcriptText.trim()}"`}
+                          </Text>
+                        )}
                       </Box>
-                      <Link
-                        href={`/teams/${teamId}/people/${note.createdByUserId}`}
-                        style={{
-                          textDecoration: "none",
-                        }}
-                      >
-                        <Group>
-                          <Avatar
-                            src={note.createdBy.image}
-                            alt={note.createdBy.name || ""}
-                            radius="xl"
-                          />
-                          <Stack spacing={0}>
-                            <Text
-                              fz="md"
-                              truncate
-                              color={
-                                theme.colorScheme === "dark"
-                                  ? "white"
-                                  : theme.colors.dark[9]
-                              }
-                            >
-                              {note.createdBy.name}
-                            </Text>
-                            <Text fz="xs" c="dimmed">
-                              {new Date(note.createdAt).toDateString()}
-                            </Text>
-                          </Stack>
-                        </Group>
-                      </Link>
                     </Stack>
                   </Stack>
                   <Group>
                     <Button
                       radius="md"
                       style={{ flex: 1 }}
-                      leftIcon={<IconExternalLink size={"1rem"} />}
+                      leftIcon={<IconShare size={"1rem"} />}
                     >
-                      Show details
+                      Share clip
+                    </Button>
+                    <Button
+                      radius="md"
+                      variant="light"
+                      style={{ flex: 1 }}
+                      leftIcon={<IconExternalLink size={"1rem"} />}
+                      component="a"
+                      href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}?noteId=${note.id}`}
+                      target="_blank"
+                    >
+                      Source
                     </Button>
                     <ActionIcon variant="default" radius="md" size={36}>
                       <IconPin stroke={1.5} />

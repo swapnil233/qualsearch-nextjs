@@ -22,6 +22,7 @@ import {
 import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -171,6 +172,12 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const fileId = file.id;
   const projectId = file.projectId;
   const teamId = file.teamId;
+
+  const router = useRouter();
+  const { noteId: rawNoteId } = router.query;
+  const noteId = (
+    Array.isArray(rawNoteId) ? rawNoteId[0] : rawNoteId
+  ) as string;
 
   // Get the number of unique tags being used in this file
   useEffect(() => {
@@ -360,6 +367,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               audioRef={mediaRef}
               user={user}
               notes={notes}
+              scrollToNoteId={noteId}
               setNotes={setNotes}
               fileId={fileId}
               projectId={projectId}

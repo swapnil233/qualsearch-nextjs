@@ -23,6 +23,7 @@ interface ITranscriptProps {
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
   user: User;
   notes: NoteWithTagsAndCreator[];
+  scrollToNoteId: string | undefined;
   setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>;
   tags: TagWithNoteIds[];
   setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>;
@@ -40,6 +41,7 @@ const Transcript: FC<ITranscriptProps> = ({
   projectId,
   notes,
   setNotes,
+  scrollToNoteId,
   tags,
   setTags,
   summaryHasLoaded,
@@ -55,6 +57,25 @@ const Transcript: FC<ITranscriptProps> = ({
   const groupedTranscript = useMemo(() => {
     return new TranscriptGrouper(transcript).groupBySpeaker();
   }, [transcript]);
+
+  // Scroll down to scrollToNoteId if one is provided.
+  useEffect(() => {
+    const note = notes.find((note) => note.id === scrollToNoteId);
+
+    if (note) {
+      const notePosition = calculateNoteCardPosition(
+        note.start,
+        note.end,
+        transcriptContainerDivRef
+      );
+
+      // Scroll to note
+      window.scrollTo({
+        top: notePosition ? notePosition.top - 100 : 0,
+        behavior: "smooth",
+      });
+    }
+  }, [scrollToNoteId]);
 
   // Update note positions after summary loads
   useEffect(() => {
