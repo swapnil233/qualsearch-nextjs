@@ -67,7 +67,6 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
 
   useEffect(() => {
     setFilteredNotes(notes);
-    console.log("Filtered notes", filteredNotes);
   }, [notes, filteredNotes]);
 
   const [searchTerm, setSearchTerm] = useDebouncedState("", 200);
@@ -96,21 +95,18 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
     let sortedNotes = [...filteredNotes];
     switch (sort) {
       case "newest-to-oldest":
-        console.log("newest-to-oldest");
         sortedNotes.sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         break;
       case "oldest-to-newest":
-        console.log("oldest-to-newest");
         sortedNotes.sort(
           (a, b) =>
             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
         break;
       case "chronological":
-        console.log("chronological");
         sortedNotes.sort((a, b) => a.start - b.start);
         break;
       default:
@@ -243,7 +239,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
         {segment === "tags" && (
           <>
             {tags.length > 0 ? (
-              <ScrollArea h={"100%"}>
+              <ScrollArea>
                 <AsideTags
                   tags={tags}
                   setTags={setTags}
