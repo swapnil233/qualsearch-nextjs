@@ -308,7 +308,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
             src={mediaUrl}
             controls
             ref={mediaRef as React.MutableRefObject<HTMLVideoElement>}
-            className="lg:fixed lg:bottom-2 lg:left-2 lg:w-1/6 md:w-full z-50 w-full"
+            className="lg:w-1/3 md:w-full z-50 w-full"
           />
         ) : (
           <audio
