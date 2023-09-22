@@ -162,7 +162,7 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                   </Stack>
                   <SimpleGrid
                     w={"100%"}
-                    cols={3}
+                    cols={2}
                     spacing={"xs"}
                     verticalSpacing={"xs"}
                   >
