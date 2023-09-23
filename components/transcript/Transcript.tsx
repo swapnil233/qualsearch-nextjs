@@ -1,3 +1,4 @@
+import { useNotes } from "@/contexts/NotesContext";
 import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
@@ -22,9 +23,7 @@ interface ITranscriptProps {
   audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
   user: User;
-  notes: NoteWithTagsAndCreator[];
   scrollToNoteId: string | undefined;
-  setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>;
   tags: TagWithNoteIds[];
   setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>;
   fileId: string;
@@ -39,13 +38,12 @@ const Transcript: FC<ITranscriptProps> = ({
   user,
   fileId,
   projectId,
-  notes,
-  setNotes,
   scrollToNoteId,
   tags,
   setTags,
   summaryHasLoaded,
 }) => {
+  const { notes, setNotes } = useNotes();
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);

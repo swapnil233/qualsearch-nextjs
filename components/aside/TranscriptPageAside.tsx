@@ -1,3 +1,4 @@
+import { useNotes } from "@/contexts/NotesContext";
 import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import {
   Aside,
@@ -32,7 +33,6 @@ import { AsideNotes } from "./AsideNotes";
 import { AsideTags } from "./AsideTags";
 
 interface ITranscriptPageAside {
-  notes: NoteWithTagsAndCreator[];
   user: User;
 
   tags: TagWithNoteIds[];
@@ -50,13 +50,13 @@ type SortCategories = "newest-to-oldest" | "oldest-to-newest" | "chronological";
 export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   segment,
   setSegment,
-  notes,
   tags,
   setTags,
   mediaRef,
   transcriptContainerDivRef,
   user,
 }) => {
+  const { notes, setNotes } = useNotes();
   const theme = useMantineTheme();
 
   const router = useRouter();

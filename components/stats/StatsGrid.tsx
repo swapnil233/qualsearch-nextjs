@@ -1,3 +1,4 @@
+import { useNotes } from "@/contexts/NotesContext";
 import {
   Box,
   Group,
@@ -12,6 +13,7 @@ import {
   IconTag,
   IconUsers,
 } from "@tabler/icons-react";
+import { useEffect, useMemo, useState } from "react";
 
 type IconKey = "duration" | "notes" | "tags" | "contributors";
 
@@ -24,9 +26,6 @@ const icons = {
 
 interface StatsGridProps {
   duration: string;
-  notesCount: number;
-  tagsCount: number;
-  contributorsCount: number;
 }
 
 interface StatData {
@@ -35,13 +34,22 @@ interface StatData {
   value: number | string;
 }
 
-export function StatsGrid({
-  duration,
-  notesCount,
-  tagsCount,
-  contributorsCount,
-}: StatsGridProps) {
+export function StatsGrid({ duration }: StatsGridProps) {
   const theme = useMantineTheme();
+  const { notes } = useNotes();
+  const [tagsCount, setTagsCount] = useState<number>(0);
+
+  // Get the number of unique tags being used
+  useEffect(() => {
+    setTagsCount(
+      new Set(notes.flatMap((note) => note.tags.map((tag) => tag.id))).size
+    );
+  }, [notes]);
+
+  // Get the number of contributors
+  let contributorsCount: number = useMemo(() => {
+    return new Set(notes.map((note) => note.createdByUserId)).size;
+  }, [notes]);
 
   const data: StatData[] = [
     {
@@ -52,7 +60,7 @@ export function StatsGrid({
     {
       title: "Notes",
       icon: "notes",
-      value: notesCount,
+      value: notes.length,
     },
     {
       title: "Tags used",
