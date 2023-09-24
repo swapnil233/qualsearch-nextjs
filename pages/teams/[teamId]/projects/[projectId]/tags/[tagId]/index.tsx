@@ -5,11 +5,12 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { TagWithNotesAndURIs } from "@/types";
+import { exportToExcel } from "@/utils/exportToExcel";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Group, Switch, Title } from "@mantine/core";
-import { IconBrandFigma, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconDownload, IconEdit, IconTrash } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -66,6 +67,21 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
   const { teamId, projectId } = router.query;
   const [showQuote, setShowQuote] = useState<boolean>(true);
 
+  let host = process.env.VERCEL
+    ? "https://transcription-eight.vercel.app"
+    : process.env.AMPLIFY_URL
+    ? `${process.env.AMPLIFY_URL}`
+    : "https://main.dvws5ww9zrzf5.amplifyapp.com";
+
+  const exportData = tagWithNotes.notes.map((note, index) => ({
+    ID: index + 1,
+    Note: note.text,
+    Quote: note.transcriptText,
+    Created: note.createdAt,
+    "Created by": note.createdBy.name,
+    "File link": `${host}/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`,
+  }));
+
   return (
     <>
       <Head>
@@ -90,9 +106,11 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
 
       <PageHeading
         title={`Tag: ${tagWithNotes.name}`}
-        primaryButtonText="Export to FigJam"
-        primaryButtonIcon={<IconBrandFigma size={"1.2rem"} />}
-        primaryButtonAction={() => console.log("Delete")}
+        primaryButtonText="Export"
+        primaryButtonIcon={<IconDownload size={"1.2rem"} />}
+        primaryButtonAction={() =>
+          exportToExcel({ data: exportData, filename: "export.xlsx" })
+        }
         secondaryButtonMenuItems={[
           {
             title: "Edit file",
