@@ -137,8 +137,8 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
             href: `/teams/${teamId}`,
           },
           {
-            title: "Tags",
-            href: `/teams/${teamId}/projects/${projectId}/tags}`,
+            title: "Files",
+            href: `/teams/${teamId}/projects/${projectId}`,
           },
         ]}
       />
