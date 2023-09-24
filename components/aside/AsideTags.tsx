@@ -91,63 +91,55 @@ export const AsideTags: React.FC<IAsideTags> = ({
 
   return (
     <Stack>
-      <Stack>
-        <Card withBorder title="d">
-          <Stack>
-            <Text weight={500}>Create new tag</Text>
-            <Group spacing={"xs"} noWrap>
-              <TextInput
-                size="sm"
-                placeholder="Tag name"
-                value={newTagName}
-                onChange={(e) => setNewTag(e.currentTarget.value)}
-              />
-              <Button
-                size="sm"
-                onClick={handleNewTagCreate}
-                loading={newTagIsCreating}
-              >
-                Create
-              </Button>
-            </Group>
-          </Stack>
-        </Card>
-      </Stack>
-      <Stack>
-        <Card withBorder title="d">
-          <Stack>
-            <Text weight={500}>Tags repository ({tags.length} tags)</Text>
-            <Group spacing={"xs"}>
-              {tags.map((tag) => (
-                <Link
-                  href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
-                  key={tag.id}
-                >
-                  <Badge variant="filled">{tag.name}</Badge>
-                </Link>
-              ))}
-            </Group>
-          </Stack>
-          <Divider mt={"md"} mb={"md"} />
-          {/* @TODO implement import and export features */}
-          <Group position="apart">
+      <Card withBorder title="d">
+        <Stack>
+          <Text weight={500}>Create new tag</Text>
+          <Group spacing={"xs"} noWrap>
+            <TextInput
+              size="sm"
+              placeholder="Tag name"
+              value={newTagName}
+              onChange={(e) => setNewTag(e.currentTarget.value)}
+            />
             <Button
-              compact
-              variant="subtle"
-              leftIcon={<IconUpload size={16} />}
+              size="sm"
+              onClick={handleNewTagCreate}
+              loading={newTagIsCreating}
             >
-              Import
-            </Button>
-            <Button
-              compact
-              variant="subtle"
-              leftIcon={<IconDownload size={16} />}
-            >
-              Export
+              Create
             </Button>
           </Group>
-        </Card>
-      </Stack>
+        </Stack>
+      </Card>
+      <Card withBorder title="d">
+        <Stack>
+          <Text weight={500}>Tags repository ({tags.length} tags)</Text>
+          <Group spacing={"xs"}>
+            {tags.map((tag) => (
+              <Link
+                href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                key={tag.id}
+              >
+                <Badge variant="filled">{tag.name}</Badge>
+              </Link>
+            ))}
+          </Group>
+        </Stack>
+        <Divider mt={"md"} mb={"md"} />
+        {/* @TODO implement import and export features */}
+        <Group position="apart">
+          <Button compact variant="subtle" leftIcon={<IconUpload size={16} />}>
+            Import
+          </Button>
+          <Button
+            compact
+            variant="subtle"
+            leftIcon={<IconDownload size={16} />}
+          >
+            Export
+          </Button>
+        </Group>
+      </Card>
     </Stack>
   );
 };
