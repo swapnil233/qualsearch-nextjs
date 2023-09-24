@@ -1,39 +1,19 @@
+import { TagDetails } from "@/components/card/tag/TagDetails";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { TagWithNotesAndURIs } from "@/types";
-import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Card,
-  Group,
-  SimpleGrid,
-  Stack,
-  Switch,
-  Text,
-  Title,
-  rem,
-  useMantineTheme,
-} from "@mantine/core";
-import {
-  IconBrandFigma,
-  IconEdit,
-  IconExternalLink,
-  IconPin,
-  IconShare,
-  IconTrash,
-} from "@tabler/icons-react";
+import { Group, Switch, Title } from "@mantine/core";
+import { IconBrandFigma, IconEdit, IconTrash } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -83,30 +63,9 @@ interface ITagPage {
 
 const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
   const router = useRouter();
-  const theme = useMantineTheme();
   const { teamId, projectId } = router.query;
+  const [showQuote, setShowQuote] = useState<boolean>(true);
 
-  const [presignedUrls, setPresignedUrls] = useState<{ [key: string]: string }>(
-    {}
-  );
-  const [showQuote, setShowQuote] = useState<boolean>(false);
-
-  useEffect(() => {
-    async function fetchPresignedUrls() {
-      const urls: { [key: string]: string } = {};
-      for (const note of tagWithNotes.notes) {
-        const signedUrl = await getSignedUrl(note.file.uri);
-        if (signedUrl) {
-          urls[note.id] = signedUrl;
-        }
-      }
-      setPresignedUrls(urls);
-    }
-
-    fetchPresignedUrls();
-  }, [tagWithNotes]);
-
-  const handleConsolidateTags = async () => {};
   return (
     <>
       <Head>
@@ -133,7 +92,7 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
         title={`Tag: ${tagWithNotes.name}`}
         primaryButtonText="Export to FigJam"
         primaryButtonIcon={<IconBrandFigma size={"1.2rem"} />}
-        primaryButtonAction={handleConsolidateTags}
+        primaryButtonAction={() => console.log("Delete")}
         secondaryButtonMenuItems={[
           {
             title: "Edit file",
@@ -167,8 +126,8 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
       />
 
       {tagWithNotes.notes.length !== 0 ? (
-        <Stack w={"100%"}>
-          <Group align="center">
+        <>
+          <Group align="center" mb={"md"}>
             <Title order={3} fw={"normal"}>
               {`${tagWithNotes.notes.length} ${
                 tagWithNotes.notes.length > 1 ? "notes" : "note"
@@ -181,120 +140,13 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
               onChange={(event) => setShowQuote(event.currentTarget.checked)}
             />
           </Group>
-          <SimpleGrid
-            cols={6}
-            spacing={"md"}
-            verticalSpacing={"md"}
-            breakpoints={[
-              { maxWidth: "120rem", cols: 3, spacing: "md" },
-              { maxWidth: "90rem", cols: 2, spacing: "md" },
-              { maxWidth: "48rem", cols: 1, spacing: "sm" },
-            ]}
-          >
-            {tagWithNotes.notes.map((note) => (
-              <Card key={note.id} withBorder radius="sm" p={0}>
-                <Stack
-                  justify="space-between"
-                  p={"md"}
-                  h={"100%"}
-                  align="stretch"
-                >
-                  <Stack h={"100%"} justify="space-between" align="stretch">
-                    <Box>
-                      {note.file.type === "VIDEO" ? (
-                        <video
-                          controls
-                          preload="none"
-                          src={presignedUrls[note.id]}
-                          style={{ width: "100%", maxHeight: "180px" }}
-                          onLoadedMetadata={(e) => {
-                            const videoElement = e.target as HTMLVideoElement;
-                            videoElement.currentTime = note.start;
-                          }}
-                          onTimeUpdate={(e) => {
-                            const videoElement = e.target as HTMLVideoElement;
-                            if (videoElement.currentTime >= note.end) {
-                              videoElement.pause();
-                            }
-                          }}
-                        />
-                      ) : (
-                        <audio
-                          className="rounded-none w-full"
-                          controls
-                          preload="none"
-                          src={presignedUrls[note.id]}
-                          onLoadedMetadata={(e) => {
-                            const audioElement = e.target as HTMLAudioElement;
-                            audioElement.currentTime = note.start;
-                          }}
-                          onTimeUpdate={(e) => {
-                            const audioElement = e.target as HTMLAudioElement;
-                            if (audioElement.currentTime >= note.end) {
-                              audioElement.pause();
-                            }
-                          }}
-                        />
-                      )}
-                    </Box>
-                    <Stack
-                      h={"100%"}
-                      justify="space-between"
-                      align="stretch"
-                      className="fff"
-                    >
-                      <Box>
-                        <Text fz="lg" fw={500} lh={1.4}>
-                          {note.text}
-                        </Text>
-                        {showQuote && (
-                          <Text
-                            color="dimmed"
-                            mt={"md"}
-                            pl={rem(8)}
-                            italic
-                            sx={{
-                              borderLeft: `3px solid ${
-                                theme.colorScheme === "light"
-                                  ? theme.colors.gray[3]
-                                  : theme.colors.dark[4]
-                              }`,
-                            }}
-                          >
-                            {`"${note.transcriptText.trim()}"`}
-                          </Text>
-                        )}
-                      </Box>
-                    </Stack>
-                  </Stack>
-                  <Group>
-                    <Button
-                      radius="md"
-                      style={{ flex: 1 }}
-                      leftIcon={<IconShare size={"1rem"} />}
-                    >
-                      Share clip
-                    </Button>
-                    <Button
-                      radius="md"
-                      variant="light"
-                      style={{ flex: 1 }}
-                      leftIcon={<IconExternalLink size={"1rem"} />}
-                      component="a"
-                      href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}?noteId=${note.id}`}
-                      target="_blank"
-                    >
-                      Source
-                    </Button>
-                    <ActionIcon variant="default" radius="md" size={36}>
-                      <IconPin stroke={1.5} />
-                    </ActionIcon>
-                  </Group>
-                </Stack>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </Stack>
+          <TagDetails
+            tagWithNotes={tagWithNotes}
+            teamId={teamId as string}
+            projectId={projectId as string}
+            showQuote={showQuote}
+          />
+        </>
       ) : (
         <EmptyState
           title="This tag hasn't been used yet..."
