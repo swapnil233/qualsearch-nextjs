@@ -5,6 +5,7 @@ import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import { StatsGrid } from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
 import { NotesProvider } from "@/contexts/NotesContext";
+import { TagsProvider } from "@/contexts/TagsContext";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
@@ -159,8 +160,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
-  const [tags, setTags] = useState<TagWithNoteIds[]>(initialTags);
-
   const [segment, setSegment] = useState<"tags" | "notes" | "chat">("notes");
 
   const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
@@ -236,8 +235,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
     console.log("summarize");
   };
 
-  console.log("Tags", tags);
-
   return (
     <>
       <Head>
@@ -258,121 +255,117 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
       </Head>
 
       <NotesProvider initialNotes={initialNotes}>
-        <PageHeading
-          title={file.name}
-          description={file.description || ""}
-          primaryButtonText="Summarize"
-          primaryButtonIcon={<IconWand size={"1.2rem"} />}
-          primaryButtonAction={handleSummarize}
-          secondaryButtonMenuItems={[
-            {
-              title: "Edit file",
-              action: editFile,
-              icon: <IconEdit size={14} />,
-            },
-            {
-              title: "Delete file",
-              action: handleDelete,
-              icon: <IconTrash size={14} />,
-            },
-          ]}
-          breadcrumbs={[
-            {
-              title: "Home",
-              href: "/",
-            },
-            {
-              title: "Teams",
-              href: "/teams",
-            },
-            {
-              title: "Projects",
-              href: `/teams/${teamId}`,
-            },
-            {
-              title: "Files",
-              href: `/teams/${teamId}/projects/${file.projectId}`,
-            },
-          ]}
-        />
-
-        <div>
-          {file.type === "VIDEO" ? (
-            <video
-              src={mediaUrl}
-              controls
-              ref={mediaRef as React.MutableRefObject<HTMLVideoElement>}
-              className="w-full md:w-1/6 md:fixed bottom-[16px] z-50 right-[316px]"
-            />
-          ) : (
-            <audio
-              src={mediaUrl}
-              controls
-              ref={mediaRef}
-              className="sticky top-4 w-full z-50"
-            />
-          )}
-
-          <Box mt={"lg"} id="summary-box">
-            {summary ? (
-              <SummaryCard
-                summary={summary.content}
-                dateSummarized={summary.createdAt}
-              />
-            ) : (
-              <SummaryCard summary="" dateSummarized="" />
-            )}
-          </Box>
-
-          <StatsGrid
-            duration={
-              mediaRef.current && mediaRef.current.duration
-                ? `${Math.floor(mediaRef.current.duration / 60)} minutes`
-                : "Error"
-            }
+        <TagsProvider initialTags={initialTags}>
+          <PageHeading
+            title={file.name}
+            description={file.description || ""}
+            primaryButtonText="Summarize"
+            primaryButtonIcon={<IconWand size={"1.2rem"} />}
+            primaryButtonAction={handleSummarize}
+            secondaryButtonMenuItems={[
+              {
+                title: "Edit file",
+                action: editFile,
+                icon: <IconEdit size={14} />,
+              },
+              {
+                title: "Delete file",
+                action: handleDelete,
+                icon: <IconTrash size={14} />,
+              },
+            ]}
+            breadcrumbs={[
+              {
+                title: "Home",
+                href: "/",
+              },
+              {
+                title: "Teams",
+                href: "/teams",
+              },
+              {
+                title: "Projects",
+                href: `/teams/${teamId}`,
+              },
+              {
+                title: "Files",
+                href: `/teams/${teamId}/projects/${file.projectId}`,
+              },
+            ]}
           />
 
-          <Group>
-            <Box
-              sx={{
-                marginTop: "1rem",
-                width: "70%",
-                borderRight: `1px solid ${
-                  theme.colorScheme === "light"
-                    ? theme.colors.gray[1]
-                    : theme.colors.dark[6]
-                }`,
-                paddingRight: "0.5rem",
-              }}
-            >
-              <Transcript
-                // @ts-ignore - Type 'JsonValue' from Prisma is not assignable to type '{ start: number; end: number; speaker: number; punctuated_word: string; }[]'.
-                transcript={words}
-                audioRef={mediaRef}
-                user={user}
-                scrollToNoteId={noteId}
-                fileId={fileId}
-                projectId={projectId}
-                summaryHasLoaded={summaryHasLoaded}
-                tags={tags}
-                setTags={setTags}
-                transcriptContainerDivRef={transcriptContainerDivRef}
+          <div>
+            {file.type === "VIDEO" ? (
+              <video
+                src={mediaUrl}
+                controls
+                ref={mediaRef as React.MutableRefObject<HTMLVideoElement>}
+                className="w-full md:w-1/6 md:fixed bottom-[16px] z-50 right-[316px]"
               />
-            </Box>
-
-            {largeScreen && (
-              <TranscriptPageAside
-                tags={tags}
-                setTags={setTags}
-                segment={segment}
-                setSegment={setSegment}
-                mediaRef={mediaRef}
-                transcriptContainerDivRef={transcriptContainerDivRef}
-                user={user}
+            ) : (
+              <audio
+                src={mediaUrl}
+                controls
+                ref={mediaRef}
+                className="sticky top-4 w-full z-50"
               />
             )}
-          </Group>
-        </div>
+
+            <Box mt={"lg"} id="summary-box">
+              {summary ? (
+                <SummaryCard
+                  summary={summary.content}
+                  dateSummarized={summary.createdAt}
+                />
+              ) : (
+                <SummaryCard summary="" dateSummarized="" />
+              )}
+            </Box>
+
+            <StatsGrid
+              duration={
+                mediaRef.current && mediaRef.current.duration
+                  ? `${Math.floor(mediaRef.current.duration / 60)} minutes`
+                  : "Error"
+              }
+            />
+
+            <Group>
+              <Box
+                sx={{
+                  marginTop: "1rem",
+                  width: "70%",
+                  borderRight: `1px solid ${
+                    theme.colorScheme === "light"
+                      ? theme.colors.gray[1]
+                      : theme.colors.dark[6]
+                  }`,
+                  paddingRight: "0.5rem",
+                }}
+              >
+                <Transcript
+                  // @ts-ignore - Type 'JsonValue' from Prisma is not assignable to type '{ start: number; end: number; speaker: number; punctuated_word: string; }[]'.
+                  transcript={words}
+                  audioRef={mediaRef}
+                  user={user}
+                  scrollToNoteId={noteId}
+                  summaryHasLoaded={summaryHasLoaded}
+                  transcriptContainerDivRef={transcriptContainerDivRef}
+                />
+              </Box>
+
+              {largeScreen && (
+                <TranscriptPageAside
+                  segment={segment}
+                  setSegment={setSegment}
+                  mediaRef={mediaRef}
+                  transcriptContainerDivRef={transcriptContainerDivRef}
+                  user={user}
+                />
+              )}
+            </Group>
+          </div>
+        </TagsProvider>
       </NotesProvider>
     </>
   );

@@ -1,5 +1,6 @@
 import { useNotes } from "@/contexts/NotesContext";
-import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
+import { useTags } from "@/contexts/TagsContext";
+import { NoteWithTagsAndCreator } from "@/types";
 import {
   Aside,
   Box,
@@ -35,9 +36,6 @@ import { AsideTags } from "./AsideTags";
 interface ITranscriptPageAside {
   user: User;
 
-  tags: TagWithNoteIds[];
-  setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>;
-
   segment: "tags" | "notes" | "chat";
   setSegment: React.Dispatch<React.SetStateAction<"tags" | "notes" | "chat">>;
 
@@ -50,13 +48,12 @@ type SortCategories = "newest-to-oldest" | "oldest-to-newest" | "chronological";
 export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   segment,
   setSegment,
-  tags,
-  setTags,
   mediaRef,
   transcriptContainerDivRef,
   user,
 }) => {
   const { notes, setNotes } = useNotes();
+  const { tags, setTags } = useTags();
   const theme = useMantineTheme();
 
   const router = useRouter();
