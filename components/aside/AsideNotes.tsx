@@ -154,7 +154,7 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                         paddingLeft: "0.5rem",
                       }}
                     >
-                      {`"${note.transcriptText.trim()}"`}
+                      {`"${note.transcriptText.trim()}`}
                     </Text>
                     <Text fw={500} fz={"sm"}>
                       {note.text}
@@ -179,9 +179,9 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                             <Badge
                               fullWidth
                               radius="xs"
-                              variant="filled"
+                              // variant="filled"
                               size="sm"
-                              color="red"
+                              color="blue"
                             >
                               {tag.name}
                             </Badge>
