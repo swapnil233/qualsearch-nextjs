@@ -1,5 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { FileWithoutTranscriptAndUri } from "@/types";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -76,8 +77,8 @@ export default async function Handler(
   const baseUrl = process.env.VERCEL_URL
     ? "https://" + process.env.VERCEL_URL
     : process.env.AMPLIFY_URL
-    ? process.env.AMPLIFY_URL
-    : "http://localhost:3003";
+      ? process.env.AMPLIFY_URL
+      : "http://localhost:3003";
 
   // GET '/api/aws/getSignedUrl?key={key}'
   const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
@@ -114,7 +115,7 @@ export default async function Handler(
   const dgRequestId = await deepgramResponse.json();
 
   try {
-    const file = await prisma.file.create({
+    const file: FileWithoutTranscriptAndUri = await prisma.file.create({
       data: {
         name: fileName,
         description: fileDescription,
@@ -125,6 +126,21 @@ export default async function Handler(
         transcriptRequestId: {
           create: {
             request_id: dgRequestId.request_id,
+          },
+        },
+      }, select: {
+        id: true,
+        name: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
+        type: true,
+        projectId: true,
+        teamId: true,
+        status: true,
+        transcriptRequestId: {
+          select: {
+            request_id: true,
           },
         },
       },

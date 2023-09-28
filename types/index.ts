@@ -1,10 +1,27 @@
-import { File, Prisma, Team, User } from "@prisma/client";
+import { Prisma, Team, User } from "@prisma/client";
 
 export type TeamWithUsers = Team & {
   users: User[];
 };
 
-export type FileWithoutTranscriptAndUri = Omit<File, "transcript" | "uri">;
+export type FileWithoutTranscriptAndUri = Prisma.FileGetPayload<{
+  select: {
+    id: true,
+    name: true,
+    description: true,
+    createdAt: true,
+    updatedAt: true,
+    type: true,
+    projectId: true,
+    teamId: true,
+    status: true,
+    transcriptRequestId: {
+      select: {
+        request_id: true,
+      },
+    },
+  },
+}>;
 
 export type Paragraph = {
   end?: number;
