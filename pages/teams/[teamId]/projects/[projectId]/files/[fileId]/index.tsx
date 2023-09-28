@@ -10,7 +10,7 @@ import { validateUserIsTeamMember } from "@/infrastructure/services/team.service
 import { NextPageWithLayout } from "@/pages/page";
 import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import { getSignedUrl } from "@/utils/aws";
-import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
+import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Box, Group, useMantineTheme } from "@mantine/core";

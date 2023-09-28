@@ -6,7 +6,7 @@ import { validateUserIsTeamMember } from "@/infrastructure/services/team.service
 import { NextPageWithLayout } from "@/pages/page";
 import { TagWithNotesAndURIs } from "@/types";
 import { exportToExcel } from "@/utils/exportToExcel";
-import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
+import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Group, Switch, Title } from "@mantine/core";

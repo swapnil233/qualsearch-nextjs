@@ -8,7 +8,7 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
 import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
 import { TeamWithUsers } from "@/types";
-import { formatDatesToIsoString } from "@/utils/formatPrismaDates";
+import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { SimpleGrid, Stack, Text, Title } from "@mantine/core";
