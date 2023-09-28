@@ -6,6 +6,7 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri } from "@/types";
+import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import sanitizeFileName from "@/utils/sanitizeFileName";
@@ -13,7 +14,7 @@ import { SimpleGrid, Stack, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { File as PrismaFile, Project } from "@prisma/client";
+import { Project } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
@@ -48,7 +49,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
-      let files = await prisma.file.findMany({
+      // Get all files, don't include the transcript or the uri
+      let initialFiles = await prisma.file.findMany({
         where: {
           projectId: projectId as string,
         },
@@ -70,31 +72,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       });
 
-      // Change the dates to ISO strings otherwise Next.js will throw an error
-      project = {
-        ...project,
-
-        // @ts-ignore
-        createdAt: project.createdAt.toISOString(),
-
-        // @ts-ignore
-        updatedAt: project.updatedAt.toISOString(),
-      };
-
-      // @ts-ignore
-      files = files.map((file) => ({
-        ...file,
-        // @ts-ignore
-        createdAt: file.createdAt.toLocaleString(),
-
-        // @ts-ignore
-        updatedAt: file.updatedAt.toLocaleString(),
-      }));
+      project = formatDatesToIsoString(project);
+      initialFiles = formatDatesToIsoString(initialFiles);
 
       return {
         props: {
           project,
-          files,
+          initialFiles,
         },
       };
     } catch (error) {
@@ -108,14 +92,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
 interface IProjectPage {
   project: Project;
-  files: FileWithoutTranscriptAndUri[];
+  initialFiles: FileWithoutTranscriptAndUri[];
 }
 
-const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
+const ProjectPage: NextPageWithLayout<IProjectPage> = ({
+  project,
+  initialFiles,
+}) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
-  const [showingFiles, setShowingFiles] =
-    useState<FileWithoutTranscriptAndUri[]>(files);
+  const [files, setFiles] =
+    useState<FileWithoutTranscriptAndUri[]>(initialFiles);
   const [buttonText, setButtonText] = useState<string>(
     "Accept and upload file"
   );
@@ -214,7 +201,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
       });
 
       if (response.status === 200) {
-        const data = await response.json();
+        const newFile: FileWithoutTranscriptAndUri = await response.json();
         notifications.show({
           title: "Transcribing...",
           message:
@@ -223,14 +210,62 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
           icon: <IconCheck />,
         });
 
-        const newFile: PrismaFile = data;
-        setShowingFiles([...showingFiles, newFile]);
+        setFiles([...files, newFile]);
 
+        // Reset the form
         form.reset();
+
+        // Set up a counter for the number of attempts to check the file status
+        let attemptCounter = 0;
+        const maxAttempts = 20; // 20 attempts, once per 30 seconds for 10 minutes
+
+        // Set up an interval to check the file status every minute
+        const intervalId = setInterval(async () => {
+          attemptCounter++;
+          if (attemptCounter >= maxAttempts) {
+            clearInterval(intervalId);
+
+            notifications.show({
+              title: "File processing error",
+              message:
+                "The file processing took too long. Please try again later.",
+              color: "red",
+              icon: <IconAlertCircle />,
+            });
+          } else {
+            // Ping the API to check the file status
+            const statusResponse = await fetch(
+              `/api/ping/checkFileStatus?fileId=${newFile.id}`
+            );
+            const statusData = await statusResponse.json();
+
+            if (statusData.status === "COMPLETED") {
+              clearInterval(intervalId);
+              setFiles((prev) =>
+                prev.map((file) => {
+                  if (file.id === newFile.id) {
+                    return {
+                      ...file,
+                      status: "COMPLETED",
+                    };
+                  } else {
+                    return file;
+                  }
+                })
+              );
+
+              notifications.show({
+                title: "File processing complete",
+                message: "Your file has been successfully processed.",
+                color: "green",
+                icon: <IconCheck />,
+              });
+            }
+          }
+        }, 30000); // Check every 30s (30000 milliseconds)
         setCreating(false);
         setButtonText("Create");
         close();
-        form.reset();
       }
     } catch (error) {
       console.error(error);
@@ -307,7 +342,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
         ]}
       ></PageHeading>
 
-      {showingFiles.length === 0 ? (
+      {files.length === 0 ? (
         <EmptyState
           description="Upload this project's audio/video files to begin transcript tagging. We will transcribe it in seconds."
           imageUrl="/empty-state-images/files/empty-file.svg"
@@ -331,7 +366,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({ project, files }) => {
                 { maxWidth: "36rem", cols: 1, spacing: "sm" },
               ]}
             >
-              {showingFiles.map((file) => (
+              {files.map((file) => (
                 <FileCard key={file.id} file={file} teamId={file.teamId} />
               ))}
             </SimpleGrid>
