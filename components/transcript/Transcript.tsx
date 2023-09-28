@@ -7,6 +7,7 @@ import { Box } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
@@ -36,9 +37,10 @@ const Transcript: FC<ITranscriptProps> = ({
   scrollToNoteId,
   summaryHasLoaded,
 }) => {
+  const router = useRouter();
   const { notes, setNotes } = useNotes();
   const { tags, setTags } = useTags();
-  const { fileId, projectId } = notes[0];
+  const { fileId, projectId } = router.query;
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
@@ -117,13 +119,7 @@ const Transcript: FC<ITranscriptProps> = ({
     };
   }, [audioRef, transcript]);
 
-  /**
-   * Handles the selection of text on the screen.
-   * Updates the 'selectedText' state with the details of the selected text including its bounding rectangle.
-   *
-   * @param {number} start - The start time of the selected text.
-   * @param {number} end - The end time of the selected text.
-   */
+  // Updates the 'selectedText' state with the details of the selected text including its bounding rectangle.
   const handleTextSelect = (start: number, end: number): void => {
     // Get the current selection from the window.
     const selection = window.getSelection();
