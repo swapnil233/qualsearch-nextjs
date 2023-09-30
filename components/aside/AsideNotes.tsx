@@ -9,9 +9,11 @@ import {
   Group,
   Menu,
   SimpleGrid,
+  Spoiler,
   Stack,
   Text,
   Tooltip,
+  rem,
   useMantineTheme,
 } from "@mantine/core";
 import {
@@ -140,22 +142,24 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
               <Stack>
                 <Stack spacing={"md"}>
                   <Stack spacing={"xs"}>
-                    <Text
+                    <Spoiler
+                      maxHeight={48}
+                      showLabel="Show more"
+                      hideLabel="Hide"
+                      pl={rem(8)}
                       fz={"sm"}
-                      color="dimmed"
-                      lineClamp={2}
-                      italic
                       sx={{
+                        fontStyle: "italic",
+                        color: "gray",
                         borderLeft: `3px solid ${
                           theme.colorScheme === "light"
-                            ? theme.colors.gray[4]
-                            : theme.colors.dark[3]
+                            ? theme.colors.gray[3]
+                            : theme.colors.dark[4]
                         }`,
-                        paddingLeft: "0.5rem",
                       }}
                     >
-                      {`"${note.transcriptText.trim()}`}
-                    </Text>
+                      {`"${note.transcriptText.trim()}"`}
+                    </Spoiler>
                     <Text fw={500} fz={"sm"}>
                       {note.text}
                     </Text>
