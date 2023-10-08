@@ -7,6 +7,7 @@ import { NextPageWithLayout } from "@/pages/page";
 import { TagWithNotesAndURIs } from "@/types";
 import { exportToExcel } from "@/utils/exportToExcel";
 import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
+import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Group, Switch, Title } from "@mantine/core";
@@ -66,12 +67,6 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
   const router = useRouter();
   const { teamId, projectId } = router.query;
   const [showQuote, setShowQuote] = useState<boolean>(true);
-
-  let host = process.env.VERCEL
-    ? "https://transcription-eight.vercel.app"
-    : process.env.AMPLIFY_URL
-    ? `${process.env.AMPLIFY_URL}`
-    : "https://main.dvws5ww9zrzf5.amplifyapp.com";
 
   const exportData = tagWithNotes.notes.map((note, index) => ({
     ID: index + 1,
