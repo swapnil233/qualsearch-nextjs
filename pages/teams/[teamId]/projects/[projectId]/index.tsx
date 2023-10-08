@@ -3,9 +3,10 @@ import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
+import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
-import { FileWithoutTranscriptAndUri } from "@/types";
+import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
 import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
@@ -72,13 +73,31 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       });
 
+      let notes: NoteWithTagsAndCreator[] = await prisma.note.findMany({
+        where: {
+          projectId: projectId as string,
+        },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          tags: true,
+        },
+      });
+
       project = formatDatesToIsoString(project);
       initialFiles = formatDatesToIsoString(initialFiles);
+      notes = formatDatesToIsoString(notes);
 
       return {
         props: {
           project,
           initialFiles,
+          notes,
         },
       };
     } catch (error) {
@@ -93,11 +112,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface IProjectPage {
   project: Project;
   initialFiles: FileWithoutTranscriptAndUri[];
+  notes: NoteWithTagsAndCreator[];
 }
 
 const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   project,
   initialFiles,
+  notes,
 }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
@@ -372,6 +393,19 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
             </SimpleGrid>
           </Stack>
         </>
+      )}
+
+      {notes.length > 0 && (
+        <Stack w={"100%"} mt={"lg"}>
+          <Title order={3} fw={"normal"}>
+            Overview
+          </Title>
+          <NotesOverviewDataTable
+            notes={notes}
+            teamId={project.teamId}
+            projectId={project.id}
+          />
+        </Stack>
       )}
 
       <CreateFileModal
