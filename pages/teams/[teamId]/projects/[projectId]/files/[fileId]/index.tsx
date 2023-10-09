@@ -166,8 +166,6 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
 
   const largeScreen = useMediaQuery("(min-width: 60em)");
 
-  const fileId = file.id;
-  const projectId = file.projectId;
   const teamId = file.teamId;
 
   const router = useRouter();
