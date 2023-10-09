@@ -1,3 +1,5 @@
+import { Mark } from "@mantine/core";
+
 export default function HighlightSearch({
   text,
   search,
@@ -13,9 +15,7 @@ export default function HighlightSearch({
     <>
       {parts.map((part, index) =>
         part.toLowerCase() === search.toLowerCase() ? (
-          <span key={index} style={{ backgroundColor: "yellow" }}>
-            {part}
-          </span>
+          <Mark key={index}>{part}</Mark>
         ) : (
           part
         )
