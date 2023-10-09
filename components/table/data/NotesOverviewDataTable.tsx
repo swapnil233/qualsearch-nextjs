@@ -3,6 +3,7 @@ import { exportToExcel } from "@/utils/exportToExcel";
 import HighlightSearch from "@/utils/highlightSearchTerm";
 import { host } from "@/utils/host";
 import {
+  ActionIcon,
   Avatar,
   Badge,
   Button,
@@ -13,6 +14,7 @@ import {
   Stack,
   Table,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import { Tag } from "@prisma/client";
 import {
@@ -20,8 +22,11 @@ import {
   IconArrowRight,
   IconChevronDown,
   IconDownload,
+  IconExternalLink,
   IconListSearch,
+  IconShare,
   IconTag,
+  IconTrash,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -30,18 +35,20 @@ interface INotesOverviewDataTable {
   teamId: string;
   projectId: string;
   notes: NoteWithTagsAndCreator[];
+  openNoteDeletionModal: (_noteId: string) => void;
 }
 
 const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   notes,
   teamId,
   projectId,
+  openNoteDeletionModal,
 }) => {
   const [search, setSearch] = useState("");
   const [filteredNotes, setFilteredNotes] = useState(notes);
   const [filteredTags, setFilteredTags] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const pageOptions = [5, 10, 20, 50, 100];
 
   const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
@@ -58,6 +65,11 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
+  const selectOptions = pageOptions.map((option) => ({
+    value: option.toString(),
+    label: `${option} items/page`,
+  }));
+
   const tagsUsed = notes
     .reduce<Tag[]>((acc, note) => {
       note.tags.forEach((tag) => {
@@ -72,6 +84,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       label: tag.name,
     }));
 
+  // Filter notes by search term
   useEffect(() => {
     if (search) {
       setFilteredNotes(
@@ -86,6 +99,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     }
   }, [search, notes]);
 
+  // Filter notes by tags
   useEffect(() => {
     if (filteredTags.length) {
       setFilteredNotes(
@@ -99,11 +113,6 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       setFilteredNotes(notes);
     }
   }, [filteredTags, notes]);
-
-  const selectOptions = pageOptions.map((option) => ({
-    value: option.toString(),
-    label: `${option} items/page`,
-  }));
 
   const exportData = notes.map((note, index) => ({
     ID: index + 1,
@@ -154,7 +163,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             rightSectionWidth={30}
             styles={{ rightSection: { pointerEvents: "none" } }}
             w={"100%"}
-            maw={150}
+            maw={400}
           />
         </Group>
         <Button
@@ -179,6 +188,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             <th>Tags</th>
             <th>Created by</th>
             <th>Date created</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -216,27 +226,54 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                     ))}
                   </td>
                   <td>
-                    <Group position="apart" w={"100%"}>
-                      <Link
-                        href={`/teams/${teamId}/people/${note.createdByUserId}`}
-                        style={{ textDecoration: "none" }}
-                      >
-                        <Group noWrap align="center">
-                          <Avatar
-                            src={note.createdBy.image}
-                            alt={note.createdBy.name || ""}
-                            radius="xl"
-                          />
-                          <Stack spacing={0}>
-                            <Text fz="md" truncate>
-                              {note.createdBy.name}
-                            </Text>
-                          </Stack>
-                        </Group>
-                      </Link>
-                    </Group>
+                    <Link
+                      href={`/teams/${teamId}/people/${note.createdByUserId}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Group noWrap align="center">
+                        <Avatar
+                          src={note.createdBy.image}
+                          alt={note.createdBy.name || ""}
+                          radius="xl"
+                          size={30}
+                        />
+                        <Stack spacing={0}>
+                          <Text truncate>{note.createdBy.name}</Text>
+                        </Stack>
+                      </Group>
+                    </Link>
                   </td>
                   <td>{new Date(note.createdAt).toLocaleString()}</td>
+                  <td>
+                    <Group>
+                      <Link
+                        href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`}
+                        target="_blank"
+                      >
+                        <Tooltip label="Go to note">
+                          <ActionIcon variant="filled" color="blue">
+                            <IconExternalLink size="1.125rem" />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Link>
+
+                      <Tooltip label="Share">
+                        <ActionIcon variant="filled" color="blue">
+                          <IconShare size="1.125rem" />
+                        </ActionIcon>
+                      </Tooltip>
+
+                      <Tooltip label="Delete">
+                        <ActionIcon
+                          variant="filled"
+                          color="red"
+                          onClick={() => openNoteDeletionModal(note.id)}
+                        >
+                          <IconTrash size="1.125rem" />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </td>
                 </tr>
               ))
           ) : (

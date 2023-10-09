@@ -1,5 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { NoteWithTagsAndCreator } from "@/types";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -34,9 +35,9 @@ export default async function handler(
     case "POST":
       return handlePost(req, res);
     case "GET":
-      return handleGet(req, res, session);
+      return handleGet(req, res);
     case "DELETE":
-      return handleDelete(req, res, session);
+      return handleDelete(req, res);
     default:
       res.setHeader("Allow", ["POST", "GET", "DELETE"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -127,7 +128,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 async function handleGet(
   req: NextApiRequest,
   res: NextApiResponse,
-  session: any
 ) {
   console.log("GET");
 }
@@ -135,7 +135,36 @@ async function handleGet(
 async function handleDelete(
   req: NextApiRequest,
   res: NextApiResponse,
-  session: any
 ) {
-  console.log("DELETE");
+  // Extract teamId from the query parameters.
+  const { noteId } = req.query;
+
+  // Validate the presence of teamId.
+  if (!noteId) {
+    return res.status(HttpStatus.BadRequest).send(ErrorMessages.MissingTeamId);
+  }
+
+  try {
+    const deletedNote: NoteWithTagsAndCreator = await prisma.note.delete({
+      where: {
+        id: noteId as string,
+      },
+      include: {
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        tags: true,
+      },
+    });
+
+    console.log("Deleted note:", deletedNote);
+    res.status(200).json(deletedNote); // Return the deleted note
+  } catch (error) {
+    console.error("Error deleting note:", error);
+    res.status(500).json({ error: "Failed to delete note." });
+  }
 }

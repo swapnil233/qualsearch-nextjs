@@ -1,6 +1,7 @@
 import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import DeleteNoteModal from "@/components/modal/delete/DeleteNoteModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
@@ -97,7 +98,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         props: {
           project,
           initialFiles,
-          notes,
+          initialNotes: notes,
         },
       };
     } catch (error) {
@@ -112,14 +113,15 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 interface IProjectPage {
   project: Project;
   initialFiles: FileWithoutTranscriptAndUri[];
-  notes: NoteWithTagsAndCreator[];
+  initialNotes: NoteWithTagsAndCreator[];
 }
 
 const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   project,
   initialFiles,
-  notes,
+  initialNotes,
 }) => {
+  const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [files, setFiles] =
@@ -127,6 +129,10 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   const [buttonText, setButtonText] = useState<string>(
     "Accept and upload file"
   );
+
+  const [noteDeletionModalOpened, setNoteDeletionModalOpened] = useState(false);
+  const [noteIdToDelete, setNoteIdToDelete] = useState<string | null>(null);
+  const [deletingNote, setDeletingNote] = useState<boolean>(false);
 
   const form = useForm({
     initialValues: {
@@ -302,6 +308,55 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
     }
   };
 
+  const openNoteDeletionModal = (noteId: string) => {
+    setNoteIdToDelete(noteId as string);
+    setNoteDeletionModalOpened(true);
+  };
+
+  const closeNoteDeletionModal = () => {
+    setNoteIdToDelete(null);
+    setNoteDeletionModalOpened(false);
+  };
+
+  const handleDeleteNote = async () => {
+    if (!noteIdToDelete) return;
+
+    try {
+      setDeletingNote(true);
+
+      // Delete the note
+      const response = await fetch(`/api/notes?noteId=${noteIdToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        setDeletingNote(false);
+        notifications.show({
+          title: "Note deleted",
+          message: "The note has been successfully deleted.",
+          color: "green",
+          icon: <IconCheck />,
+        });
+        const updatedNotes = notes.filter((note) => note.id !== noteIdToDelete);
+        setNotes(updatedNotes);
+        closeNoteDeletionModal();
+      }
+    } catch (error) {
+      console.error(error);
+      setDeletingNote(false);
+      notifications.show({
+        title: "Couldn't delete the note",
+        message:
+          "An error occurred while deleting the note. We are working on a fix.",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    }
+  };
+
   const handleEdit = () => {
     console.log("Edit");
   };
@@ -404,6 +459,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
             notes={notes}
             teamId={project.teamId}
             projectId={project.id}
+            openNoteDeletionModal={openNoteDeletionModal}
           />
         </Stack>
       )}
@@ -415,6 +471,13 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         handleCreateNewFile={handleCreateNewFile}
         form={form}
         buttonText={buttonText}
+      />
+
+      <DeleteNoteModal
+        deleting={deletingNote}
+        opened={noteDeletionModalOpened}
+        close={closeNoteDeletionModal}
+        handleDelete={handleDeleteNote}
       />
     </>
   );
