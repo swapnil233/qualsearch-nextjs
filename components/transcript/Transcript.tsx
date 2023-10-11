@@ -55,22 +55,24 @@ const Transcript: FC<ITranscriptProps> = ({
 
   // Scroll down to scrollToNoteId if one is provided.
   useEffect(() => {
-    const note = notes.find((note) => note.id === scrollToNoteId);
+    if (summaryHasLoaded) {
+      const noteToScrollTo = notes.find((note) => note.id === scrollToNoteId);
 
-    if (note) {
-      const notePosition = calculateNoteCardPosition(
-        note.start,
-        note.end,
-        transcriptContainerDivRef
-      );
+      if (noteToScrollTo) {
+        const notePosition = calculateNoteCardPosition(
+          noteToScrollTo.start,
+          noteToScrollTo.end,
+          transcriptContainerDivRef
+        );
 
-      // Scroll to note
-      window.scrollTo({
-        top: notePosition ? notePosition.top - 100 : 0,
-        behavior: "smooth",
-      });
+        // Scroll to note
+        window.scrollTo({
+          top: notePosition ? notePosition.top - 100 : 0,
+          behavior: "smooth",
+        });
+      }
     }
-  }, [scrollToNoteId]);
+  }, [scrollToNoteId, summaryHasLoaded, transcriptContainerDivRef]);
 
   // Update note positions after summary loads
   useEffect(() => {
