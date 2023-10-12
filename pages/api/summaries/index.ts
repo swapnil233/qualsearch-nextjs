@@ -1,17 +1,25 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { Paragraph } from "@/types";
 import prisma from "@/utils/prisma";
-import { PineconeClient } from "@pinecone-database/pinecone";
 import { loadSummarizationChain } from "langchain/chains";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
+
+type Paragraph = {
+  start?: number;
+  end?: number;
+  speaker: number;
+  num_words?: number;
+  sentences: {
+    end?: number;
+    text: string;
+    start?: number
+  }[];
+};
 
 const removeUnwantedKeys = (data: {
   paragraphs: Paragraph[];
@@ -96,13 +104,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);
     }
 
-    // Initialize pinecone
-    const pinecone = new PineconeClient();
-    await pinecone.init({
-      environment: process.env.PINECONE_ENVIRONMENT!,
-      apiKey: process.env.PINECONE_API_KEY!,
-    });
-    const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
+    // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
+    const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
 
     // Split transcript into 10,000 char chunks with 500 char overlap
     const splitter = new RecursiveCharacterTextSplitter({
@@ -110,26 +113,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       chunkOverlap: 500,
     });
 
-    // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
-    const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
-
     const splitTranscript = await splitter.createDocuments([
       JSON.stringify(cleanParagraphs),
     ]);
-
-    // Upsert transcript embeddings to Pinecone vector store.
-    await PineconeStore.fromDocuments(
-      splitTranscript,
-      new OpenAIEmbeddings({
-        openAIApiKey: process.env.OPENAI_API_KEY,
-      }),
-      {
-        pineconeIndex,
-        namespace: `file-${transcript.fileId}-transcript-${transcript.id}-5`,
-        // @TODO figure out what textKey is
-        textKey: "text",
-      }
-    );
 
     const model = new OpenAI({
       modelName: "gpt-3.5-turbo",
@@ -145,6 +131,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   
       **Key Findings**: Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items.
   
+      **Quotes**: Include 3 quotes from the transcript that are representative of the user's experience.
+
       The summary targets UX professionals and web application developers; UX jargon usage is acceptable. 
   
       If the text isn't a usability test transcript, return an appropriate message.
@@ -156,7 +144,17 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     const combineMapPromptTemplate = new PromptTemplate({
       inputVariables: ["text"],
-      template: `The following is a large chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Please summarize the text. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
+      template: `The following is a large chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Please summarize the text and also provide 1-2 representative quotes from this chunk. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
+
+      The output of this action should be a JSON object with the following structure:
+      
+      {
+        "summary": "The summary of the text goes here.",
+        "quotes": [
+          "The first quote goes here.",
+          "The second quote goes here."
+        ]
+      }
       
       Text:
       

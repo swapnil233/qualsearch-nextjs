@@ -23,14 +23,6 @@ export type FileWithoutTranscriptAndUri = Prisma.FileGetPayload<{
   },
 }>;
 
-export type Paragraph = {
-  end?: number;
-  start?: number;
-  speaker: number;
-  num_words?: number;
-  sentences: Array<{ end?: number; text: string; start?: number }>;
-};
-
 export type Transcript = {
   start: number;
   end: number;
