@@ -1,55 +1,140 @@
-import { IEmbeddings, IEmbeddingsRequest, IOpenAIApi } from "@/utils/openAI";
+import { ErrorMessages } from "@/constants/ErrorMessages";
+import { HttpStatus } from "@/constants/HttpStatus";
+import prisma from "@/utils/prisma";
+import { PineconeClient } from "@pinecone-database/pinecone";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-const { Configuration, OpenAIApi } = require("openai");
 
-export default async function Handler(
+const removeUnwantedKeys = (data: {
+  paragraphs: Paragraph[];
+}): { paragraphs: Paragraph[] } => {
+  data.paragraphs.forEach((paragraph) => {
+    delete paragraph.start;
+    delete paragraph.end;
+    delete paragraph.num_words;
+
+    paragraph.sentences.forEach((sentence) => {
+      delete sentence.start;
+      delete sentence.end;
+    });
+  });
+  return data;
+};
+
+type Paragraph = {
+  start?: number;
+  end?: number;
+  speaker: number;
+  num_words?: number;
+  sentences: {
+    end?: number;
+    text: string;
+    start?: number
+  }[];
+};
+
+/**
+ * Handler for the '/api/embeddings' API endpoint.
+ * This function is responsible for creating/upserting embeddings for a given transcript.
+ *
+ * For this operation, the client must be authenticated.
+ *
+ * @param req {NextApiRequest} The HTTP request object.
+ * @param res {NextApiResponse} The HTTP response object.
+ */
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Get the server session and authenticate the request.
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    return res.status(401).send("Unauthorized");
+    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
   }
 
-  // POST '/api/embeddings/'
-  if (req.method === "POST") {
-    const { text } = req.body;
-    if (!text) {
-      return res.status(400).send("No text provided to create embeddings for.");
+  // Handle the request depending on its HTTP method.
+  switch (req.method) {
+    case "POST":
+      return handleEmbedding(req, res);
+    default:
+      res.setHeader("Allow", ["POST"]);
+      res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+
+/**
+ * Handler for POST requests to '/api/embeddings'.
+ * This function creates/upserts embeddings for a given transcript.
+ * The transcript ID should be provided in the request body.
+ *
+ * @param req {NextApiRequest} The HTTP request object.
+ * @param res {NextApiResponse} The HTTP response object.
+ */
+async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Retrieve transcriptId from the request body.
+    const { transcriptId } = req.body;
+
+    // Validate that transcriptId is provided.
+    if (!transcriptId) {
+      return res.status(HttpStatus.BadRequest).send(ErrorMessages.BadRequest);
     }
 
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
+    // Get the transcript from DB
+    const transcript = await prisma.transcript.findUnique({
+      where: {
+        id: transcriptId,
+      },
     });
-    const openai: IOpenAIApi = new OpenAIApi(configuration);
 
-    try {
-      // Prepare the embedding request
-      const embeddingRequest: IEmbeddingsRequest = {
-        model: "text-embedding-ada-002",
-        input: text,
-      };
-
-      // Generate embeddings
-      const embeddings: IEmbeddings = await openai.createEmbedding(
-        embeddingRequest
-      );
-
-      return res.status(200).send(embeddings.data.data[0].embedding);
-    } catch (error: any) {
-      // console.log(error);
-      if (error.response) {
-        console.log(error.response.status);
-        console.log(error.response.data);
-        res.status(500).send(error.response.data);
-      } else {
-        res.status(500).send(error.message);
-      }
+    if (!transcript) {
+      return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);
     }
-  } else {
-    res.status(405).send("Method not allowed.");
+
+    // Initialize pinecone
+    const pinecone = new PineconeClient();
+    await pinecone.init({
+      environment: process.env.PINECONE_ENVIRONMENT!,
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
+    const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
+
+    // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
+    const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
+
+    // Split transcript into 10,000 char chunks with 500 char overlap
+    const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 10000,
+      chunkOverlap: 500,
+    });
+
+    const splitTranscript = await splitter.createDocuments([
+      JSON.stringify(cleanParagraphs),
+    ]);
+
+    // Upsert transcript embeddings to Pinecone vector store.
+    await PineconeStore.fromDocuments(
+      splitTranscript,
+      new OpenAIEmbeddings({
+        openAIApiKey: process.env.OPENAI_API_KEY,
+      }),
+      {
+        pineconeIndex,
+        namespace: `file-${transcript.fileId}-transcript-${transcript.id}-5`,
+        textKey: "text",
+      }
+    );
+
+    return res.status(HttpStatus.Ok).send({ message: "Embedding successful." });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(HttpStatus.InternalServerError)
+      .send(ErrorMessages.InternalServerError);
   }
 }
