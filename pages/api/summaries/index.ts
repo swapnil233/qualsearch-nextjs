@@ -147,15 +147,12 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       template: `The following is a large chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Please summarize the text and also provide 1-2 representative quotes from this chunk. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
 
       The output of this action should be a JSON object with the following structure:
-      
-      {
-        "summary": "The summary of the text goes here.",
+        
+      "summary": "The summary of the text goes here.",
         "quotes": [
           "The first quote goes here.",
           "The second quote goes here."
         ]
-      }
-      
       Text:
       
       {text}`,
