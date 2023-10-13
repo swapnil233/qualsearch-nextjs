@@ -122,29 +122,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       temperature: 0.3,
     });
 
-    const combinePromptTemplate = new PromptTemplate({
-      inputVariables: ["text"],
-      template: `
-      Given text is a UX team's usability test transcript. Produce a summary including two sections, styled as such:
-      
-      **Overview**: Briefly encapsulate key discussions or outcomes.
-  
-      **Key Findings**: Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items.
-  
-      **Quotes**: Include 3 quotes from the transcript that are representative of the user's experience.
-
-      The summary targets UX professionals and web application developers; UX jargon usage is acceptable. 
-  
-      If the text isn't a usability test transcript, return an appropriate message.
-
-      Text:
-      
-      {text}`,
-    });
-
     const combineMapPromptTemplate = new PromptTemplate({
       inputVariables: ["text"],
-      template: `The following is a large chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Please summarize the text and also provide 1-2 representative quotes from this chunk. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
+      template: `The following is a chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Summarize the text and provide 1-2 representative quotes from this chunk. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
 
       The output of this action should be a JSON object with the following structure:
         
@@ -153,6 +133,30 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           "The first quote goes here.",
           "The second quote goes here."
         ]
+      Text:
+      
+      {text}`,
+    });
+
+    const combinePromptTemplate = new PromptTemplate({
+      inputVariables: ["text"],
+      template: `
+      Given text is a transcript of a UX team conducting usability tests. Produce a summary including three sections, styled as such:
+      
+      **Overview**: 
+      
+      Briefly encapsulate key discussions or outcomes. The summary targets UX professionals and web application developers; UX jargon usage is acceptable. 
+  
+      **Key Findings**: 
+      
+      Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items. Do not talk about problems unrelated to the usability test (e.g., if the user had trouble sharing their screen to the researchers, or if the user had trouble with their internet connection).
+  
+      **Quotes**: 
+      
+      Try to include 5-10 unique quotes from the transcript that are representative of the user's experience. Do not include quotes that are not representative of the user's experience (e.g., if the user was talking about their personal life, or if the user was talking about a different product, or when the researcher was introducing the testing session, etc.). Do not repeat quotes.
+  
+      If the text isn't a usability test transcript, return an appropriate message.
+
       Text:
       
       {text}`,
