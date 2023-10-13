@@ -23,7 +23,7 @@ const createPresignedUrlWithClient = async ({
     },
   });
 
-  const command = await new PutObjectCommand({ Bucket: bucket, Key: key });
+  const command = new PutObjectCommand({ Bucket: bucket, Key: key });
   return getSignedUrl(client, command, { expiresIn: 3600 });
 };
 
@@ -34,12 +34,11 @@ export default async function Handler(
   await logger(req, res, async () => {
     // If the request method is HEAD, only send the status
     if (req.method === "HEAD") {
-      res.status(200).end();
-      return;
+      return res.status(200).end();
     }
 
     if (req.method !== "GET") {
-      res.status(405).send("Method not allowed.");
+      return res.status(405).send("Method not allowed.");
     }
 
     try {
@@ -47,8 +46,7 @@ export default async function Handler(
       const key = req.query.key;
 
       if (!key) {
-        res.status(400).send({ error: "400 - Invalid request." });
-        return;
+        return res.status(400).send({ error: "400 - Invalid request." });
       }
 
       const region = process.env.BUCKET_REGION!;
@@ -60,12 +58,12 @@ export default async function Handler(
         key: key as string,
       });
 
-      res.status(200).send({ url });
+      return res.status(200).send({ url });
     } catch (error: unknown) {
       if (error instanceof Error) {
-        res.status(500).send({ error: error.message });
+        return res.status(500).send({ error: error.message });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           error: "500 - An unexpected error occured.",
         });
       }
