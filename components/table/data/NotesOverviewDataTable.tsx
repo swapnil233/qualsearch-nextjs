@@ -126,7 +126,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
 
   return (
     <div>
-      <Group mb="md" w={"100%"} position="apart">
+      <Group mb="md" w={"100%"} position="apart" align="end">
         <Group noWrap>
           <Input.Wrapper label="Filter by note" w={"100%"} maw={400}>
             <Input
