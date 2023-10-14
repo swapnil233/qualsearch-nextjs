@@ -186,7 +186,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
                     }
                   />
                 </Group>
-                <ScrollArea h={420}>
+                <ScrollArea h={470}>
                   <AsideNotes
                     mediaRef={mediaRef}
                     transcriptContainerDivRef={transcriptContainerDivRef}
