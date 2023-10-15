@@ -7,7 +7,6 @@ import {
 } from "@mantine/core";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 import { Notifications } from "@mantine/notifications";
-import { Analytics } from "@vercel/analytics/react";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
@@ -70,7 +69,6 @@ export default function App({
           </SessionProvider>
         </MantineProvider>
       </ColorSchemeProvider>
-      <Analytics />
     </>
   );
 }
