@@ -8,7 +8,6 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import Head from "next/head";
 import { FC, ReactNode, useState } from "react";
 
 export interface IPrimaryLayout {
@@ -22,14 +21,6 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
 
   return (
     <>
-      <Head>
-        <title>Transcription</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <meta name="description" content="Transcribe videos" />
-        <meta name="keywords" content="transcribe, diarize" />
-        <meta name="author" content="Hasan Iqbal" />
-      </Head>
-
       <AppShell
         padding="2rem"
         styles={{
