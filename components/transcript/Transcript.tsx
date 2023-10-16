@@ -3,12 +3,13 @@ import { useTags } from "@/contexts/TagsContext";
 import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
-import { Box } from "@mantine/core";
+import { Box, Group } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import PlayTranscriptBlockButton from "../buttons/PlayTranscriptBlockButton";
 import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
@@ -256,15 +257,19 @@ const Transcript: FC<ITranscriptProps> = ({
       <Box ref={transcriptContainerDivRef}>
         {groupedTranscript.map((group, groupIndex) => (
           <Box key={groupIndex}>
-            <SpeakerName
-              speaker={group.speaker}
-              speakerNames={speakerNames}
-              newSpeakerName={newSpeakerName}
-              setNewSpeakerName={setNewSpeakerName}
-              setSpeakerNames={setSpeakerNames}
-              startingTimestamp={group.words[0].start}
-              audioRef={audioRef}
-            />
+            <Group mt={"2rem"} mb={"8px"}>
+              <SpeakerName
+                speaker={group.speaker}
+                speakerNames={speakerNames}
+                newSpeakerName={newSpeakerName}
+                setNewSpeakerName={setNewSpeakerName}
+                setSpeakerNames={setSpeakerNames}
+              />
+              <PlayTranscriptBlockButton
+                audioRef={audioRef}
+                startingTimestamp={group.words[0].start}
+              />
+            </Group>
             <TranscriptText
               group={group}
               notes={notes}

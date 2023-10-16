@@ -1,4 +1,3 @@
-import convertToTimestamp from "@/utils/convertToTimestamp";
 import {
   Avatar,
   Button,
@@ -8,7 +7,6 @@ import {
   TextInput,
   useMantineTheme,
 } from "@mantine/core";
-import { IconPlayerPlay } from "@tabler/icons-react";
 import { Dispatch, FC, SetStateAction, useMemo } from "react";
 
 interface ISpeakerName {
@@ -17,8 +15,6 @@ interface ISpeakerName {
   setSpeakerNames: Dispatch<SetStateAction<Record<number, string>>>;
   newSpeakerName: string;
   setNewSpeakerName: Dispatch<SetStateAction<string>>;
-  startingTimestamp: number;
-  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
 }
 
 export const SpeakerName: FC<ISpeakerName> = ({
@@ -27,8 +23,6 @@ export const SpeakerName: FC<ISpeakerName> = ({
   setSpeakerNames,
   newSpeakerName,
   setNewSpeakerName,
-  startingTimestamp,
-  audioRef,
 }) => {
   const theme = useMantineTheme();
   /**
@@ -45,17 +39,6 @@ export const SpeakerName: FC<ISpeakerName> = ({
     setNewSpeakerName("");
   };
 
-  const formattedTimestamp = useMemo(() => {
-    return convertToTimestamp(startingTimestamp);
-  }, [startingTimestamp]);
-
-  const handleTimestampClick = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = startingTimestamp;
-      audioRef.current.play();
-    }
-  };
-
   const firstTwoLettersOfName = useMemo(() => {
     return speakerNames[speaker]
       ?.split(" ")
@@ -64,69 +47,58 @@ export const SpeakerName: FC<ISpeakerName> = ({
   }, [speakerNames, speaker]);
 
   return (
-    <Group mt={"2rem"} mb={"8px"}>
-      <Popover
-        width={300}
-        trapFocus
-        position="bottom-start"
-        withArrow
-        shadow="lg"
-      >
-        <Popover.Target>
-          <Group spacing={"xs"}>
-            <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
-              {firstTwoLettersOfName}
-            </Avatar>
-            <Text
-              color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
-              fs={"1.2rem"}
-              fw={"bold"}
-              sx={{
-                cursor: "pointer",
-                ":hover": {
-                  textDecoration: "underline",
-                },
-              }}
-            >
-              {/* Either use the speaker name from the state or the speaker name from the transcript */}
-              {speakerNames[speaker] || `Speaker ${speaker + 1}`}
-            </Text>
-          </Group>
-        </Popover.Target>
-        <Popover.Dropdown>
-          <TextInput
-            label="Change speaker name"
-            placeholder={speakerNames[speaker] || `Speaker ${speaker + 1}`}
-            mb="md"
-            value={newSpeakerName}
-            onChange={(e) => {
-              setNewSpeakerName(e.target.value);
-              // Close the popover after setting the new speaker name
-              close();
-            }}
-          />
-          <Button
-            size="xs"
-            variant="default"
-            onClick={() => {
-              if (newSpeakerName !== "") {
-                handleSpeakerNameChange(speaker, newSpeakerName);
-              }
+    <Popover
+      width={300}
+      trapFocus
+      position="bottom-start"
+      withArrow
+      shadow="lg"
+    >
+      <Popover.Target>
+        <Group spacing={"xs"}>
+          <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
+            {firstTwoLettersOfName}
+          </Avatar>
+          <Text
+            color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
+            fs={"1.2rem"}
+            fw={"bold"}
+            sx={{
+              cursor: "pointer",
+              ":hover": {
+                textDecoration: "underline",
+              },
             }}
           >
-            Change
-          </Button>
-        </Popover.Dropdown>
-      </Popover>
-      <Button
-        variant="outline"
-        color={theme.colorScheme === "dark" ? "gray" : "dark"}
-        compact
-        leftIcon={<IconPlayerPlay size={"1rem"} />}
-        onClick={handleTimestampClick}
-      >
-        {formattedTimestamp}
-      </Button>
-    </Group>
+            {/* Either use the speaker name from the state or the speaker name from the transcript */}
+            {speakerNames[speaker] || `Speaker ${speaker + 1}`}
+          </Text>
+        </Group>
+      </Popover.Target>
+      <Popover.Dropdown>
+        <TextInput
+          label="Change speaker name"
+          placeholder={speakerNames[speaker] || `Speaker ${speaker + 1}`}
+          mb="md"
+          value={newSpeakerName}
+          onChange={(e) => {
+            setNewSpeakerName(e.target.value);
+            // Close the popover after setting the new speaker name
+            close();
+          }}
+        />
+        <Button
+          size="xs"
+          variant="default"
+          onClick={() => {
+            if (newSpeakerName !== "") {
+              handleSpeakerNameChange(speaker, newSpeakerName);
+            }
+          }}
+        >
+          Change
+        </Button>
+      </Popover.Dropdown>
+    </Popover>
   );
 };
