@@ -20,9 +20,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
+import { UserButton } from "../../buttons/UserButton";
 import { navbarStyles } from "../navbar/Navbar.styles";
 import { LinksGroup, LinksGroupProps } from "./NavbarLinksGroup";
-import { UserButton } from "./UserButton";
 
 const useStyles = createStyles((theme) => ({
   navbar: {
@@ -96,7 +96,11 @@ export const Sidebar: FC<ISidebarProps> = ({ opened }) => {
       icon: IconUsers,
       link: "/people",
     },
-    { label: "Settings", icon: IconAdjustments, link: "/settings" },
+    {
+      label: "Settings",
+      icon: IconAdjustments,
+      link: "/settings",
+    },
   ];
 
   const links = linksData.map((item) => (
