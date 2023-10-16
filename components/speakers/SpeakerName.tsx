@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Button,
   Group,
   Popover,
@@ -47,58 +48,60 @@ export const SpeakerName: FC<ISpeakerName> = ({
   }, [speakerNames, speaker]);
 
   return (
-    <Popover
-      width={300}
-      trapFocus
-      position="bottom-start"
-      withArrow
-      shadow="lg"
-    >
-      <Popover.Target>
-        <Group spacing={"xs"}>
-          <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
-            {firstTwoLettersOfName}
-          </Avatar>
-          <Text
-            color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
-            fs={"1.2rem"}
-            fw={"bold"}
-            sx={{
-              cursor: "pointer",
-              ":hover": {
-                textDecoration: "underline",
-              },
+    <Box>
+      <Popover
+        width={300}
+        trapFocus
+        position="bottom-start"
+        withArrow
+        shadow="lg"
+      >
+        <Popover.Target>
+          <Group spacing={"xs"}>
+            <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
+              {firstTwoLettersOfName}
+            </Avatar>
+            <Text
+              color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
+              fs={"1.2rem"}
+              fw={"bold"}
+              sx={{
+                cursor: "pointer",
+                ":hover": {
+                  textDecoration: "underline",
+                },
+              }}
+            >
+              {/* Either use the speaker name from the state or the speaker name from the transcript */}
+              {speakerNames[speaker] || `Speaker ${speaker + 1}`}
+            </Text>
+          </Group>
+        </Popover.Target>
+        <Popover.Dropdown>
+          <TextInput
+            label="Change speaker name"
+            placeholder={speakerNames[speaker] || `Speaker ${speaker + 1}`}
+            mb="md"
+            value={newSpeakerName}
+            onChange={(e) => {
+              setNewSpeakerName(e.target.value);
+              // Close the popover after setting the new speaker name
+              close();
+            }}
+          />
+          <Button
+            size="xs"
+            variant="default"
+            onClick={() => {
+              if (newSpeakerName !== "") {
+                handleSpeakerNameChange(speaker, newSpeakerName);
+              }
             }}
           >
-            {/* Either use the speaker name from the state or the speaker name from the transcript */}
-            {speakerNames[speaker] || `Speaker ${speaker + 1}`}
-          </Text>
-        </Group>
-      </Popover.Target>
-      <Popover.Dropdown>
-        <TextInput
-          label="Change speaker name"
-          placeholder={speakerNames[speaker] || `Speaker ${speaker + 1}`}
-          mb="md"
-          value={newSpeakerName}
-          onChange={(e) => {
-            setNewSpeakerName(e.target.value);
-            // Close the popover after setting the new speaker name
-            close();
-          }}
-        />
-        <Button
-          size="xs"
-          variant="default"
-          onClick={() => {
-            if (newSpeakerName !== "") {
-              handleSpeakerNameChange(speaker, newSpeakerName);
-            }
-          }}
-        >
-          Change
-        </Button>
-      </Popover.Dropdown>
-    </Popover>
+            Change
+          </Button>
+        </Popover.Dropdown>
+      </Popover>
+    </Box>
   );
 };
