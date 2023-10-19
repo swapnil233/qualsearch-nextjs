@@ -6,10 +6,12 @@ import {
   ActionIcon,
   Avatar,
   Badge,
+  Box,
   Button,
   Group,
   Input,
   MultiSelect,
+  Pagination,
   Select,
   Stack,
   Table,
@@ -18,9 +20,8 @@ import {
 } from "@mantine/core";
 import { Tag } from "@prisma/client";
 import {
-  IconArrowLeft,
-  IconArrowRight,
   IconChevronDown,
+  IconDatabaseOff,
   IconDownload,
   IconExternalLink,
   IconListSearch,
@@ -52,6 +53,8 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   const pageOptions = [5, 10, 20, 50, 100];
 
   const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
+
+  const [page, onChange] = useState(1);
 
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
@@ -168,6 +171,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         </Group>
         <Button
           leftIcon={<IconDownload size={"1rem"} />}
+          disabled={filteredNotes.length === 0}
           onClick={() =>
             exportToExcel({ data: exportData, filename: "export.xlsx" })
           }
@@ -176,9 +180,11 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         </Button>
       </Group>
 
-      <Text size="sm">
-        Showing {currentNotes.length} of {notes.length} notes
-      </Text>
+      {filteredNotes.length !== 0 && (
+        <Text size="sm">
+          Showing {currentNotes.length} of {notes.length} notes
+        </Text>
+      )}
 
       <Table striped highlightOnHover withBorder>
         <thead>
@@ -278,32 +284,33 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               ))
           ) : (
             <tr>
-              <td colSpan={5}>No notes found</td>
+              <td colSpan={6} align="center">
+                <Box
+                  p={"1rem"}
+                  sx={(theme) => ({
+                    color:
+                      theme.colorScheme === "dark"
+                        ? theme.colors.dark[3]
+                        : theme.colors.gray[5],
+                  })}
+                >
+                  <IconDatabaseOff size={36} strokeWidth={1.5} />
+                  <Text size={"md"}>No notes found</Text>
+                </Box>
+              </td>
             </tr>
           )}
         </tbody>
       </Table>
 
       <Group mt={"md"} w={"100%"} position="right">
-        <Button
-          onClick={goToPreviousPage}
-          disabled={currentPage === 1}
-          leftIcon={<IconArrowLeft size="1rem" />}
-        >
-          Previous
-        </Button>
-
-        <span>
-          Page {currentPage} of {totalPages === 0 ? 1 : totalPages}
-        </span>
-
-        <Button
-          onClick={goToNextPage}
-          disabled={currentPage === totalPages}
-          rightIcon={<IconArrowRight size="1rem" />}
-        >
-          Next
-        </Button>
+        <Pagination
+          value={page}
+          onChange={onChange}
+          total={totalPages}
+          onNextPage={goToNextPage}
+          onPreviousPage={goToPreviousPage}
+        />
       </Group>
     </div>
   );
