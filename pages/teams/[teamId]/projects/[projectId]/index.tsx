@@ -5,15 +5,14 @@ import DeleteNoteModal from "@/components/modal/delete/DeleteNoteModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
+import { useFileCreation } from "@/hooks/useFileCreation";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
 import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import sanitizeFileName from "@/utils/sanitizeFileName";
 import { SimpleGrid, Stack, Title } from "@mantine/core";
-import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { Project } from "@prisma/client";
@@ -23,7 +22,6 @@ import {
   IconFilePlus,
   IconPencil,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
@@ -123,190 +121,20 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
 }) => {
   const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
   const [opened, { open, close }] = useDisclosure(false);
-  const [creating, setCreating] = useState(false);
   const [files, setFiles] =
     useState<FileWithoutTranscriptAndUri[]>(initialFiles);
-  const [buttonText, setButtonText] = useState<string>(
-    "Accept and upload file"
-  );
 
   const [noteDeletionModalOpened, setNoteDeletionModalOpened] = useState(false);
   const [noteIdToDelete, setNoteIdToDelete] = useState<string | null>(null);
   const [deletingNote, setDeletingNote] = useState<boolean>(false);
 
-  const form = useForm({
-    initialValues: {
-      fileName: "",
-      fileDescription: "",
-      file: null as File | null,
-      multipleSpeakers: false,
-      audioType: "",
-      redactions: [] as string[],
-      transcriptionQuality: "nova" as "nova" | "whisper" | "whisper-large",
-    },
-    validate: {
-      fileName: (value) => (value.length > 0 ? null : "File name is required"),
-      multipleSpeakers: (value) =>
-        value ? null : "Please specify if there are multiple speakers",
-      transcriptionQuality: (value) =>
-        value ? null : "Please select a transcription quality",
-    },
-  });
-
-  // POST /api/file/create
-  const handleCreateNewFile = async (
-    values: {
-      fileName: string;
-      fileDescription: string;
-      file: File | null;
-    },
-    event: React.FormEvent
-  ) => {
-    // Prevent the default form submission
-    event.preventDefault();
-
-    try {
-      setCreating(true);
-      setButtonText("Step 1/2: Uploading file");
-
-      // If no file is selected, show an error
-      if (!values.file) {
-        console.log("No file selected");
-        notifications.show({
-          id: "error-file",
-          withCloseButton: true,
-          title: "No file selected",
-          message: "Please select a file",
-          color: "red",
-          icon: <IconX />,
-          loading: false,
-        });
-        setButtonText("Create");
-        return;
-      }
-
-      const sanitizedFileName = sanitizeFileName(values.file.name);
-      const key = `teams/${project.teamId}/projects/${project.id}/files/${sanitizedFileName}`;
-
-      // Get the S3 presigned upload URL
-      const uploadResponse = await fetch(
-        `/api/aws/presignedUploadUrl?key=${key}`
-      );
-      const uploadData = await uploadResponse.json();
-      const uploadUrl = uploadData.url;
-
-      // Upload the file to S3
-      await fetch(uploadUrl, {
-        method: "PUT",
-        body: values.file,
-        headers: { "Content-Type": values.file.type },
-      });
-
-      setButtonText("Step 2/2: Transcribing file");
-
-      // Convert file type from "type/subtype" to "VIDEO" or "AUDIO" as required by the Prisma schema
-      const fileType = values.file.type.split("/")[0].toUpperCase();
-
-      // Create the file in the database
-      const response = await fetch("/api/file/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileName: form.values.fileName,
-          fileDescription: form.values.fileDescription,
-          teamId: project.teamId,
-          projectId: project.id,
-          key: key,
-          type: fileType,
-          multipleSpeakers: form.values.multipleSpeakers,
-          audioType: form.values.audioType,
-          redactions: form.values.redactions,
-          transcriptionQuality: form.values.transcriptionQuality,
-        }),
-      });
-
-      if (response.status === 200) {
-        const newFile: FileWithoutTranscriptAndUri = await response.json();
-        notifications.show({
-          title: "Transcribing...",
-          message:
-            "We'll email you once this file has been transcribed. This shouldn't take too long.",
-          color: "teal",
-          icon: <IconCheck />,
-        });
-
-        setFiles([...files, newFile]);
-
-        // Reset the form
-        form.reset();
-
-        // Set up a counter for the number of attempts to check the file status
-        let attemptCounter = 0;
-        const maxAttempts = 20; // 20 attempts, once per 30 seconds for 10 minutes
-
-        // Set up an interval to check the file status every minute
-        const intervalId = setInterval(async () => {
-          attemptCounter++;
-          if (attemptCounter >= maxAttempts) {
-            clearInterval(intervalId);
-
-            notifications.show({
-              title: "File processing error",
-              message:
-                "The file processing took too long. Please try again later.",
-              color: "red",
-              icon: <IconAlertCircle />,
-            });
-          } else {
-            // Ping the API to check the file status
-            const statusResponse = await fetch(
-              `/api/ping/checkFileStatus?fileId=${newFile.id}`
-            );
-            const statusData = await statusResponse.json();
-
-            if (statusData.status === "COMPLETED") {
-              clearInterval(intervalId);
-              setFiles((prev) =>
-                prev.map((file) => {
-                  if (file.id === newFile.id) {
-                    return {
-                      ...file,
-                      status: "COMPLETED",
-                    };
-                  } else {
-                    return file;
-                  }
-                })
-              );
-
-              notifications.show({
-                title: "File processing complete",
-                message: "Your file has been successfully processed.",
-                color: "green",
-                icon: <IconCheck />,
-              });
-            }
-          }
-        }, 30000); // Check every 30s (30000 milliseconds)
-        setCreating(false);
-        setButtonText("Create");
-        close();
-      }
-    } catch (error) {
-      console.error(error);
-      setCreating(false);
-      setButtonText("Create");
-      notifications.show({
-        title: "Couldn't create a new project",
-        message:
-          "An error occurred while creating your project. We are working on a fix.",
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
-    }
-  };
+  const { form, creating, buttonText, handleCreateNewFile } = useFileCreation(
+    project.teamId,
+    project.id,
+    files,
+    setFiles,
+    close
+  );
 
   const openNoteDeletionModal = (noteId: string) => {
     setNoteIdToDelete(noteId as string);
