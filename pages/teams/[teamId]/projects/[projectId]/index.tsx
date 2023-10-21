@@ -369,7 +369,10 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
     <>
       <Head>
         <title>{`${project.name} | Transcription`}</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta
+          name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        ></meta>
         <meta
           name="description"
           content={`Project description: ${project.description}`}
