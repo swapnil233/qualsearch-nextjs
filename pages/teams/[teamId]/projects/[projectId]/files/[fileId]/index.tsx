@@ -2,7 +2,7 @@ import { TranscriptPageAside } from "@/components/aside/TranscriptPageAside";
 import SummaryCard from "@/components/card/summary/SummaryCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import { StatsGrid } from "@/components/stats/StatsGrid";
+import StatsGrid from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
 import { NotesProvider } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
