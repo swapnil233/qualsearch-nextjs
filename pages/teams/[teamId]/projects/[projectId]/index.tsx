@@ -6,6 +6,7 @@ import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
 import { useFileCreation } from "@/hooks/useFileCreation";
+import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
@@ -14,15 +15,8 @@ import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { SimpleGrid, Stack, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 import { Project } from "@prisma/client";
-import {
-  IconAlertCircle,
-  IconCheck,
-  IconFilePlus,
-  IconPencil,
-  IconTrash,
-} from "@tabler/icons-react";
+import { IconFilePlus, IconPencil, IconTrash } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useState } from "react";
@@ -125,7 +119,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
     useState<FileWithoutTranscriptAndUri[]>(initialFiles);
 
   const [noteDeletionModalOpened, setNoteDeletionModalOpened] = useState(false);
-  const [noteIdToDelete, setNoteIdToDelete] = useState<string | null>(null);
+  const [noteIdToDelete, setNoteIdToDelete] = useState<string>("");
   const [deletingNote, setDeletingNote] = useState<boolean>(false);
 
   const { form, creating, buttonText, handleCreateNewFile } = useFileCreation(
@@ -142,48 +136,19 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   };
 
   const closeNoteDeletionModal = () => {
-    setNoteIdToDelete(null);
+    setNoteIdToDelete("");
     setNoteDeletionModalOpened(false);
   };
 
-  const handleDeleteNote = async () => {
-    if (!noteIdToDelete) return;
-
-    try {
-      setDeletingNote(true);
-
-      // Delete the note
-      const response = await fetch(`/api/notes?noteId=${noteIdToDelete}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.status === 200) {
-        setDeletingNote(false);
-        notifications.show({
-          title: "Note deleted",
-          message: "The note has been successfully deleted.",
-          color: "green",
-          icon: <IconCheck />,
-        });
-        const updatedNotes = notes.filter((note) => note.id !== noteIdToDelete);
-        setNotes(updatedNotes);
-        closeNoteDeletionModal();
-      }
-    } catch (error) {
-      console.error(error);
-      setDeletingNote(false);
-      notifications.show({
-        title: "Couldn't delete the note",
-        message:
-          "An error occurred while deleting the note. We are working on a fix.",
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
-    }
-  };
+  const { handleDeleteNote } = useNoteDeletion(
+    notes,
+    setNotes,
+    noteIdToDelete,
+    setNoteIdToDelete,
+    deletingNote,
+    setDeletingNote,
+    closeNoteDeletionModal
+  );
 
   const handleEdit = () => {
     console.log("Edit");
