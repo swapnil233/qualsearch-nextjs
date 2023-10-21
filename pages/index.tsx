@@ -132,6 +132,45 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
       ? "/demo-dark-no-border.png"
       : "/demo-light-no-border.png";
 
+  const buttonStatus = () => {
+    if (status === "authenticated") {
+      return (
+        <Button
+          className={classes.control}
+          size="lg"
+          component="a"
+          href="/teams"
+        >
+          Dashboard
+        </Button>
+      );
+    } else if (status === "loading") {
+      return (
+        <Button
+          className={classes.control}
+          size="lg"
+          component="a"
+          href="/teams"
+          loading
+          disabled
+        >
+          Loading...
+        </Button>
+      );
+    } else {
+      return (
+        <Button
+          className={classes.control}
+          size="lg"
+          component="a"
+          onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
+        >
+          Get started
+        </Button>
+      );
+    }
+  };
+
   return (
     <>
       <Container className={classes.wrapper} size={1400}>
@@ -168,29 +207,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
               Demo
             </Button>
 
-            {status === "authenticated" ? (
-              <>
-                <Button
-                  className={classes.control}
-                  size="lg"
-                  component="a"
-                  href="/teams"
-                >
-                  Dashboard
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  className={classes.control}
-                  size="lg"
-                  component="a"
-                  onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
-                >
-                  Log in
-                </Button>
-              </>
-            )}
+            {buttonStatus()}
           </Box>
         </div>
 
