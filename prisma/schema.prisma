@@ -166,7 +166,6 @@ model File {
   Speaker Speaker[]
   Clip    Clip[]
   Note    Note[]
-  Tag     Tag[]
 
   // Frequently fetching files based on project id
   @@index([projectId])
@@ -309,9 +308,6 @@ model Tag {
   // 1-n -> A tag must belong to a project
   Project   Project @relation(fields: [projectId], references: [id])
   projectId String
-
-  File   File?   @relation(fields: [fileId], references: [id])
-  fileId String?
 }
 
 enum InvitationStatus {
