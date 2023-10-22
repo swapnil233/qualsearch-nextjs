@@ -6,24 +6,19 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import InvitationsTable, {
   IInvitationData,
 } from "@/components/table/invitations/InvitationsTable";
+import useTeamCreation from "@/hooks/useTeamCreation";
+import useTeamInvitation from "@/hooks/useTeamInvitation";
 import { getTeamsByUser } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Badge, SimpleGrid, Tabs, Text, Title } from "@mantine/core";
-import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 import { Invitation, Team, User } from "@prisma/client";
-import {
-  IconAlertCircle,
-  IconCheck,
-  IconUsersGroup,
-} from "@tabler/icons-react";
+import { IconUsersGroup } from "@tabler/icons-react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import fetch from "node-fetch";
 import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -91,151 +86,29 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   const [showingInvitations, setShowingInvitations] =
     useState<IInvitationData[]>(invitations);
 
-  const handleAcceptInvitation = async (invitationId: string) => {
-    try {
-      const response = await fetch("/api/invitation/accept", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          invitationId,
-        }),
-      });
+  const { handleAcceptInvitation, handleDeclineInvitation } = useTeamInvitation(
+    setShowingTeams,
+    setShowingInvitations
+  );
 
-      if (response.status === 200) {
-        const data = await response.json();
-        notifications.show({
-          title: "Invitation accepted",
-          message: "You have successfully accepted the invitation.",
-          color: "teal",
-          icon: <IconCheck />,
-        });
-
-        const updatedTeam: TeamWithUsers = data.team;
-        console.log("updated team: ", updatedTeam);
-
-        // Update the teams state
-        setShowingTeams((prevTeams) => [...prevTeams, updatedTeam]);
-
-        // Update the invitations state
-        setShowingInvitations((prevInvitations) =>
-          prevInvitations.filter((invitation) => invitation.id !== invitationId)
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      notifications.show({
-        title: "Error",
-        message: "An error occurred while accepting the invitation.",
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
-    }
-  };
-
-  const handleDeclineInvitation = async (invitationId: string) => {
-    try {
-      const response = await fetch("/api/invitation/decline", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          invitationId,
-        }),
-      });
-
-      if (response.status === 200) {
-        notifications.show({
-          title: "Invitation declined",
-          message: "You have successfully declined the invitation.",
-          color: "teal",
-          icon: <IconCheck />,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      notifications.show({
-        title: "Error",
-        message: "An error occurred while accepting the invitation.",
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
-    }
-  };
-
-  const form = useForm({
-    initialValues: {
-      teamName: "",
-      teamDescription: "",
-    },
-
-    validate: {
-      teamName: (value) => (value.length > 0 ? null : "Team name is required"),
-    },
-  });
-
-  // POST /api/teams - Create a new team
-  const handleCreateNewTeam = async (
-    values: { teamName: string; teamDescription: string },
-    event: React.FormEvent
-  ) => {
-    // Prevent the default form submission
-    event.preventDefault();
-
-    try {
-      setCreating(true);
-      const response = await fetch("/api/teams", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          teamName: form.values.teamName,
-          teamDescription: form.values.teamDescription,
-        }),
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        notifications.show({
-          title: "Team created",
-          message: "Your team has been created successfully.",
-          color: "teal",
-          icon: <IconCheck />,
-        });
-
-        const newTeam: TeamWithUsers = data;
-        setShowingTeams([...showingTeams, newTeam]);
-
-        form.reset();
-        setCreating(false);
-        close();
-      }
-    } catch (error) {
-      console.error(error);
-      setCreating(false);
-      notifications.show({
-        title: "Error",
-        message: "An error occurred while creating your team.",
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
-    }
-  };
+  const { form, handleCreateNewTeam } = useTeamCreation(
+    setCreating,
+    showingTeams,
+    setShowingTeams,
+    close
+  );
 
   return (
     <>
       <Head>
-        <title>{`Teams | Transcription`}</title>
+        <title>{`Teams | QualSearch`}</title>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <meta name="description" content="Teams overview." />
 
-        <meta property="og:title" content={`Teams | Transcription`} />
-        <meta property="og:description" content="Teams overview." />
+        <meta property="og:title" content={`Teams | QualSearch`} />
+        <meta property="og:description" content="Teams overview" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Transcription" />
+        <meta property="og:site_name" content="QualSearch" />
       </Head>
 
       <PageHeading
