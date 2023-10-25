@@ -13,7 +13,7 @@ interface ITranscriptTextProps {
 }
 
 const DEFAULT_STYLE = {
-  cursor: "pointer",
+  // cursor: "pointer",
   fontSize: "1.2rem",
 };
 
@@ -44,7 +44,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   };
 
   return (
-    <Text onMouseUp={handleMouseUp} lh={1.7}>
+    <Text onMouseUp={handleMouseUp} lh={1.7} contentEditable={true}>
       {group.words.map((word) => {
         const isNote = notes.some(
           (note) => word.start >= note.start && word.end <= note.end
