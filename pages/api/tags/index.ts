@@ -35,7 +35,7 @@ export default async function handler(
         case "POST":
             return handlePost(req, res);
         case "GET":
-            return handleGet(req, res, session);
+            return handleGet(req, res);
         case "DELETE":
             return handleDelete(req, res, session);
         default:
@@ -116,7 +116,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 async function handleGet(
     req: NextApiRequest,
     res: NextApiResponse,
-    session: any
 ) {
     const { projectId } = req.query;
 
