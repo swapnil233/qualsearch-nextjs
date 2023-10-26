@@ -2,6 +2,7 @@ import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import { createProject, deleteProject } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -98,32 +99,66 @@ async function handleDelete(
   res: NextApiResponse,
   session: Session
 ) {
-  // Extract projectId from the query parameters.
   const { teamId, projectId } = req.query;
 
-  // Validate the presence of teamId.
-  if (!projectId) {
-    return res.status(HttpStatus.BadRequest).send(
-      "Request must include a project ID."
-    );
+  if (typeof projectId !== 'string' || typeof teamId !== 'string') {
+    return res.status(HttpStatus.BadRequest).send("Missing projectId or teamId");
+  }
+
+  // @ts-ignore
+  const userId = session.user?.id;
+
+  if (!userId) {
+    return res.status(HttpStatus.Unauthorized).send("Invalid user session");
   }
 
   // Check if the user is a member of the team. Ignore any errors.
   try {
-    // @ts-ignore
-    const userId = session.user.id;
     await validateUserIsTeamMember(teamId as string, userId);
   } catch (error: any) {
     console.log(error);
+    return res.status(HttpStatus.Forbidden).send("User is not a team member");
   }
 
-  // Attempt to delete the project. Ignore any errors.
+  // Attempt to delete the project
   try {
-    await deleteProject(projectId as string);
+    await deleteProject(projectId);
   } catch (error) {
     console.log(error);
+    return res.status(500).send("Failed to delete project");
   }
 
-  // Regardless of whether the team existed or the user was a member, return a success response.
-  res.status(HttpStatus.Ok).send("Project deleted successfully.");
+  // Delete all files in the project from S3.
+  try {
+    const client = new S3Client({
+      region: process.env.BUCKET_REGION,
+      credentials: {
+        accessKeyId: process.env.ACCESS_KEY_ID!,
+        secretAccessKey: process.env.SECRET_ACCESS_KEY!
+      }
+    });
+
+    const listObjectsCommand = new ListObjectsV2Command({
+      Bucket: process.env.BUCKET_NAME,
+      Prefix: `teams/${teamId}/projects/${projectId}/`
+    });
+
+    const { Contents } = await client.send(listObjectsCommand);
+
+    if (Contents && Contents.length > 0) {
+      const deleteObjectsCommand = new DeleteObjectsCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Delete: {
+          Objects: Contents.map(item => ({ Key: item.Key! }))
+        }
+      });
+
+      await client.send(deleteObjectsCommand);
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Failed to delete project files from storage");
+  }
+
+  return res.status(200).send("Project deleted successfully");
 }
