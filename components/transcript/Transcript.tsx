@@ -109,15 +109,17 @@ const Transcript: FC<ITranscriptProps> = ({
       }
     };
 
+    const currentAudio = audioRef.current;
+
     // add timeupdate event listener to audioRef
-    if (audioRef.current) {
-      audioRef.current.addEventListener("timeupdate", checkTime);
+    if (currentAudio) {
+      currentAudio.addEventListener("timeupdate", checkTime);
     }
 
     return () => {
       // cleanup - remove the event listener
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("timeupdate", checkTime);
+      if (currentAudio) {
+        currentAudio.removeEventListener("timeupdate", checkTime);
       }
     };
   }, [audioRef, transcript]);

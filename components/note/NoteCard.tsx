@@ -72,13 +72,15 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
       }
     };
 
+    const currentAudio = audioRef.current;
+
     if (audioRef.current) {
       audioRef.current.addEventListener("timeupdate", stopAtNoteEnd);
     }
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
+      if (currentAudio) {
+        currentAudio.removeEventListener("timeupdate", stopAtNoteEnd);
       }
     };
   }, [audioRef, note.end]);
