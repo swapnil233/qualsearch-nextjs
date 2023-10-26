@@ -44,7 +44,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   };
 
   return (
-    <Text onMouseUp={handleMouseUp} lh={1.7} contentEditable={true}>
+    <Text onMouseUp={handleMouseUp} lh={1.7}>
       {group.words.map((word) => {
         const isNote = notes.some(
           (note) => word.start >= note.start && word.end <= note.end
