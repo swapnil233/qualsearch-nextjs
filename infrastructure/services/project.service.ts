@@ -23,3 +23,26 @@ export async function createProject(
     },
   });
 }
+
+/**
+ * Deletes a project, given its ID.
+ * @param projectId The ID of the project to delete.
+ * @returns A Promise resolving to void.
+ * @throws Will throw an error if the Prisma query fails.
+ */
+export async function deleteProject(projectId: string): Promise<void> {
+  try {
+    await prisma.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error in deleteProject: ${error.message}`);
+    } else {
+      console.error(`An unknown error occurred in deleteProject`);
+    }
+    throw error;
+  }
+}

@@ -1,8 +1,9 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { createProject } from "@/infrastructure/services/project.service";
+import { createProject, deleteProject } from "@/infrastructure/services/project.service";
+import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
+import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
 /**
@@ -91,10 +92,38 @@ async function handleGet(
   console.log("GET");
 }
 
+// Delete a project
 async function handleDelete(
   req: NextApiRequest,
   res: NextApiResponse,
-  session: any
+  session: Session
 ) {
-  console.log("DELETE");
+  // Extract projectId from the query parameters.
+  const { teamId, projectId } = req.query;
+
+  // Validate the presence of teamId.
+  if (!projectId) {
+    return res.status(HttpStatus.BadRequest).send(
+      "Request must include a project ID."
+    );
+  }
+
+  // Check if the user is a member of the team. Ignore any errors.
+  try {
+    // @ts-ignore
+    const userId = session.user.id;
+    await validateUserIsTeamMember(teamId as string, userId);
+  } catch (error: any) {
+    console.log(error);
+  }
+
+  // Attempt to delete the project. Ignore any errors.
+  try {
+    await deleteProject(projectId as string);
+  } catch (error) {
+    console.log(error);
+  }
+
+  // Regardless of whether the team existed or the user was a member, return a success response.
+  res.status(HttpStatus.Ok).send("Project deleted successfully.");
 }

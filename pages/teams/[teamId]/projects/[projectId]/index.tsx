@@ -2,11 +2,13 @@ import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import DeleteNoteModal from "@/components/modal/delete/DeleteNoteModal";
+import DeleteProjectModal from "@/components/modal/delete/DeleteProjectModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
 import { useFileCreation } from "@/hooks/useFileCreation";
 import { useNoteDeletion } from "@/hooks/useNoteDeletion";
+import { useProjectDeletion } from "@/hooks/useProjectDeletion";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
@@ -122,6 +124,10 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   const [noteIdToDelete, setNoteIdToDelete] = useState<string>("");
   const [deletingNote, setDeletingNote] = useState<boolean>(false);
 
+  const [projectDeletionModalOpened, setProjectDeletionModalOpened] =
+    useState(false);
+  const [deletingProject, setDeletingProject] = useState<boolean>(false);
+
   const { form, creating, buttonText, handleCreateNewFile } = useFileCreation(
     project.teamId,
     project.id,
@@ -154,9 +160,11 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
     console.log("Edit");
   };
 
-  const handleDelete = () => {
-    console.log("Delete");
-  };
+  const { handleDeleteProject } = useProjectDeletion(
+    project.id,
+    project.teamId,
+    setDeletingProject
+  );
 
   return (
     <>
@@ -194,7 +202,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
           },
           {
             title: "Delete project",
-            action: handleDelete,
+            action: () => setProjectDeletionModalOpened(true),
             icon: <IconTrash size={14} />,
           },
         ]}
@@ -270,10 +278,17 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
       />
 
       <DeleteNoteModal
-        deleting={deletingNote}
         opened={noteDeletionModalOpened}
         close={closeNoteDeletionModal}
         handleDelete={handleDeleteNote}
+        deleting={deletingNote}
+      />
+
+      <DeleteProjectModal
+        opened={projectDeletionModalOpened}
+        close={() => setProjectDeletionModalOpened(false)}
+        handleDelete={handleDeleteProject}
+        deleting={deletingProject}
       />
     </>
   );
