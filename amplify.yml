@@ -5,6 +5,8 @@ frontend:
       commands:
         - echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env
         - echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env
+        - echo "SLACK_CLIENT_ID=$SLACK_CLIENT_ID" >> .env
+        - echo "SLACK_CLIENT_SECRET=$SLACK_CLIENT_SECRET" >> .env
         - echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env
         - echo "JWT_SECRET=$JWT_SECRET" >> .env
         - echo "DIRECT_URL=$DIRECT_URL" >> .env

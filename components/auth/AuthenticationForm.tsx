@@ -13,6 +13,7 @@ import {
 import { TwitterIcon } from "@mantine/ds";
 import { useForm } from "@mantine/form";
 import { upperFirst, useToggle } from "@mantine/hooks";
+import { IconBrandSlack } from "@tabler/icons-react";
 import { Provider } from "next-auth/providers";
 import { signIn } from "next-auth/react";
 import { FC } from "react";
@@ -47,7 +48,7 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
   return (
     <Paper radius="md" p="xl" m={"lg"} withBorder w={"90%"} maw={400}>
       <Text size="lg" fw={500}>
-        Welcome to QualSearch
+        Welcome to QualSearch, {type} with
       </Text>
 
       <Group grow mb="md" mt="md">
@@ -59,14 +60,14 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
                 <GoogleIcon />
               ) : provider.name === "Twitter" ? (
                 <TwitterIcon />
+              ) : provider.name === "Slack" ? (
+                <IconBrandSlack />
               ) : null
             }
             variant="default"
             onClick={() => signIn(provider.id)}
           >
-            {type === "register"
-              ? `Sign up with ${provider.name}`
-              : `Sign in with ${provider.name}`}
+            {type === "register" ? `${provider.name}` : `${provider.name}`}
           </Button>
         ))}
       </Group>
