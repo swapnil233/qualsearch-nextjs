@@ -6,21 +6,21 @@ export type TeamWithUsers = Team & {
 
 export type FileWithoutTranscriptAndUri = Prisma.FileGetPayload<{
   select: {
-    id: true,
-    name: true,
-    description: true,
-    createdAt: true,
-    updatedAt: true,
-    type: true,
-    projectId: true,
-    teamId: true,
-    status: true,
+    id: true;
+    name: true;
+    description: true;
+    createdAt: true;
+    updatedAt: true;
+    type: true;
+    projectId: true;
+    teamId: true;
+    status: true;
     transcriptRequestId: {
       select: {
-        request_id: true,
-      },
-    },
-  },
+        request_id: true;
+      };
+    };
+  };
 }>;
 
 export type Transcript = {
@@ -45,8 +45,8 @@ export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
 
 export type TagWithNotes = Prisma.TagGetPayload<{
   include: {
-    notes: true,
-  }
+    notes: true;
+  };
 }>;
 
 export type TagWithNotesAndURIs = Prisma.TagGetPayload<{
@@ -55,20 +55,20 @@ export type TagWithNotesAndURIs = Prisma.TagGetPayload<{
       include: {
         file: {
           select: {
-            uri: true,
-            type: true
-          },
-        },
+            uri: true;
+            type: true;
+          };
+        };
         createdBy: {
           select: {
             id: true;
             name: true;
             image: true;
           };
-        }
-      },
-    },
-  },
+        };
+      };
+    };
+  };
 }>;
 
 export type TagWithNoteIds = Prisma.TagGetPayload<{

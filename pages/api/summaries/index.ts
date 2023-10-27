@@ -17,7 +17,7 @@ type Paragraph = {
   sentences: {
     end?: number;
     text: string;
-    start?: number
+    start?: number;
   }[];
 };
 

@@ -1,8 +1,15 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { createProject, deleteProject } from "@/infrastructure/services/project.service";
+import {
+  createProject,
+  deleteProject,
+} from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
-import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -101,8 +108,10 @@ async function handleDelete(
 ) {
   const { teamId, projectId } = req.query;
 
-  if (typeof projectId !== 'string' || typeof teamId !== 'string') {
-    return res.status(HttpStatus.BadRequest).send("Missing projectId or teamId");
+  if (typeof projectId !== "string" || typeof teamId !== "string") {
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Missing projectId or teamId");
   }
 
   // @ts-ignore
@@ -134,13 +143,13 @@ async function handleDelete(
       region: process.env.BUCKET_REGION,
       credentials: {
         accessKeyId: process.env.ACCESS_KEY_ID!,
-        secretAccessKey: process.env.SECRET_ACCESS_KEY!
-      }
+        secretAccessKey: process.env.SECRET_ACCESS_KEY!,
+      },
     });
 
     const listObjectsCommand = new ListObjectsV2Command({
       Bucket: process.env.BUCKET_NAME,
-      Prefix: `teams/${teamId}/projects/${projectId}/`
+      Prefix: `teams/${teamId}/projects/${projectId}/`,
     });
 
     const { Contents } = await client.send(listObjectsCommand);
@@ -149,8 +158,8 @@ async function handleDelete(
       const deleteObjectsCommand = new DeleteObjectsCommand({
         Bucket: process.env.BUCKET_NAME,
         Delete: {
-          Objects: Contents.map(item => ({ Key: item.Key! }))
-        }
+          Objects: Contents.map((item) => ({ Key: item.Key! })),
+        },
       });
 
       await client.send(deleteObjectsCommand);

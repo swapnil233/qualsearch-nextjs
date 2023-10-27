@@ -75,18 +75,18 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     let transcriptText = "";
     const transcript = await prisma.transcript.findUniqueOrThrow({
       where: {
-        fileId: fileId
+        fileId: fileId,
       },
       select: {
-        words: true
-      }
-    })
+        words: true,
+      },
+    });
     // @ts-ignore - Prisma stores this as a generic JSON value
     transcript.words.forEach((word) => {
       if (word.start >= start && word.end <= end) {
-        transcriptText = transcriptText.concat(" ", word.punctuated_word)
+        transcriptText = transcriptText.concat(" ", word.punctuated_word);
       }
-    })
+    });
 
     try {
       const newNote = await prisma.note.create({
@@ -125,17 +125,11 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function handleGet(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   console.log("GET");
 }
 
-async function handleDelete(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
   // Extract teamId from the query parameters.
   const { noteId } = req.query;
 

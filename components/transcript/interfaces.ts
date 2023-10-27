@@ -1,4 +1,3 @@
-
 export type SelectedTextRectangle = {
   top: number;
   right: number;

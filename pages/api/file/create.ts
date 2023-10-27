@@ -77,8 +77,8 @@ export default async function Handler(
   const baseUrl = process.env.VERCEL_URL
     ? "https://" + process.env.VERCEL_URL
     : process.env.AMPLIFY_URL
-      ? process.env.AMPLIFY_URL
-      : "http://localhost:3003";
+    ? process.env.AMPLIFY_URL
+    : "http://localhost:3003";
 
   // GET '/api/aws/getSignedUrl?key={key}'
   const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
@@ -128,7 +128,8 @@ export default async function Handler(
             request_id: dgRequestId.request_id,
           },
         },
-      }, select: {
+      },
+      select: {
         id: true,
         name: true,
         description: true,

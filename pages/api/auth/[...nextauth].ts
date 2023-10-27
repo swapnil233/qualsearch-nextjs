@@ -19,7 +19,7 @@ export const authOptions: NextAuthOptions = {
     SlackProvider({
       clientId: process.env.SLACK_CLIENT_ID!,
       clientSecret: process.env.SLACK_CLIENT_SECRET!,
-    })
+    }),
   ],
 
   pages: {
