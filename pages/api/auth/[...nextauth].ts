@@ -6,6 +6,7 @@ import GoogleProvider from "next-auth/providers/google";
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.JWT_SECRET,
   adapter: PrismaAdapter(prisma),
 
   // Google Provider for now
@@ -16,7 +17,9 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
 
-  secret: process.env.JWT_SECRET,
+  pages: {
+    signIn: "/signin",
+  },
 
   // Longer session than the default
   session: {
