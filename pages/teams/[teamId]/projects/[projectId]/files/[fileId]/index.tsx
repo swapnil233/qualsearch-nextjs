@@ -236,20 +236,23 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   return (
     <>
       <Head>
-        <title>{`${file.name} | Transcription`}</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <title>{`${file.name} | QualSearch`}</title>
+        <meta
+          name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        ></meta>
         <meta
           name="description"
           content={`File description: ${file.description}`}
         />
 
-        <meta property="og:title" content={`${file.name} | Transcription`} />
+        <meta property="og:title" content={`${file.name} | QualSearch`} />
         <meta
           property="og:description"
           content={`File description: ${file.description}`}
         />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Transcription" />
+        <meta property="og:site_name" content="QualSearch" />
       </Head>
 
       <NotesProvider initialNotes={initialNotes}>

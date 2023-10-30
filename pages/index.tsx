@@ -15,7 +15,7 @@ import { User } from "@prisma/client";
 import { IconPlayerPlay } from "@tabler/icons-react";
 import { signIn, useSession } from "next-auth/react";
 
-interface TranscriptionPageProps {
+interface QualSearchPageProps {
   user: User | null;
 }
 
@@ -122,7 +122,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
+const QualSearch: NextPageWithLayout<QualSearchPageProps> = () => {
   const { classes } = useStyles();
   const theme = useMantineTheme();
   const { data: session, status } = useSession();
@@ -219,7 +219,7 @@ const Transcription: NextPageWithLayout<TranscriptionPageProps> = () => {
   );
 };
 
-export default Transcription;
-Transcription.getLayout = (page) => {
+export default QualSearch;
+QualSearch.getLayout = (page) => {
   return <HomePageLayout>{page}</HomePageLayout>;
 };

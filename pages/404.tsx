@@ -59,7 +59,7 @@ const NotFound: NextPageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Transcription | 404!</title>
+        <title>QualSearch | 404!</title>
         <meta name="description" content="404! This page does not exist." />
       </Head>
       <Container className={classes.root}>

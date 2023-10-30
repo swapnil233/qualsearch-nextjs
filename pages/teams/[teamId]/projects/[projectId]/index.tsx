@@ -169,7 +169,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   return (
     <>
       <Head>
-        <title>{`${project.name} | Transcription`}</title>
+        <title>{`${project.name} | QualSearch`}</title>
         <meta
           name="viewport"
           content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -179,13 +179,13 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
           content={`Project description: ${project.description}`}
         />
 
-        <meta property="og:title" content={`${project.name} | Transcription`} />
+        <meta property="og:title" content={`${project.name} | QualSearch`} />
         <meta
           property="og:description"
           content={`Project description: ${project.description}`}
         />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Transcription" />
+        <meta property="og:site_name" content="QualSearch" />
       </Head>
 
       <PageHeading

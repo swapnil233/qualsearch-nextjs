@@ -80,8 +80,11 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
   return (
     <>
       <Head>
-        <title>{`Tag - ${tagWithNotes.name} | Transcription`}</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <title>{`Tag - ${tagWithNotes.name} | QualSearch`}</title>
+        <meta
+          name="viewport"
+          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        ></meta>
         <meta
           name="description"
           content={`All notes with the tag "${tagWithNotes.name}"`}
@@ -89,14 +92,14 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
 
         <meta
           property="og:title"
-          content={`Tag ${tagWithNotes.name} | Transcription`}
+          content={`Tag ${tagWithNotes.name} | QualSearch`}
         />
         <meta
           property="og:description"
           content={`All notes with the tag "${tagWithNotes.name}"`}
         />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Transcription" />
+        <meta property="og:site_name" content="QualSearch" />
       </Head>
 
       <PageHeading
