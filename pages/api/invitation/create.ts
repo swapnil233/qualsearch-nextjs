@@ -1,5 +1,7 @@
 import { HttpStatus } from "@/constants/HttpStatus";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { sendEmail } from "@/lib/sendEmail";
+import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -79,6 +81,13 @@ export default async function Handler(
         invitedByUserId: session.user.id,
       },
     });
+
+    await sendEmail(
+      [invitedEmail],
+      `QualSearch - You have been invited to join ${team.name} by ${session.user?.name}`,
+      `You have been invited to join the team ${team.name} by ${session.user?.name}. Visit ${host}/teams to accept the invitation.`,
+      `<p>You have been invited to join the team ${team.name} by ${session.user?.name}. Visit ${host}/teams to accept the invitation.</p>`
+    )
 
     // Respond with a 201 status code (Created) and the created invitation.
     return res.status(201).json(invitation);
