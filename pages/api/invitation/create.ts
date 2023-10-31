@@ -1,3 +1,4 @@
+import { HttpStatus } from "@/constants/HttpStatus";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -39,7 +40,7 @@ export default async function Handler(
 
   // Validate that the required parameters are provided.
   if (!invitedEmail || !teamId) {
-    return res.status(400).send("Missing parameters: invitedEmail or teamId.");
+    return res.status(HttpStatus.BadRequest).send("Missing parameters: invitedEmail or teamId.");
   }
 
   try {
@@ -51,12 +52,9 @@ export default async function Handler(
     const inviteeExists = team.users.some(
       (user) => user.email === invitedEmail
     );
+
     if (inviteeExists) {
-      return res
-        .status(400)
-        .send(
-          "The user you are trying to invite is already a member of the team"
-        );
+      return res.status(HttpStatus.Conflict).send("The user you are trying to invite is already a member of the team");
     }
 
     // Verify the invitee email is not already invited to the team.
