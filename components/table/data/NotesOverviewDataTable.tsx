@@ -111,50 +111,35 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     );
   }, [notes]);
 
-  // Filter notes by search term
+  // Combined filtering logic
   useEffect(() => {
-    if (search) {
-      setFilteredNotes(
-        notes.filter(
-          (note) =>
-            note.text.toLowerCase().includes(search.toLowerCase()) ||
-            note.transcriptText.toLowerCase().includes(search.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredNotes(notes);
-    }
-  }, [search, notes]);
+    const searchLower = search.toLowerCase();
 
-  // Filter notes by tags
-  useEffect(() => {
-    if (filteredTags.length) {
-      setFilteredNotes(
-        notes.filter((note) =>
-          filteredTags.every((tagId) =>
-            note.tags.some((tag) => tag.id === tagId)
-          )
-        )
-      );
-    } else {
-      setFilteredNotes(notes);
-    }
-  }, [filteredTags, notes]);
+    const filteredNotes = notes.filter((note) => {
+      // Search filter
+      const matchesSearch =
+        note.text.toLowerCase().includes(searchLower) ||
+        note.transcriptText.toLowerCase().includes(searchLower);
 
-  // Filter notes by participant name
-  useEffect(() => {
-    if (filteredParticipants) {
-      setFilteredNotes(
-        notes.filter((note) =>
-          note.file
-            .participantName!.toLowerCase()
-            .includes(filteredParticipants.toLowerCase())
-        )
-      );
-    } else {
-      setFilteredNotes(notes);
-    }
-  }, [filteredParticipants, notes]);
+      // Tag filter
+      const matchesTags =
+        filteredTags.length === 0 ||
+        filteredTags.every((tagId) =>
+          note.tags.some((tag) => tag.id === tagId)
+        );
+
+      // Participant filter
+      const matchesParticipants =
+        !filteredParticipants ||
+        note.file
+          .participantName!.toLowerCase()
+          .includes(filteredParticipants.toLowerCase());
+
+      return matchesSearch && matchesTags && matchesParticipants;
+    });
+
+    setFilteredNotes(filteredNotes);
+  }, [search, filteredTags, filteredParticipants, notes]);
 
   const exportData = notes.map((note, index) => ({
     ID: index + 1,
@@ -169,7 +154,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   return (
     <div>
       <Group mb="md" w={"100%"} position="apart" align="end">
-        <Group align="end" grow>
+        <Group align="end" grow noWrap>
           <Input.Wrapper label="Filter by note" w={"100%"} maw={400}>
             <Input
               placeholder="Start typing to filter notes..."
