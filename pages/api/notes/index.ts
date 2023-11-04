@@ -152,6 +152,12 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
           },
         },
         tags: true,
+        file: {
+          select: {
+            participantName: true,
+            participantOrganization: true,
+          }
+        }
       },
     });
 

@@ -40,6 +40,12 @@ export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
       };
     };
     tags: true;
+    file: {
+      select: {
+        participantName: true;
+        participantOrganization: true;
+      }
+    }
   };
 }>;
 

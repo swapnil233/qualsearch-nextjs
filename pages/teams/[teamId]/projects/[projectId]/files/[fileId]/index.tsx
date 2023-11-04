@@ -77,6 +77,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
               },
             },
             tags: true,
+            file: {
+              select: {
+                participantName: true,
+                participantOrganization: true,
+              },
+            },
           },
         }),
 
