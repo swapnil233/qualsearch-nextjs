@@ -1,5 +1,6 @@
 import { NoteWithTagsAndCreator } from "@/types";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
+import HighlightSearch from "@/utils/highlightSearchTerm";
 import {
   ActionIcon,
   Avatar,
@@ -27,6 +28,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 interface IAsideNotes {
+  search: string;
   notes: NoteWithTagsAndCreator[];
   mediaRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
@@ -34,6 +36,7 @@ interface IAsideNotes {
 
 export const AsideNotes: React.FC<IAsideNotes> = ({
   notes,
+  search,
   mediaRef,
   transcriptContainerDivRef,
 }) => {
@@ -158,10 +161,16 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                         }`,
                       }}
                     >
-                      {`"${note.transcriptText.trim()}"`}
+                      <HighlightSearch
+                        text={note.transcriptText.trim()}
+                        search={search}
+                      />
                     </Spoiler>
                     <Text fw={500} fz={"sm"}>
-                      {note.text}
+                      <HighlightSearch
+                        text={note.text.trim()}
+                        search={search}
+                      />
                     </Text>
                   </Stack>
                   <SimpleGrid

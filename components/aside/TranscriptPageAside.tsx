@@ -8,7 +8,6 @@ import {
   Center,
   Divider,
   Group,
-  NativeSelect,
   ScrollArea,
   SegmentedControl,
   Stack,
@@ -17,12 +16,11 @@ import {
   rem,
   useMantineTheme,
 } from "@mantine/core";
-import { useDebouncedState } from "@mantine/hooks";
 import { User } from "@prisma/client";
 import {
   IconDownload,
+  IconListSearch,
   IconNote,
-  IconSearch,
   IconSparkles,
   IconTags,
   IconUpload,
@@ -52,7 +50,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   transcriptContainerDivRef,
   user,
 }) => {
-  const { notes, setNotes } = useNotes();
+  const { notes } = useNotes();
   const { tags, setTags } = useTags();
   const theme = useMantineTheme();
 
@@ -62,55 +60,22 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   const [filteredNotes, setFilteredNotes] =
     useState<NoteWithTagsAndCreator[]>(notes);
 
-  useEffect(() => {
-    setFilteredNotes(notes);
-  }, [notes, filteredNotes]);
-
-  const [searchTerm, setSearchTerm] = useDebouncedState("", 200);
-
-  const [sort, setSort] = useState<SortCategories>();
+  const [search, setSearch] = useState("");
 
   // Filter notes by search term
   useEffect(() => {
-    const filterNotesBySearchTerm = () => {
-      if (searchTerm.length > 0) {
-        const filteredNotes = notes.filter((note) =>
-          note.text.toLocaleLowerCase().includes(searchTerm)
-        );
-        return filteredNotes;
-      } else {
-        return notes;
-      }
-    };
-
-    const filteredNotes = filterNotesBySearchTerm();
-    setFilteredNotes(filteredNotes);
-  }, [searchTerm, notes]);
-
-  // Sort notes by sort category
-  useEffect(() => {
-    let sortedNotes = [...filteredNotes];
-    switch (sort) {
-      case "newest-to-oldest":
-        sortedNotes.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        break;
-      case "oldest-to-newest":
-        sortedNotes.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-        break;
-      case "chronological":
-        sortedNotes.sort((a, b) => a.start - b.start);
-        break;
-      default:
-        console.log("sortNotes() error");
+    if (search) {
+      setFilteredNotes(
+        notes.filter(
+          (note) =>
+            note.text.toLowerCase().includes(search.toLowerCase()) ||
+            note.transcriptText.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredNotes(notes);
     }
-    setFilteredNotes(sortedNotes);
-  }, [sort, notes]);
+  }, [search, notes]);
 
   return (
     <Aside
@@ -165,34 +130,22 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
           <>
             {notes.length > 0 ? (
               <>
-                <Group noWrap>
-                  <TextInput
-                    icon={<IconSearch size="1rem" />}
-                    placeholder="Search..."
-                    onChange={(e) =>
-                      setSearchTerm(e.currentTarget.value.toLocaleLowerCase())
-                    }
-                  />
-                  <NativeSelect
-                    data={[
-                      { value: "newest-to-oldest", label: "Newest to oldest" },
-                      { value: "oldest-to-newest", label: "Oldest to newest" },
-                      { value: "chronological", label: "Chronological" },
-                    ]}
-                    value={sort}
-                    variant="filled"
-                    onChange={(e) =>
-                      setSort(e.currentTarget.value as SortCategories)
-                    }
-                  />
-                </Group>
+                <TextInput
+                  label="Filter by note"
+                  icon={<IconListSearch />}
+                  placeholder="Start typing to filter notes..."
+                  onChange={(e) =>
+                    setSearch(e.target.value.toLocaleLowerCase())
+                  }
+                />
                 <ScrollArea h={470}>
                   <AsideNotes
+                    search={search}
                     mediaRef={mediaRef}
                     transcriptContainerDivRef={transcriptContainerDivRef}
                     notes={filteredNotes}
                   />
-                  {searchTerm.length > 0 && filteredNotes.length === 0 && (
+                  {search.length > 0 && filteredNotes.length === 0 && (
                     <Stack h={"100%"} spacing={"lg"} align="center" mt={"md"}>
                       <Text color="dimmed">No matching notes found...</Text>
                     </Stack>
