@@ -32,7 +32,7 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 interface INotesOverviewDataTable {
   teamId: string;
@@ -56,7 +56,9 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const pageOptions = [5, 10, 20, 50, 100];
 
-  const totalPages = Math.ceil(filteredNotes.length / itemsPerPage);
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredNotes.length / itemsPerPage);
+  }, [filteredNotes, itemsPerPage]);
 
   const [page, onChange] = useState(1);
 
@@ -77,35 +79,39 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     label: `${option}`,
   }));
 
-  const tagsUsed = notes
-    .reduce<Tag[]>((acc, note) => {
-      note.tags.forEach((tag) => {
-        if (!acc.some((existingTag) => existingTag.id === tag.id)) {
-          acc.push(tag);
-        }
-      });
-      return acc;
-    }, [])
-    .map((tag) => ({
-      value: tag.id,
-      label: tag.name,
-    }));
-
-  const participants =
-    notes
-      .reduce<string[]>((acc, note) => {
-        const participantName = note.file.participantName;
-        if (participantName && !acc.includes(participantName)) {
-          acc.push(participantName);
-        }
+  const tagsUsed = useMemo(() => {
+    return notes
+      .reduce<Tag[]>((acc, note) => {
+        note.tags.forEach((tag) => {
+          if (!acc.some((existingTag) => existingTag.id === tag.id)) {
+            acc.push(tag);
+          }
+        });
         return acc;
       }, [])
-      .map((participant) => ({
-        value: participant,
-        label: participant,
-      })) || [];
+      .map((tag) => ({
+        value: tag.id,
+        label: tag.name,
+      }));
+  }, [notes]);
 
-  console.log(participants);
+  const participants = useMemo(() => {
+    return (
+      notes
+        .reduce<string[]>((acc, note) => {
+          const participantName = note.file.participantName;
+          // participantName can be null since the schema made it optional, so check for that
+          if (participantName && !acc.includes(participantName)) {
+            acc.push(participantName);
+          }
+          return acc;
+        }, [])
+        .map((participant) => ({
+          value: participant,
+          label: participant,
+        })) || []
+    );
+  }, [notes]);
 
   // Filter notes by search term
   useEffect(() => {
