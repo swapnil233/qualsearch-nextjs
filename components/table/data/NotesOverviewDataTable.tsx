@@ -47,34 +47,32 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   projectId,
   openNoteDeletionModal,
 }) => {
+  // Search and filter states
   const [search, setSearch] = useState("");
   const [filteredNotes, setFilteredNotes] =
     useState<NoteWithTagsAndCreator[]>(notes);
   const [filteredTags, setFilteredTags] = useState<string[]>([]);
   const [filteredParticipants, setFilteredParticipants] = useState<string>("");
+
+  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const pageOptions = [5, 10, 20, 50, 100];
+  const itemsPerPageOptions = [5, 10, 20, 50, 100];
 
+  // Total pages
   const totalPages = useMemo(() => {
     return Math.ceil(filteredNotes.length / itemsPerPage);
   }, [filteredNotes, itemsPerPage]);
 
-  const [page, onChange] = useState(1);
+  // Current notes to display
+  const currentNotes = useMemo(() => {
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+    return filteredNotes.slice(startIdx, endIdx);
+  }, [currentPage, itemsPerPage, filteredNotes]);
 
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const endIdx = startIdx + itemsPerPage;
-  const currentNotes = filteredNotes.slice(startIdx, endIdx);
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
-  const goToPreviousPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
-  const selectOptions = pageOptions.map((option) => ({
+  // Select options for items per page
+  const selectOptions = itemsPerPageOptions.map((option) => ({
     value: option.toString(),
     label: `${option}`,
   }));
@@ -376,11 +374,13 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
 
       <Group mt={"md"} w={"100%"} position="right">
         <Pagination
-          value={page}
-          onChange={onChange}
+          value={currentPage}
+          onChange={setCurrentPage}
           total={totalPages}
-          onNextPage={goToNextPage}
-          onPreviousPage={goToPreviousPage}
+          onNextPage={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          onPreviousPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
         />
       </Group>
     </div>
