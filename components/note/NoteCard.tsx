@@ -5,8 +5,8 @@ import {
   Badge,
   Box,
   Group,
+  HoverCard,
   Menu,
-  Popover,
   SimpleGrid,
   Stack,
   Text,
@@ -94,14 +94,14 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
       }}
     >
       <Group align="center" spacing={"sm"}>
-        <Popover width={300} position="bottom" withArrow shadow="md">
-          <Popover.Target>
+        <HoverCard width={300} position="bottom" withArrow shadow="md">
+          <HoverCard.Target>
             <ActionIcon radius="xl" variant="default">
               <IconMessage size={16} />
             </ActionIcon>
-          </Popover.Target>
+          </HoverCard.Target>
 
-          <Popover.Dropdown>
+          <HoverCard.Dropdown>
             <Stack align="flex-start" spacing={"xl"}>
               <Stack spacing={"sm"} w={"100%"}>
                 <Stack justify="space-between" align="center" w={"100%"}>
@@ -171,8 +171,8 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
                 })}
               </SimpleGrid>
             </Stack>
-          </Popover.Dropdown>
-        </Popover>
+          </HoverCard.Dropdown>
+        </HoverCard>
         <ActionIcon color="blue" radius="xl" variant="filled">
           {noteIsPlaying ? (
             <IconPlayerStopFilled
