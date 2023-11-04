@@ -29,6 +29,7 @@ import {
   IconShare,
   IconTag,
   IconTrash,
+  IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
@@ -47,8 +48,10 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   openNoteDeletionModal,
 }) => {
   const [search, setSearch] = useState("");
-  const [filteredNotes, setFilteredNotes] = useState(notes);
+  const [filteredNotes, setFilteredNotes] =
+    useState<NoteWithTagsAndCreator[]>(notes);
   const [filteredTags, setFilteredTags] = useState<string[]>([]);
+  const [filteredParticipants, setFilteredParticipants] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const pageOptions = [5, 10, 20, 50, 100];
@@ -88,6 +91,22 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       label: tag.name,
     }));
 
+  const participants =
+    notes
+      .reduce<string[]>((acc, note) => {
+        const participantName = note.file.participantName;
+        if (participantName && !acc.includes(participantName)) {
+          acc.push(participantName);
+        }
+        return acc;
+      }, [])
+      .map((participant) => ({
+        value: participant,
+        label: participant,
+      })) || [];
+
+  console.log(participants);
+
   // Filter notes by search term
   useEffect(() => {
     if (search) {
@@ -118,6 +137,21 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     }
   }, [filteredTags, notes]);
 
+  // Filter notes by participant name
+  useEffect(() => {
+    if (filteredParticipants) {
+      setFilteredNotes(
+        notes.filter((note) =>
+          note.file
+            .participantName!.toLowerCase()
+            .includes(filteredParticipants.toLowerCase())
+        )
+      );
+    } else {
+      setFilteredNotes(notes);
+    }
+  }, [filteredParticipants, notes]);
+
   const exportData = notes.map((note, index) => ({
     ID: index + 1,
     Note: note.text,
@@ -131,7 +165,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   return (
     <div>
       <Group mb="md" w={"100%"} position="apart" align="end">
-        <Group noWrap align="end" grow>
+        <Group align="end" grow>
           <Input.Wrapper label="Filter by note" w={"100%"} maw={400}>
             <Input
               placeholder="Start typing to filter notes..."
@@ -154,6 +188,20 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             w={"100%"}
             maw={400}
           />
+
+          {participants.length > 0 && (
+            <Select
+              icon={<IconUser size={"1.1rem"} />}
+              label="Filter by participant"
+              value={filteredParticipants}
+              onChange={(value) => setFilteredParticipants(value!)}
+              data={participants}
+              styles={{ rightSection: { pointerEvents: "none" } }}
+              w={"100%"}
+              maw={400}
+              clearable
+            />
+          )}
 
           <Select
             label="Items / page"
@@ -191,6 +239,8 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             <tr>
               <th>Note</th>
               <th>Quote</th>
+              <th>Participant</th>
+              <th>Organization</th>
               <th>Tags</th>
               <th>Created by</th>
               <th>Date created</th>
@@ -219,17 +269,31 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                       {`"`}
                     </td>
                     <td>
-                      {note.tags.map((tag) => (
-                        <Link
-                          key={tag.id}
-                          href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
-                          style={{ textDecoration: "none" }}
-                        >
-                          <Badge radius="xs" variant="filled" mr="md">
-                            {tag.name}
-                          </Badge>
-                        </Link>
-                      ))}
+                      <HighlightSearch
+                        text={note.file.participantName || "-"}
+                        search={search}
+                      />
+                    </td>
+                    <td>
+                      <HighlightSearch
+                        text={note.file.participantOrganization || "-"}
+                        search={search}
+                      />
+                    </td>
+                    <td>
+                      <Stack spacing={"xs"}>
+                        {note.tags.map((tag) => (
+                          <Link
+                            key={tag.id}
+                            href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            <Badge radius="xs" variant="filled" mr="md">
+                              {tag.name}
+                            </Badge>
+                          </Link>
+                        ))}
+                      </Stack>
                     </td>
                     <td>
                       <Link
@@ -284,7 +348,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                 ))
             ) : (
               <tr>
-                <td colSpan={6} align="center">
+                <td colSpan={8} align="center">
                   <Box
                     p={"1rem"}
                     sx={(theme) => ({
