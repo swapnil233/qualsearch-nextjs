@@ -11,6 +11,7 @@ import {
   TextInput,
   Textarea,
 } from "@mantine/core";
+import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import {
   IconAlertCircle,
@@ -32,6 +33,9 @@ export interface ICreateFileModal {
     typeof useForm<{
       fileName: string;
       fileDescription: string;
+      participantName: string;
+      participantOrganization: string;
+      dateConducted: Date;
       file: File | null;
       multipleSpeakers: boolean;
       audioType: string;
@@ -44,6 +48,9 @@ export interface ICreateFileModal {
     _values: {
       fileName: string;
       fileDescription: string;
+      participantName: string;
+      participantOrganization: string;
+      dateConducted: Date;
       file: File | null;
       multipleSpeakers: boolean;
       audioType: string;
@@ -76,10 +83,13 @@ const CreateFileModal: FC<ICreateFileModal> = ({
         bubbles: true,
         cancelable: true,
       });
+
+      // TS says the "await" is redundant, but removing it stops the step-by-step spinner from working
       await handleCreateNewFile(
         form.values,
         syntheticEvent as unknown as React.FormEvent
       );
+
       setLoading(false);
       setActive((current) => current + 1);
       setCompleted(true);
@@ -136,13 +146,42 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               {...form.getInputProps("fileName")}
             />
 
+            <TextInput
+              placeholder="John Doe"
+              label="Participant's name"
+              description="If there are multiple participants, enter the name of the main participant. You can change this later."
+              radius="xs"
+              withAsterisk
+              mb={"lg"}
+              {...form.getInputProps("participantName")}
+            />
+
+            <TextInput
+              placeholder="XYZ Energy Corp."
+              label="Participant's Organization"
+              description="This helps us generate more accurate insights. You can change this later."
+              radius="xs"
+              withAsterisk
+              mb={"lg"}
+              {...form.getInputProps("participantOrganization")}
+            />
+
+            <DateInput
+              label="Date conducted"
+              description="When was this user interview conducted?"
+              radius="xs"
+              withAsterisk
+              mb={"lg"}
+              {...form.getInputProps("dateConducted")}
+            />
+
             <Textarea
               placeholder="This interview was conducted on..."
               label="Description"
-              description="The file's description will appear in the project report"
+              description="This will help our AI systems generate more accurate insights."
               radius="xs"
               autosize
-              minRows={2}
+              minRows={4}
               mb={"lg"}
               {...form.getInputProps("fileDescription")}
             />

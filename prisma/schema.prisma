@@ -140,14 +140,17 @@ model Project {
 }
 
 model File {
-  id          String     @id @default(cuid())
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  name        String
-  description String?
-  uri         String
-  type        FileType
-  status      FileStatus @default(PROCESSING)
+  id                      String     @id @default(cuid())
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+  name                    String
+  description             String?
+  participantName         String?
+  participantOrganization String?
+  dateConducted           DateTime?
+  uri                     String
+  type                    FileType
+  status                  FileStatus @default(PROCESSING)
 
   // 1-n: Video can belong to 1 project
   Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)

@@ -21,6 +21,9 @@ export const useFileCreation = (
     initialValues: {
       fileName: "",
       fileDescription: "",
+      participantName: "",
+      participantOrganization: "",
+      dateConducted: new Date(),
       file: null as File | null,
       multipleSpeakers: false,
       audioType: "",
@@ -29,6 +32,13 @@ export const useFileCreation = (
     },
     validate: {
       fileName: (value) => (value.length > 0 ? null : "File name is required"),
+      file: (value) => (value ? null : "Please select a file"),
+      participantName: (value) =>
+        value.length > 0 ? null : "Participant name is required",
+      participantOrganization: (value) =>
+        value.length > 0 ? null : "Participant organization is required",
+      dateConducted: (value) =>
+        value ? null : "Date the interview was conducted is required",
       multipleSpeakers: (value) =>
         value ? null : "Please specify if there are multiple speakers",
       transcriptionQuality: (value) =>
@@ -41,6 +51,9 @@ export const useFileCreation = (
     values: {
       fileName: string;
       fileDescription: string;
+      participantName: string;
+      participantOrganization: string;
+      dateConducted: Date;
       file: File | null;
     },
     event: React.FormEvent
@@ -85,7 +98,7 @@ export const useFileCreation = (
         headers: { "Content-Type": values.file.type },
       });
 
-      setButtonText("Step 2/2: Transcribing file");
+      setButtonText("Step 2/2: Sending file for transcription");
 
       // Convert file type from "type/subtype" to "VIDEO" or "AUDIO" as required by the Prisma schema
       const fileType = values.file.type.split("/")[0].toUpperCase();
@@ -99,6 +112,9 @@ export const useFileCreation = (
         body: JSON.stringify({
           fileName: form.values.fileName,
           fileDescription: form.values.fileDescription,
+          participantName: form.values.participantName,
+          participantOrganization: form.values.participantOrganization,
+          dateConducted: new Date(form.values.dateConducted),
           teamId: teamId,
           projectId: projectId,
           key: key,
@@ -173,6 +189,7 @@ export const useFileCreation = (
             }
           }
         }, 30000); // Check every 30s (30000 milliseconds)
+
         setCreating(false);
         setButtonText("Create");
         close();

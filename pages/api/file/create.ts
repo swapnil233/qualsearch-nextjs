@@ -1,6 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import { FileWithoutTranscriptAndUri } from "@/types";
+import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -41,6 +42,9 @@ export default async function Handler(
   const {
     fileName,
     fileDescription,
+    participantName,
+    participantOrganization,
+    dateConducted,
     teamId,
     projectId,
     key,
@@ -56,6 +60,18 @@ export default async function Handler(
     return res
       .status(HttpStatus.BadRequest)
       .send("File name is missing from the request body");
+  if (!participantName || participantName.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Participant name is missing from the request body");
+  if (!participantOrganization || participantOrganization.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Participant organization is missing from the request body");
+  if (!dateConducted || dateConducted.length === 0)
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Date conducted is missing from the request body");
   if (!projectId || projectId.length === 0)
     return res
       .status(HttpStatus.BadRequest)
@@ -73,23 +89,18 @@ export default async function Handler(
       .status(HttpStatus.BadRequest)
       .send("Type is missing from the request body");
 
-  // Get the base URL for the API
-  const baseUrl = process.env.VERCEL_URL
-    ? "https://" + process.env.VERCEL_URL
-    : process.env.AMPLIFY_URL
-    ? process.env.AMPLIFY_URL
-    : "http://localhost:3003";
-
   // GET '/api/aws/getSignedUrl?key={key}'
-  const response = await fetch(`${baseUrl}/api/aws/getSignedUrl?key=${key}`);
+  const response = await fetch(`${host}/api/aws/getSignedUrl?key=${key}`);
+
   if (!response.ok) {
     return res.status(response.status).send(await response.text());
   }
+
   const responseJson = await response.json();
   const signedUrl = responseJson.url;
 
   // Make a POST request to '/api/deepgram/' to get the rquest_id sent by Deepgram callback
-  const deepgramResponse = await fetch(`${baseUrl}/api/deepgram/`, {
+  const deepgramResponse = await fetch(`${host}/api/deepgram/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -119,6 +130,9 @@ export default async function Handler(
       data: {
         name: fileName,
         description: fileDescription,
+        participantName: participantName,
+        participantOrganization: participantOrganization,
+        dateConducted: dateConducted,
         teamId: teamId,
         projectId: projectId,
         uri: key,
