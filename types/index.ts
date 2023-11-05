@@ -44,6 +44,7 @@ export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
       select: {
         participantName: true;
         participantOrganization: true;
+        dateConducted: true;
       }
     }
   };

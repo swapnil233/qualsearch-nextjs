@@ -85,6 +85,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             select: {
               participantName: true,
               participantOrganization: true,
+              dateConducted: true,
             },
           },
         },

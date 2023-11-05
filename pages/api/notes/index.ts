@@ -156,6 +156,7 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
           select: {
             participantName: true,
             participantOrganization: true,
+            dateConducted: true,
           }
         }
       },
