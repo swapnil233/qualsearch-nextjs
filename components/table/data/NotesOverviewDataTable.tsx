@@ -331,7 +331,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               ))
             ) : (
               <tr>
-                <td colSpan={8} align="center">
+                <td colSpan={9} align="center">
                   <Box
                     p={"1rem"}
                     sx={(theme) => ({
