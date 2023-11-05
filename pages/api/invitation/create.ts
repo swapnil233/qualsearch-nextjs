@@ -42,7 +42,9 @@ export default async function Handler(
 
   // Validate that the required parameters are provided.
   if (!invitedEmail || !teamId) {
-    return res.status(HttpStatus.BadRequest).send("Missing parameters: invitedEmail or teamId.");
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("Missing parameters: invitedEmail or teamId.");
   }
 
   try {
@@ -56,7 +58,11 @@ export default async function Handler(
     );
 
     if (inviteeExists) {
-      return res.status(HttpStatus.Conflict).send("The user you are trying to invite is already a member of the team");
+      return res
+        .status(HttpStatus.Conflict)
+        .send(
+          "The user you are trying to invite is already a member of the team"
+        );
     }
 
     // Verify the invitee email is not already invited to the team.
@@ -87,7 +93,7 @@ export default async function Handler(
       `QualSearch - You have been invited to join ${team.name} by ${session.user?.name}`,
       `You have been invited to join the team ${team.name} by ${session.user?.name}. Visit ${host}/teams to accept the invitation.`,
       `<p>You have been invited to join the team ${team.name} by ${session.user?.name}. Visit ${host}/teams to accept the invitation.</p>`
-    )
+    );
 
     // Respond with a 201 status code (Created) and the created invitation.
     return res.status(201).json(invitation);

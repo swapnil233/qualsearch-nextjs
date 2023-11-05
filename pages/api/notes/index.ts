@@ -157,8 +157,8 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
             participantName: true,
             participantOrganization: true,
             dateConducted: true,
-          }
-        }
+          },
+        },
       },
     });
 
