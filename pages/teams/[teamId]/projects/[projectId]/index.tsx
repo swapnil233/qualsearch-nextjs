@@ -46,27 +46,31 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       }
 
       // Get all files, don't include the transcript or the uri
-      let initialFiles = await prisma.file.findMany({
-        where: {
-          projectId: projectId as string,
-        },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          createdAt: true,
-          updatedAt: true,
-          type: true,
-          projectId: true,
-          teamId: true,
-          status: true,
-          transcriptRequestId: {
-            select: {
-              request_id: true,
+      let initialFiles: FileWithoutTranscriptAndUri[] =
+        await prisma.file.findMany({
+          where: {
+            projectId: projectId as string,
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+            type: true,
+            projectId: true,
+            teamId: true,
+            status: true,
+            participantName: true,
+            participantOrganization: true,
+            dateConducted: true,
+            transcriptRequestId: {
+              select: {
+                request_id: true,
+              },
             },
           },
-        },
-      });
+        });
 
       let notes: NoteWithTagsAndCreator[] = await prisma.note.findMany({
         where: {

@@ -153,6 +153,9 @@ export default async function Handler(
         projectId: true,
         teamId: true,
         status: true,
+        participantName: true,
+        participantOrganization: true,
+        dateConducted: true,
         transcriptRequestId: {
           select: {
             request_id: true,

@@ -15,6 +15,9 @@ export type FileWithoutTranscriptAndUri = Prisma.FileGetPayload<{
     projectId: true;
     teamId: true;
     status: true;
+    participantName: true;
+    participantOrganization: true;
+    dateConducted: true;
     transcriptRequestId: {
       select: {
         request_id: true;
