@@ -141,10 +141,12 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     setFilteredNotes(filteredNotes);
   }, [search, filteredTags, filteredParticipants, notes]);
 
-  const exportData = notes.map((note, index) => ({
-    ID: index + 1,
+  const exportData = notes.map((note) => ({
     Note: note.text,
     Quote: note.transcriptText,
+    Participant: note.file.participantName || "",
+    Organization: note.file.participantOrganization || "",
+    "Date conducted": note.file.dateConducted,
     Tags: note.tags.map((tag) => tag.name).join(", "),
     "Date created": note.createdAt,
     "Created by": note.createdBy.name,
@@ -230,6 +232,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               <th>Quote</th>
               <th>Participant</th>
               <th>Organization</th>
+              <th>Date conducted</th>
               <th>Tags</th>
               <th>Created by</th>
               <th>Date created</th>
@@ -238,103 +241,92 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
           </thead>
           <tbody>
             {currentNotes.length > 0 ? (
-              currentNotes
-                .sort(
-                  (a, b) =>
-                    new Date(b.createdAt).getTime() -
-                    new Date(a.createdAt).getTime()
-                )
-                .map((note) => (
-                  <tr key={note.id}>
-                    <td width={"30%"}>
-                      <HighlightSearch text={note.text} search={search} />
-                    </td>
-                    <td width={"30%"}>
-                      {`"`}
-                      <HighlightSearch
-                        text={note.transcriptText.trim()}
-                        search={search}
-                      />
-                      {`"`}
-                    </td>
-                    <td>
-                      <HighlightSearch
-                        text={note.file.participantName || "-"}
-                        search={search}
-                      />
-                    </td>
-                    <td>
-                      <HighlightSearch
-                        text={note.file.participantOrganization || "-"}
-                        search={search}
-                      />
-                    </td>
-                    <td>
-                      <Stack spacing={"xs"}>
-                        {note.tags.map((tag) => (
-                          <Link
-                            key={tag.id}
-                            href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
-                            style={{ textDecoration: "none" }}
-                          >
-                            <Badge radius="xs" variant="filled" mr="md">
-                              {tag.name}
-                            </Badge>
-                          </Link>
-                        ))}
-                      </Stack>
-                    </td>
-                    <td>
-                      <Link
-                        href={`/teams/${teamId}/people/${note.createdByUserId}`}
-                        style={{ textDecoration: "none" }}
-                      >
-                        <Group noWrap align="center">
-                          <Avatar
-                            src={note.createdBy.image}
-                            alt={note.createdBy.name || ""}
-                            radius="xl"
-                            size={30}
-                          />
-                          <Stack spacing={0}>
-                            <Text truncate>{note.createdBy.name}</Text>
-                          </Stack>
-                        </Group>
-                      </Link>
-                    </td>
-                    <td>{new Date(note.createdAt).toLocaleString()}</td>
-                    <td>
-                      <Group>
+              currentNotes.map((note) => (
+                <tr key={note.id}>
+                  <td>
+                    <HighlightSearch text={note.text} search={search} />
+                  </td>
+                  <td>
+                    {`"`}
+                    <HighlightSearch
+                      text={note.transcriptText.trim()}
+                      search={search}
+                    />
+                    {`"`}
+                  </td>
+                  <td>{note.file.participantName || "-"}</td>
+                  <td>{note.file.participantOrganization || "-"}</td>
+                  <td>
+                    {note.file.dateConducted
+                      ? new Date(note.file.dateConducted).toDateString()
+                      : "-"}
+                  </td>
+                  <td>
+                    <Stack spacing={"xs"}>
+                      {note.tags.map((tag) => (
                         <Link
-                          href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`}
-                          target="_blank"
+                          key={tag.id}
+                          href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                          style={{ textDecoration: "none" }}
                         >
-                          <Tooltip label="Go to note">
-                            <ActionIcon variant="filled" color="blue">
-                              <IconExternalLink size="1.125rem" />
-                            </ActionIcon>
-                          </Tooltip>
+                          <Badge radius="xs" variant="filled" mr="md">
+                            {tag.name}
+                          </Badge>
                         </Link>
-
-                        <Tooltip label="Share">
-                          <ActionIcon variant="filled" color="blue">
-                            <IconShare size="1.125rem" />
-                          </ActionIcon>
-                        </Tooltip>
-
-                        <Tooltip label="Delete">
-                          <ActionIcon
-                            variant="filled"
-                            color="red"
-                            onClick={() => openNoteDeletionModal(note.id)}
-                          >
-                            <IconTrash size="1.125rem" />
-                          </ActionIcon>
-                        </Tooltip>
+                      ))}
+                    </Stack>
+                  </td>
+                  <td>
+                    <Link
+                      href={`/teams/${teamId}/people/${note.createdByUserId}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Group noWrap align="center">
+                        <Avatar
+                          src={note.createdBy.image}
+                          alt={note.createdBy.name || ""}
+                          radius="xl"
+                          size={30}
+                        />
+                        <Stack spacing={0}>
+                          <Text truncate>{note.createdBy.name}</Text>
+                        </Stack>
                       </Group>
-                    </td>
-                  </tr>
-                ))
+                    </Link>
+                  </td>
+                  <td>{new Date(note.createdAt).toDateString()}</td>
+                  <td>
+                    <Stack>
+                      <Link
+                        href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`}
+                        target="_blank"
+                      >
+                        <Tooltip label="Go to note">
+                          <ActionIcon variant="filled" color="blue">
+                            <IconExternalLink size="1.125rem" />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Link>
+
+                      <Tooltip label="Share">
+                        <ActionIcon variant="filled" color="blue">
+                          <IconShare size="1.125rem" />
+                        </ActionIcon>
+                      </Tooltip>
+
+                      <Tooltip label="Delete">
+                        <ActionIcon
+                          variant="filled"
+                          color="red"
+                          onClick={() => openNoteDeletionModal(note.id)}
+                        >
+                          <IconTrash size="1.125rem" />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Stack>
+                  </td>
+                </tr>
+              ))
             ) : (
               <tr>
                 <td colSpan={8} align="center">
