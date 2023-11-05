@@ -146,9 +146,11 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     Quote: note.transcriptText,
     Participant: note.file.participantName || "",
     Organization: note.file.participantOrganization || "",
-    "Date conducted": note.file.dateConducted,
+    "Date conducted": note.file.dateConducted
+      ? new Date(note.file.dateConducted).toDateString()
+      : "",
     Tags: note.tags.map((tag) => tag.name).join(", "),
-    "Date created": note.createdAt,
+    "Date created": new Date(note.createdAt).toDateString(),
     "Created by": note.createdBy.name,
     "File link": `${host}/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`,
   }));
