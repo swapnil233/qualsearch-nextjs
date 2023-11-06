@@ -70,6 +70,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
               },
             },
           },
+          orderBy: {
+            createdAt: "asc",
+          },
         });
 
       let notes: NoteWithTagsAndCreator[] = await prisma.note.findMany({
