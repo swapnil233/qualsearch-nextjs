@@ -1,7 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import pinecone from "@/utils/pinecone";
 import prisma from "@/utils/prisma";
-import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
@@ -67,11 +67,6 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
       return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);
     }
 
-    // Initialize pinecone
-    const pinecone = new Pinecone({
-      environment: process.env.PINECONE_ENVIRONMENT!,
-      apiKey: process.env.PINECONE_API_KEY!,
-    });
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
 
     // Split transcript into 10,000 char chunks with 500 char overlap
