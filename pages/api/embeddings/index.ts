@@ -1,42 +1,13 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
-import { PineconeClient } from "@pinecone-database/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-
-const removeUnwantedKeys = (data: {
-  paragraphs: Paragraph[];
-}): { paragraphs: Paragraph[] } => {
-  data.paragraphs.forEach((paragraph) => {
-    delete paragraph.start;
-    delete paragraph.end;
-    delete paragraph.num_words;
-
-    paragraph.sentences.forEach((sentence) => {
-      delete sentence.start;
-      delete sentence.end;
-    });
-  });
-  return data;
-};
-
-type Paragraph = {
-  start?: number;
-  end?: number;
-  speaker: number;
-  num_words?: number;
-  sentences: {
-    end?: number;
-    text: string;
-    start?: number;
-  }[];
-};
-
 /**
  * Handler for the '/api/embeddings' API endpoint.
  * This function is responsible for creating/upserting embeddings for a given transcript.
@@ -97,15 +68,11 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Initialize pinecone
-    const pinecone = new PineconeClient();
-    await pinecone.init({
+    const pinecone = new Pinecone({
       environment: process.env.PINECONE_ENVIRONMENT!,
       apiKey: process.env.PINECONE_API_KEY!,
     });
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
-
-    // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
-    const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
 
     // Split transcript into 10,000 char chunks with 500 char overlap
     const splitter = new RecursiveCharacterTextSplitter({
@@ -114,7 +81,8 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
     });
 
     const splitTranscript = await splitter.createDocuments([
-      JSON.stringify(cleanParagraphs),
+      // @ts-ignore
+      JSON.stringify(transcript.paragraphs.transcript),
     ]);
 
     // Upsert transcript embeddings to Pinecone vector store.
@@ -125,7 +93,7 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
       }),
       {
         pineconeIndex,
-        namespace: `file-${transcript.fileId}-transcript-${transcript.id}-5`,
+        namespace: `file-${transcript.fileId}-transcript-${transcript.id}`,
         textKey: "text",
       }
     );
