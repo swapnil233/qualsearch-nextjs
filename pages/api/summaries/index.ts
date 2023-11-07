@@ -1,42 +1,16 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import prisma from "@/utils/prisma";
-import { loadSummarizationChain } from "langchain/chains";
+import { get_encoding } from "@dqbd/tiktoken";
+import { LLMChain, loadSummarizationChain } from "langchain/chains";
+import { ChatOpenAI } from "langchain/chat_models/openai";
 import { OpenAI } from "langchain/llms/openai";
-import { PromptTemplate } from "langchain/prompts";
+import { ChatPromptTemplate, PromptTemplate } from "langchain/prompts";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
-
-type Paragraph = {
-  start?: number;
-  end?: number;
-  speaker: number;
-  num_words?: number;
-  sentences: {
-    end?: number;
-    text: string;
-    start?: number;
-  }[];
-};
-
-const removeUnwantedKeys = (data: {
-  paragraphs: Paragraph[];
-}): { paragraphs: Paragraph[] } => {
-  data.paragraphs.forEach((paragraph) => {
-    delete paragraph.start;
-    delete paragraph.end;
-    delete paragraph.num_words;
-
-    paragraph.sentences.forEach((sentence) => {
-      delete sentence.start;
-      delete sentence.end;
-    });
-  });
-  return data;
-};
-
+const encoding = get_encoding("cl100k_base");
 /**
  * Handler for the '/api/summaries' API endpoint.
  * This function is responsible for performing various summary-related operations,
@@ -104,44 +78,26 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);
     }
 
-    // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
-    const cleanParagraphs = removeUnwantedKeys(transcript.paragraphs);
-
     // Split transcript into 10,000 char chunks with 500 char overlap
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 10000,
+      chunkSize: 40000,
       chunkOverlap: 500,
     });
 
-    const splitTranscript = await splitter.createDocuments([
-      JSON.stringify(cleanParagraphs),
-    ]);
-
     const model = new OpenAI({
-      modelName: "gpt-3.5-turbo",
+      modelName: "gpt-4-1106-preview",
       temperature: 0.3,
     });
 
-    const combineMapPromptTemplate = new PromptTemplate({
-      inputVariables: ["text"],
-      template: `The following is a chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Summarize the text and provide 1-2 representative quotes from this chunk. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
+    // @ts-ignore Prisma stores transcript as a generic JsonValue
+    const tokenCount = encoding.encode(transcript.paragraphs.transcript).length;
 
-      The output of this action should be a JSON object with the following structure:
-        
-      "summary": "The summary of the text goes here.",
-        "quotes": [
-          "The first quote goes here.",
-          "The second quote goes here."
-        ]
-      Text:
-      
-      {text}`,
-    });
+    let aiSummary = '';
 
-    const combinePromptTemplate = new PromptTemplate({
-      inputVariables: ["text"],
-      template: `
-      Given text is a transcript of a UX team conducting usability tests. Produce a summary including three sections, styled as such:
+    // gpt-4-1106-preview has a 128,000 token limit. Setting the limit to 126,000 to be safe.
+    if (tokenCount < 126000) {
+      const template =
+        `Given text is a transcript of a UX team conducting usability tests. Produce a summary including three sections, styled exactly as such:
       
       **Overview**: 
       
@@ -149,31 +105,94 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   
       **Key Findings**: 
       
-      Enumerate 10 main insights in a numbered list, such as "User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items. Do not talk about problems unrelated to the usability test (e.g., if the user had trouble sharing their screen to the researchers, or if the user had trouble with their internet connection).
+      5 to 10 insights in a numbered list, such as "1. User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items. Do not talk about problems unrelated to the usability test (e.g., if the user had trouble sharing their screen to the researchers, or if the user had trouble with their internet connection). Do not refer to speakers as their integer labels (e.g., "Speaker 0 said..."). Whenever possible, refer to speakers by their names.
   
       **Quotes**: 
       
-      Try to include 5-10 unique quotes from the transcript that are representative of the user's experience. Do not include quotes that are not representative of the user's experience (e.g., if the user was talking about their personal life, or if the user was talking about a different product, or when the researcher was introducing the testing session, etc.). Do not repeat quotes.
+      Include 5-10 unique and direct quotes from the transcript that are representative of the user's experience. Do not include quotes that are not representative of the user's experience (e.g., if the user was talking about their personal life, or if the user was talking about a different product, or when the researcher was introducing the testing session, etc.). Do not repeat quotes.
   
-      If the text isn't a usability test transcript, return an appropriate message.
+      If the text isn't a usability test transcript, return an appropriate message.`;
 
-      Text:
+      const humanTemplate = "{text}"
+
+      const chatPrompt = ChatPromptTemplate.fromMessages([
+        ["system", template],
+        ["human", humanTemplate],
+      ]);
+
+      const chat = new ChatOpenAI(model);
+
+      const chain = new LLMChain({
+        llm: chat,
+        prompt: chatPrompt,
+      });
+
+      const result = await chain.call({
+        // @ts-ignore Prisma stores transcript as a generic JsonValue
+        text: transcript.paragraphs.transcript as string,
+      });
+
+      aiSummary = result.text;
+    } else {
+      const splitTranscript = await splitter.createDocuments([
+        // @ts-ignore Prisma stores transcript.paragraph as a generic JsonValue
+        JSON.stringify(transcript.paragraphs.transcript),
+      ]);
+
+      const combineMapPromptTemplate = new PromptTemplate({
+        inputVariables: ["text"],
+        template: `The following is a chunk of text from the transcript of a UX team conducting a usability test. Speakers are labelled as integers, starting from 0. Summarize the text and provide 1-2 representative quotes from this chunk. Keep in mind that this summary will be fed to another summary-generation tool, so do not leave any important parts out.
+  
+        The output of this action should be a JSON object with the following structure:
+          
+        "summary": "The summary of the text goes here.",
+          "quotes": [
+            "The first quote goes here.",
+            "The second quote goes here."
+          ]
+        Text:
+        
+        {text}`,
+      });
+
+      const combinePromptTemplate = new PromptTemplate({
+        inputVariables: ["text"],
+        template: `Given text is a transcript of a UX team conducting usability tests. Produce a summary including three sections, styled exactly as such:
       
-      {text}`,
-    });
+        **Overview**: 
+        
+        Briefly encapsulate key discussions or outcomes. The summary targets UX professionals and web application developers; UX jargon usage is acceptable. 
+    
+        **Key Findings**: 
+        
+        5 to 10 insights in a numbered list, such as "1. User finds the log-in process difficult due to 2FA requirement". Start with issues and problems the user had during the usability test, then cover the remaining items. Do not talk about problems unrelated to the usability test (e.g., if the user had trouble sharing their screen to the researchers, or if the user had trouble with their internet connection). Do not refer to speakers as their integer labels (e.g., "Speaker 0 said..."). Whenever possible, refer to speakers by their names.
+    
+        **Quotes**: 
+        
+        Include 5-10 unique and direct quotes from the transcript that are representative of the user's experience. Do not include quotes that are not representative of the user's experience (e.g., if the user was talking about their personal life, or if the user was talking about a different product, or when the researcher was introducing the testing session, etc.). Do not repeat quotes.
+    
+        If the text isn't a usability test transcript, return an appropriate message.
+  
+        Text:
+        
+        {text}`,
+      });
 
-    // Generate a summary
-    // https://js.langchain.com/docs/modules/chains/popular/summarize
-    const summaryChain = loadSummarizationChain(model, {
-      type: "map_reduce",
-      verbose: true,
-      combinePrompt: combinePromptTemplate,
-      combineMapPrompt: combineMapPromptTemplate,
-    });
+      // Generate a summary
+      // https://js.langchain.com/docs/modules/chains/popular/summarize
+      const summaryChain = loadSummarizationChain(model, {
+        type: "map_reduce",
+        verbose: true,
+        combinePrompt: combinePromptTemplate,
+        combineMapPrompt: combineMapPromptTemplate,
+      });
 
-    const result = await summaryChain.call({
-      input_documents: splitTranscript,
-    });
+      const result = await summaryChain.call({
+        input_documents: splitTranscript,
+      });
+
+      aiSummary = result.text;
+    }
 
     // Insert the summary to the DB
     const summary = await prisma.transcript.update({
@@ -183,7 +202,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       data: {
         summary: {
           create: {
-            content: result.text,
+            content: aiSummary,
           },
         },
       },
