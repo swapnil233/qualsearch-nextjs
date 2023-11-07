@@ -95,3 +95,37 @@ export type TagWithNoteIds = Prisma.TagGetPayload<{
     };
   };
 }>;
+
+export type TranscriptWords = {
+  start: number;
+  end: number;
+  word: string;
+  punctuated_word: string;
+  confidence: number;
+  speaker: number;
+  speaker_confidence: number;
+}[];
+
+export type Sentence = {
+  start: number;
+  end: number;
+  text: string;
+}
+
+export type TranscriptParagraph = {
+  start: number;
+  end: number;
+  speaker: number;
+  num_words: number;
+  sentences: Sentence[];
+};
+
+export type TranscriptParagraphs = {
+  paragraphs: TranscriptParagraph[];
+  transcript: string;
+};
+
+export type CleanedParagraph = {
+  speaker: number;
+  sentences: string; // Sentences are combined into a single string
+};
