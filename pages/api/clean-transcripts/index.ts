@@ -33,7 +33,7 @@ export default async function handler(
 
 /**
  * Handler for POST requests to '/api/embeddings'.
- * This function takes the transcript.paragraph JSON from the DB given a transcript ID, 
+ * This function takes the transcript.paragraph JSON from the DB given a transcript ID,
  * and returns essentially transcript.paragraphs.transcript but as a JSON object instead of a string.
  *
  * @param req {NextApiRequest} The HTTP request object.
@@ -47,45 +47,56 @@ async function handleTranscriptCleanup(
     const { transcriptId } = req.query;
 
     if (!transcriptId) {
-      return res.status(HttpStatus.BadRequest).json({ message: ErrorMessages.BadRequest });
+      return res
+        .status(HttpStatus.BadRequest)
+        .json({ message: ErrorMessages.BadRequest });
     }
 
     const transcript = await prisma.transcript.findUnique({
       where: {
-        id: transcriptId as string
-      }
+        id: transcriptId as string,
+      },
     });
 
     if (!transcript) {
-      return res.status(HttpStatus.NotFound).json({ message: ErrorMessages.NotFound });
+      return res
+        .status(HttpStatus.NotFound)
+        .json({ message: ErrorMessages.NotFound });
     }
 
-    const cleanedTranscript = cleanTranscript(transcript.paragraphs as TranscriptParagraphs);
+    const cleanedTranscript = cleanTranscript(
+      transcript.paragraphs as TranscriptParagraphs
+    );
     return res.status(HttpStatus.Ok).json(cleanedTranscript);
-
   } catch (error) {
     console.error(error);
-    return res.status(HttpStatus.InternalServerError).json({ message: ErrorMessages.InternalServerError });
+    return res
+      .status(HttpStatus.InternalServerError)
+      .json({ message: ErrorMessages.InternalServerError });
   }
 }
 
 // Helper function to clean the transcript
 function cleanTranscript(paragraphs: TranscriptParagraphs): CleanedParagraph[] {
-  const cleanedParagraphs: CleanedParagraph[] = paragraphs.paragraphs.map(paragraph => ({
-    speaker: paragraph.speaker,
-    sentences: paragraph.sentences.map(sentence => sentence.text).join(' ')
-  }));
+  const cleanedParagraphs: CleanedParagraph[] = paragraphs.paragraphs.map(
+    (paragraph) => ({
+      speaker: paragraph.speaker,
+      sentences: paragraph.sentences.map((sentence) => sentence.text).join(" "),
+    })
+  );
 
   return mergeParagraphsBySpeaker(cleanedParagraphs);
 }
 
 // Helper function to merge paragraphs with the same speaker
-function mergeParagraphsBySpeaker(paragraphs: CleanedParagraph[]): CleanedParagraph[] {
+function mergeParagraphsBySpeaker(
+  paragraphs: CleanedParagraph[]
+): CleanedParagraph[] {
   return paragraphs.reduce<CleanedParagraph[]>((acc, curr) => {
     const lastParagraph = acc[acc.length - 1];
 
     if (lastParagraph && lastParagraph.speaker === curr.speaker) {
-      lastParagraph.sentences += ' ' + curr.sentences;
+      lastParagraph.sentences += " " + curr.sentences;
       return acc;
     }
     return [...acc, curr];

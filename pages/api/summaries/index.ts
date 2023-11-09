@@ -92,12 +92,11 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // @ts-ignore Prisma stores transcript as a generic JsonValue
     const tokenCount = encoding.encode(transcript.paragraphs.transcript).length;
 
-    let aiSummary = '';
+    let aiSummary = "";
 
     // gpt-4-1106-preview has a 128,000 token limit. Setting the limit to 126,000 to be safe.
     if (tokenCount < 126000) {
-      const template =
-        `Given text is a transcript of a UX team conducting usability tests. Produce a summary including three sections, styled exactly as such:
+      const template = `Given text is a transcript of a UX team conducting usability tests. Produce a summary including three sections, styled exactly as such:
       
       **Overview**: 
       
@@ -113,7 +112,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   
       If the text isn't a usability test transcript, return an appropriate message.`;
 
-      const humanTemplate = "{text}"
+      const humanTemplate = "{text}";
 
       const chatPrompt = ChatPromptTemplate.fromMessages([
         ["system", template],

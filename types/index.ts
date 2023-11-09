@@ -1,5 +1,5 @@
 import { Prisma, Team, User } from "@prisma/client";
-import { Document } from 'langchain/document';
+import { Document } from "langchain/document";
 
 export type TeamWithUsers = Team & {
   users: User[];
@@ -111,7 +111,7 @@ export type Sentence = {
   start: number;
   end: number;
   text: string;
-}
+};
 
 export type TranscriptParagraph = {
   start: number;
@@ -132,19 +132,19 @@ export type CleanedParagraph = {
 };
 
 export type Message = {
-  type: 'apiMessage' | 'userMessage';
+  type: "apiMessage" | "userMessage";
   message: string;
   isStreaming?: boolean;
   sourceDocs?: Document[];
 };
 
 export interface UserMessage {
-  type: 'userMessage';
+  type: "userMessage";
   message: string;
 }
 
 export interface ApiMessage {
-  type: 'apiMessage';
+  type: "apiMessage";
   message: string;
   sourceDocs?: Document[];
 }
