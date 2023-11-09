@@ -1,3 +1,4 @@
+import parseMarkdown from "@/utils/parseMarkdown";
 import { Card, Skeleton, Stack, Text, Title } from "@mantine/core";
 import { FC, memo } from "react";
 
@@ -7,14 +8,6 @@ export interface ISummaryCard {
 }
 
 const SummaryCard: FC<ISummaryCard> = ({ summary, dateSummarized }) => {
-  // Parse the bolds returned by AI (in **)
-  const parseMarkdown = (text: string) => {
-    const parts = text.split("**");
-    return parts.map((part: string, i: number) =>
-      i % 2 === 0 ? part : <strong key={i}>{part}</strong>
-    );
-  };
-
   return (
     <Card
       withBorder
