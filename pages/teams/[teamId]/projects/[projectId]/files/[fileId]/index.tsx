@@ -167,7 +167,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
-  const [segment, setSegment] = useState<"tags" | "notes" | "chat">("notes");
+  const [segment, setSegment] = useState<"tags" | "notes" | "ai">("notes");
 
   const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
 
@@ -369,6 +369,8 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
                   mediaRef={mediaRef}
                   transcriptContainerDivRef={transcriptContainerDivRef}
                   user={user}
+                  fileId={file.id}
+                  transcriptId={transcript.id}
                 />
               )}
             </Group>

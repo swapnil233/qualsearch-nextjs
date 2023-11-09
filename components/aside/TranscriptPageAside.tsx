@@ -28,20 +28,22 @@ import {
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import EmptyState from "../states/empty/EmptyState";
+import { AsideAiChat } from "./AsideAiChat";
 import { AsideNotes } from "./AsideNotes";
 import { AsideTags } from "./AsideTags";
 
 interface ITranscriptPageAside {
   user: User;
 
-  segment: "tags" | "notes" | "chat";
-  setSegment: React.Dispatch<React.SetStateAction<"tags" | "notes" | "chat">>;
+  segment: "tags" | "notes" | "ai";
+  setSegment: React.Dispatch<React.SetStateAction<"tags" | "notes" | "ai">>;
 
   mediaRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
-}
 
-type SortCategories = "newest-to-oldest" | "oldest-to-newest" | "chronological";
+  fileId: string;
+  transcriptId: string;
+}
 
 export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   segment,
@@ -49,6 +51,8 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   mediaRef,
   transcriptContainerDivRef,
   user,
+  fileId,
+  transcriptId,
 }) => {
   const { notes } = useNotes();
   const { tags, setTags } = useTags();
@@ -94,7 +98,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
           value={segment}
           transitionDuration={100}
           mb={rem(16)}
-          onChange={(value) => setSegment(value as "tags" | "notes" | "chat")}
+          onChange={(value) => setSegment(value as "tags" | "notes" | "ai")}
           data={[
             {
               value: "notes",
@@ -115,11 +119,11 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
               ),
             },
             {
-              value: "chat",
+              value: "ai",
               label: (
                 <Center>
                   <IconSparkles size="1rem" />
-                  <Box ml={10}>Chat</Box>
+                  <Box ml={10}>AI</Box>
                 </Center>
               ),
             },
@@ -209,7 +213,13 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
           </>
         )}
 
-        {segment === "chat" && <h1>chat</h1>}
+        {segment === "ai" && (
+          <>
+            <Box h={800}>
+              <AsideAiChat fileId={fileId} transcriptId={transcriptId} />
+            </Box>
+          </>
+        )}
       </Stack>
     </Aside>
   );

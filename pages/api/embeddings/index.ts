@@ -6,8 +6,6 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]";
 /**
  * Handler for the '/api/embeddings' API endpoint.
  * This function is responsible for creating/upserting embeddings for a given transcript.
@@ -22,11 +20,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   // Get the server session and authenticate the request.
-  const session = await getServerSession(req, res, authOptions);
+  // const session = await getServerSession(req, res, authOptions);
 
-  if (!session) {
-    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
-  }
+  // if (!session) {
+  //   return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+  // }
 
   // Handle the request depending on its HTTP method.
   switch (req.method) {
