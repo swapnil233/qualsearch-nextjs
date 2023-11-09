@@ -1,4 +1,5 @@
 import { Prisma, Team, User } from "@prisma/client";
+import { Document } from 'langchain/document';
 
 export type TeamWithUsers = Team & {
   users: User[];
@@ -129,3 +130,21 @@ export type CleanedParagraph = {
   speaker: number;
   sentences: string; // Sentences are combined into a single string
 };
+
+export type Message = {
+  type: 'apiMessage' | 'userMessage';
+  message: string;
+  isStreaming?: boolean;
+  sourceDocs?: Document[];
+};
+
+export interface UserMessage {
+  type: 'userMessage';
+  message: string;
+}
+
+export interface ApiMessage {
+  type: 'apiMessage';
+  message: string;
+  sourceDocs?: Document[];
+}
