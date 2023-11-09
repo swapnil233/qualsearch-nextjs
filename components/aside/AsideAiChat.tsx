@@ -12,6 +12,7 @@ import { notifications } from "@mantine/notifications";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { FormEvent, KeyboardEvent, useRef, useState } from "react";
+import ChatSuggestionButton from "../buttons/ChatSuggestionButton";
 
 interface IAsideAiChatProps {
   fileId: string;
@@ -45,22 +46,26 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
   const messageListRef = useRef<HTMLDivElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleMessageSubmit = async (e: FormEvent) => {
+  const handleMessageSubmit = async (
+    e: FormEvent,
+    suggestedMessage?: string
+  ) => {
     e.preventDefault();
 
-    if (!query.trim()) {
+    const messageToSend = suggestedMessage || query.trim();
+
+    if (!messageToSend) {
       notifications.show({
         title: "Please enter a question",
         message: "You can't send an empty message",
         color: "red",
       });
-
       return;
     }
 
     const newMessage: UserMessage = {
       type: "userMessage",
-      message: query.trim(),
+      message: messageToSend,
     };
 
     updateMessages(newMessage);
@@ -110,6 +115,10 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
     }
   };
 
+  const handleSuggestionSubmit = (suggestion: string) => {
+    return (e: FormEvent) => handleMessageSubmit(e, suggestion);
+  };
+
   const updateMessages = (
     newMessage: Message,
     question?: string,
@@ -141,45 +150,71 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
   };
 
   return (
-    <Card padding={"xs"} withBorder h={"100%"}>
-      <Stack justify="space-between" h={"100%"}>
+    <Card padding={"xs"} withBorder>
+      <Stack justify="space-between">
         <Stack>
           <Text weight={500}>Ask a question about this interview</Text>
           <ScrollArea h={"32rem"} ref={messageListRef}>
             <Stack spacing={"lg"}>
               {messageState.messages.map((message, index) => (
-                <Stack key={`chatMessage-${index}`} spacing={"xs"}>
-                  <Group noWrap>
-                    <Image
-                      src={
-                        message.type === "apiMessage"
-                          ? "/bot.png"
-                          : session?.user?.image || "/user-image.png"
-                      }
-                      alt={
-                        message.type === "apiMessage"
-                          ? "AI"
-                          : `The profile picture of the user ${session?.user?.name}`
-                      }
-                      width="30"
-                      height="30"
-                      priority
-                    />
-                    <Text weight={500}>
-                      {message.type === "apiMessage"
-                        ? "QualSearch AI"
-                        : `${session?.user?.name || "You"}`}
+                <Group
+                  noWrap
+                  key={`chatMessage-${index}`}
+                  spacing={"xs"}
+                  align="start"
+                >
+                  <Image
+                    src={
+                      message.type === "apiMessage"
+                        ? "/bot.png"
+                        : session?.user?.image || "/user-image.png"
+                    }
+                    alt={
+                      message.type === "apiMessage"
+                        ? "AI"
+                        : `The profile picture of the user ${session?.user?.name}`
+                    }
+                    width="30"
+                    height="30"
+                    priority
+                  />
+                  <Stack spacing={4}>
+                    <Stack spacing={2}>
+                      <Text weight={500}>
+                        {message.type === "apiMessage"
+                          ? "QualSearch AI"
+                          : `${session?.user?.name || "You"}`}
+                      </Text>
+                      <Text size="xs" color="dimmed">
+                        {new Date().toLocaleString()}
+                      </Text>
+                    </Stack>
+                    <Text style={{ whiteSpace: "pre-wrap" }}>
+                      {message.message}
                     </Text>
-                  </Group>
-                  <Text style={{ whiteSpace: "pre-wrap" }}>
-                    {message.message}
-                  </Text>
-                </Stack>
+                  </Stack>
+                </Group>
               ))}
             </Stack>
           </ScrollArea>
         </Stack>
-        <Stack spacing={"xs"}>
+        <Stack>
+          {messageState.messages.length === 1 && (
+            <Stack spacing={"xs"}>
+              <ChatSuggestionButton
+                suggestion={"What were the major pain points?"}
+                handleSubmit={handleSuggestionSubmit(
+                  "What were the major pain points?"
+                )}
+              />
+              <ChatSuggestionButton
+                suggestion={"How can the product be improved?"}
+                handleSubmit={handleSuggestionSubmit(
+                  "How can the product be improved?"
+                )}
+              />
+            </Stack>
+          )}
           <form onSubmit={handleMessageSubmit}>
             <Stack spacing={"xs"}>
               <Textarea
