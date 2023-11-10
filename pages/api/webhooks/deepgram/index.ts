@@ -1,6 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import { sendEmail } from "@/lib/sendEmail";
+import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { getSizeInBytes } from "@/utils/setSizeInBytes";
 import Cors from "micro-cors";
@@ -82,6 +83,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         prisma.transcript.create({
           data: transcriptData,
         }),
+
         prisma.file.update({
           where: {
             id: fileWithThisRequestId.file.id,
@@ -91,9 +93,23 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           },
         }),
       ]);
+
       console.log(
         `Transcript created with ID: ${newTranscript.id}. File status updated to ${updatedFile.status}.`
       );
+
+      // Create embeddings for the new transcript
+      console.log("Creating embeddings for the new transcript...");
+      await fetch(`${host}/api/embeddings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transcriptId: newTranscript.id,
+        }),
+      })
+      console.log("Embeddings created.");
 
       const teamWithUsers = await prisma.team.findUnique({
         where: {
