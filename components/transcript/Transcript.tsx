@@ -233,8 +233,6 @@ const Transcript: FC<ITranscriptProps> = ({
 
         const newNote: NoteWithTagsAndCreator = await newNoteResponse.json();
 
-        const newNoteId = newNote.id;
-
         setNotes((prevNotes) => [...prevNotes, newNote]);
         setTags((prevTags) => [...prevTags, ...newTags]);
         setNoteIsCreating(false);
@@ -247,7 +245,18 @@ const Transcript: FC<ITranscriptProps> = ({
           },
           body: JSON.stringify({
             fileId,
-            noteId: newNoteId,
+            noteId: newNote.id,
+          }),
+        });
+
+        await fetch("/api/embeddings/projects", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+            noteId: newNote.id,
           }),
         });
       } catch (error) {
