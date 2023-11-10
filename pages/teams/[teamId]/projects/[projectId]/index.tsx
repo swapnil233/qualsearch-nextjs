@@ -1,3 +1,5 @@
+import { IMessageState } from "@/components/aside/AsideAiChat";
+import ChatSuggestionButton from "@/components/buttons/ChatSuggestionButton";
 import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
@@ -11,17 +13,45 @@ import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { useProjectDeletion } from "@/hooks/useProjectDeletion";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
-import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
+import {
+  ApiMessage,
+  FileWithoutTranscriptAndUri,
+  Message,
+  NoteWithTagsAndCreator,
+  UserMessage,
+} from "@/types";
 import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { SimpleGrid, Stack, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  Affix,
+  Box,
+  Button,
+  Group,
+  Popover,
+  ScrollArea,
+  SimpleGrid,
+  Stack,
+  Text,
+  Textarea,
+  Title,
+  rem,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { Project } from "@prisma/client";
-import { IconFilePlus, IconPencil, IconTrash } from "@tabler/icons-react";
+import {
+  IconFilePlus,
+  IconMessage,
+  IconPencil,
+  IconTrash,
+} from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { useState } from "react";
+import Image from "next/image";
+import { FormEvent, KeyboardEvent, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -129,7 +159,11 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   initialFiles,
   initialNotes,
 }) => {
+  const { data: session } = useSession();
+  const [query, setQuery] = useState<string>("");
   const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
   const [files, setFiles] =
     useState<FileWithoutTranscriptAndUri[]>(initialFiles);
@@ -141,6 +175,121 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
   const [projectDeletionModalOpened, setProjectDeletionModalOpened] =
     useState(false);
   const [deletingProject, setDeletingProject] = useState<boolean>(false);
+
+  const [messageState, setMessageState] = useState<IMessageState>({
+    messages: [
+      {
+        message: "What would you like to know about this interview?",
+        type: "apiMessage",
+      },
+    ],
+    history: [],
+  });
+
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleMessageSubmit = async (
+    e: FormEvent,
+    suggestedMessage?: string
+  ) => {
+    e.preventDefault();
+
+    const messageToSend = suggestedMessage || query.trim();
+
+    if (!messageToSend) {
+      notifications.show({
+        title: "Please enter a question",
+        message: "You can't send an empty message",
+        color: "red",
+      });
+      return;
+    }
+
+    const newMessage: UserMessage = {
+      type: "userMessage",
+      message: messageToSend,
+    };
+
+    updateMessages(newMessage);
+    setLoading(true);
+    setQuery("");
+
+    // Send the messages to the API
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: newMessage.message,
+          history: messageState.history,
+          projectId: project.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        notifications.show({
+          title: "An error occurred",
+          message: data.error,
+          color: "red",
+        });
+      } else {
+        const apiMessage: ApiMessage = {
+          type: "apiMessage",
+          message: data.text,
+          sourceDocs: data.sourceDocuments,
+        };
+
+        updateMessages(apiMessage, newMessage.message, data.text);
+      }
+    } catch (error) {
+      setError("An error occurred while fetching the data. Please try again.");
+      notifications.show({
+        title: "An error occurred",
+        message: "An error occurred while fetching the data. Please try again.",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSuggestionSubmit = (suggestion: string) => {
+    return (e: FormEvent) => handleMessageSubmit(e, suggestion);
+  };
+
+  const updateMessages = (
+    newMessage: Message,
+    question?: string,
+    answer?: string
+  ) => {
+    setMessageState((prevState) => ({
+      ...prevState,
+      messages: [...prevState.messages, newMessage],
+      history:
+        question && answer
+          ? [...prevState.history, [question, answer]]
+          : prevState.history,
+    }));
+
+    scrollToBottom();
+  };
+
+  const scrollToBottom = () => {
+    messageListRef.current?.scrollTo(0, messageListRef.current.scrollHeight);
+  };
+
+  const handleEnterPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (query) {
+        handleMessageSubmit(e as unknown as FormEvent);
+      }
+    }
+  };
 
   const { form, creating, buttonText, handleCreateNewFile } = useFileCreation(
     project.teamId,
@@ -234,7 +383,7 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
             href: `/teams/${project.teamId}`,
           },
         ]}
-      ></PageHeading>
+      />
 
       {files.length === 0 ? (
         <EmptyState
@@ -268,42 +417,147 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         </>
       )}
 
-      {notes.length > 0 && (
-        <Stack w={"100%"} mt={"lg"}>
-          <Title order={3} fw={"normal"}>
-            Overview
-          </Title>
-          <NotesOverviewDataTable
-            notes={notes}
-            teamId={project.teamId}
-            projectId={project.id}
-            openNoteDeletionModal={openNoteDeletionModal}
-          />
-        </Stack>
-      )}
+      <Box
+        style={{
+          position: "relative",
+        }}
+      >
+        {notes.length > 0 && (
+          <Stack w={"100%"} mt={"lg"}>
+            <Title order={3} fw={"normal"}>
+              Overview
+            </Title>
+            <NotesOverviewDataTable
+              notes={notes}
+              teamId={project.teamId}
+              projectId={project.id}
+              openNoteDeletionModal={openNoteDeletionModal}
+            />
+          </Stack>
+        )}
 
-      <CreateFileModal
-        opened={opened}
-        close={close}
-        creating={creating}
-        handleCreateNewFile={handleCreateNewFile}
-        form={form}
-        buttonText={buttonText}
-      />
+        <CreateFileModal
+          opened={opened}
+          close={close}
+          creating={creating}
+          handleCreateNewFile={handleCreateNewFile}
+          form={form}
+          buttonText={buttonText}
+        />
 
-      <DeleteNoteModal
-        opened={noteDeletionModalOpened}
-        close={closeNoteDeletionModal}
-        handleDelete={handleDeleteNote}
-        deleting={deletingNote}
-      />
+        <DeleteNoteModal
+          opened={noteDeletionModalOpened}
+          close={closeNoteDeletionModal}
+          handleDelete={handleDeleteNote}
+          deleting={deletingNote}
+        />
 
-      <DeleteProjectModal
-        opened={projectDeletionModalOpened}
-        close={() => setProjectDeletionModalOpened(false)}
-        handleDelete={handleDeleteProject}
-        deleting={deletingProject}
-      />
+        <DeleteProjectModal
+          opened={projectDeletionModalOpened}
+          close={() => setProjectDeletionModalOpened(false)}
+          handleDelete={handleDeleteProject}
+          deleting={deletingProject}
+        />
+
+        <Affix position={{ bottom: rem(20), right: rem(20) }}>
+          <Popover width={400} position="top" shadow="xl">
+            <Popover.Target>
+              <ActionIcon color="blue.9" size="xl" radius="xl" variant="filled">
+                <IconMessage size="1.75rem" />
+              </ActionIcon>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Stack justify="space-between">
+                <Stack>
+                  <Text weight={500}>
+                    Chat with QualSearch AI about your notes...
+                  </Text>
+                  <ScrollArea h={"32rem"} ref={messageListRef}>
+                    <Stack spacing={"lg"}>
+                      {messageState.messages.map((message, index) => (
+                        <Group
+                          noWrap
+                          key={`chatMessage-${index}`}
+                          spacing={"xs"}
+                          align="start"
+                        >
+                          <Image
+                            src={
+                              message.type === "apiMessage"
+                                ? "/bot.png"
+                                : session?.user?.image || "/user-image.png"
+                            }
+                            alt={
+                              message.type === "apiMessage"
+                                ? "AI"
+                                : `The profile picture of the user ${session?.user?.name}`
+                            }
+                            width="30"
+                            height="30"
+                            priority
+                          />
+                          <Stack spacing={4}>
+                            <Text weight={500}>
+                              {message.type === "apiMessage"
+                                ? "QualSearch AI"
+                                : `${session?.user?.name || "You"}`}
+                            </Text>
+                            <Text style={{ whiteSpace: "pre-wrap" }}>
+                              {message.message}
+                            </Text>
+                          </Stack>
+                        </Group>
+                      ))}
+                    </Stack>
+                  </ScrollArea>
+                </Stack>
+                <Stack>
+                  {messageState.messages.length === 1 && (
+                    <Stack spacing={"xs"}>
+                      <ChatSuggestionButton
+                        suggestion={"What were the major pain points?"}
+                        handleSubmit={handleSuggestionSubmit(
+                          "What were the major pain points?"
+                        )}
+                      />
+                      <ChatSuggestionButton
+                        suggestion={"How can the product be improved?"}
+                        handleSubmit={handleSuggestionSubmit(
+                          "How can the product be improved?"
+                        )}
+                      />
+                    </Stack>
+                  )}
+                  <form onSubmit={handleMessageSubmit}>
+                    <Stack spacing={"xs"}>
+                      <Textarea
+                        disabled={loading}
+                        onKeyDown={handleEnterPress}
+                        ref={textAreaRef}
+                        autoFocus={false}
+                        minRows={4}
+                        maxLength={512}
+                        id="userInput"
+                        name="userInput"
+                        placeholder={
+                          loading
+                            ? "Waiting for response..."
+                            : "What trends do you notice about..."
+                        }
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                      />
+                      <Button type="submit" loading={loading}>
+                        Ask
+                      </Button>
+                    </Stack>
+                  </form>
+                </Stack>
+              </Stack>
+            </Popover.Dropdown>
+          </Popover>
+        </Affix>
+      </Box>
     </>
   );
 };

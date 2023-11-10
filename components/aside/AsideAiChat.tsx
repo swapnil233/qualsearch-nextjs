@@ -19,7 +19,7 @@ interface IAsideAiChatProps {
   transcriptId: string;
 }
 
-interface IMessageState {
+export interface IMessageState {
   messages: Message[];
   history: [string, string][];
   pendingSourceDocs?: Document[];
