@@ -180,7 +180,7 @@ const QualSearch: NextPageWithLayout<QualSearchPageProps> = () => {
 
         <div className={classes.inner}>
           <Title className={classes.title}>
-            Steamlined{" "}
+            Streamlined{" "}
             <Text component="span" className={classes.highlight} inherit>
               UX Research
             </Text>{" "}
