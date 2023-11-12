@@ -1,4 +1,4 @@
-import { ApiMessage, Message, UserMessage } from "@/types"; // assuming these types are defined
+import { ApiMessage, IMessageState, Message, UserMessage } from "@/types"; // assuming these types are defined
 import {
   Button,
   Card,
@@ -17,12 +17,6 @@ import ChatSuggestionButton from "../buttons/ChatSuggestionButton";
 interface IAsideAiChatProps {
   fileId: string;
   transcriptId: string;
-}
-
-export interface IMessageState {
-  messages: Message[];
-  history: [string, string][];
-  pendingSourceDocs?: Document[];
 }
 
 export const AsideAiChat: React.FC<IAsideAiChatProps> = ({

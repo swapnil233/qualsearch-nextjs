@@ -148,3 +148,9 @@ export interface ApiMessage {
   message: string;
   sourceDocs?: Document[];
 }
+
+export interface IMessageState {
+  messages: Message[];
+  history: [string, string][];
+  pendingSourceDocs?: Document[];
+}
