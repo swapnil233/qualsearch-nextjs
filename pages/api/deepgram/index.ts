@@ -1,7 +1,8 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { host } from "@/utils/host"; // import the query string library
 import { NextApiRequest, NextApiResponse } from "next";
-import qs from "qs"; // import the query string library
+import qs from "qs";
 
 // Define an interface for the options object
 interface Options {
@@ -92,7 +93,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       switch (audioType) {
         case "general":
           options["model"] = "general";
-          options["tier"] = "nova";
+          options["tier"] = "nova-2";
           break;
         case "phonecall":
           options["model"] = "phonecall";
@@ -104,10 +105,12 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           break;
         default:
           options["model"] = "general";
-          options["tier"] = "nova";
+          options["tier"] = "nova-2";
           break;
       }
     }
+
+    console.log("options", options);
 
     // Update options for redactions.
     if (redactions && Array.isArray(redactions) && redactions.length > 0) {
@@ -117,15 +120,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // Convert options to query string.
     const query = qs.stringify(options, { arrayFormat: "repeat" });
 
-    let cb = process.env.VERCEL
-      ? "https://transcription-eight.vercel.app/api/webhooks/deepgram"
-      : process.env.AMPLIFY_URL
-      ? `${process.env.AMPLIFY_URL}/api/webhooks/deepgram`
-      : "https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/";
+    let cb = `${host}/api/webhooks/deepgram/`;
 
-    console.log("Callback URL", cb);
-
-    const req_expensive = `https://api.deepgram.com/v1/listen?${query}&summarize=true&detect_topics=true&detect_entities=latest&tag=${teamId}-${projectId}&callback=${cb}`;
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 
     const response = await fetch(req_cheaper, {
@@ -134,10 +130,11 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
         Authorization: `Token ${DEEPGRAM_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url: uri }),
+      body: JSON.stringify({
+        url: uri
+      }),
     });
     const data = await response.json();
-    console.log("DG Response", data);
     res.status(HttpStatus.Ok).json(data);
   } catch (error) {
     console.error(error);
