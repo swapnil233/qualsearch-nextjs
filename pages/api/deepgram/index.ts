@@ -49,10 +49,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const { DEEPGRAM_API_KEY } = process.env;
 
     if (!DEEPGRAM_API_KEY) {
-      res
-        .status(HttpStatus.InternalServerError)
-        .json({ message: ErrorMessages.InternalServerError });
-      return;
+      return res.status(HttpStatus.InternalServerError).json({ message: ErrorMessages.InternalServerError });
     }
 
     // Extract values from the request body.
@@ -89,7 +86,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       // They are identified solely by the model name (e.g., 'whisper' or 'whisper-large').
       options["model"] = transcriptionQuality;
     } else {
-      // Update options based on audioType for 'nova' quality.
+      // Update options based on audioType for 'nova-2' quality.
       switch (audioType) {
         case "general":
           options["model"] = "general";
@@ -124,6 +121,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 
+    console.log("req_cheaper", req_cheaper);
+
     const response = await fetch(req_cheaper, {
       method: "POST",
       headers: {
@@ -135,6 +134,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       }),
     });
     const data = await response.json();
+    console.log("data", data);
     res.status(HttpStatus.Ok).json(data);
   } catch (error) {
     console.error(error);
