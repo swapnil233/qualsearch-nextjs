@@ -19,7 +19,7 @@ interface ProjectNotesChatProps {
 
 const ProjectNotesChat: React.FC<ProjectNotesChatProps> = ({ projectId }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const { data: session } = useSession();
   const [query, setQuery] = useState<string>("");
   const [messageState, setMessageState] = useState<IMessageState>({
@@ -63,7 +63,7 @@ const ProjectNotesChat: React.FC<ProjectNotesChatProps> = ({ projectId }) => {
 
     // Send the messages to the API
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/chat/project", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
