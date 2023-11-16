@@ -327,7 +327,13 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         />
 
         <Affix position={{ bottom: rem(20), right: rem(20) }}>
-          <Popover width={400} position="top" shadow="xl">
+          <Popover
+            width={400}
+            position="top"
+            shadow="xl"
+            closeOnClickOutside
+            closeOnEscape
+          >
             <Popover.Target>
               <ActionIcon color="blue.9" size="xl" radius="xl" variant="filled">
                 <IconMessage size="1.75rem" />
