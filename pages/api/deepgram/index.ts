@@ -86,11 +86,11 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       // They are identified solely by the model name (e.g., 'whisper' or 'whisper-large').
       options["model"] = transcriptionQuality;
     } else {
-      // Update options based on audioType for 'nova-2' quality.
+      // Update options based on audioType for 'nova' quality.
       switch (audioType) {
         case "general":
           options["model"] = "general";
-          options["tier"] = "nova-2";
+          options["tier"] = "nova";
           break;
         case "phonecall":
           options["model"] = "phonecall";
@@ -102,7 +102,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           break;
         default:
           options["model"] = "general";
-          options["tier"] = "nova-2";
+          options["tier"] = "nova";
           break;
       }
     }

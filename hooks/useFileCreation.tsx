@@ -28,7 +28,7 @@ export const useFileCreation = (
       multipleSpeakers: false,
       audioType: "",
       redactions: [] as string[],
-      transcriptionQuality: "nova-2" as "nova-2" | "whisper" | "whisper-large",
+      transcriptionQuality: "nova" as "nova" | "whisper" | "whisper-large",
     },
     validate: {
       fileName: (value) => (value.length > 0 ? null : "File name is required"),
