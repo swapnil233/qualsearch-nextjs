@@ -203,7 +203,7 @@ model Transcript {
   fileId String @unique
 
   // 1-1: a Transcript can have 1 summary.
-  summary   Summary? @relation(fields: [summaryId], references: [id], onDelete: Cascade)
+  summary   Summary? @relation(fields: [summaryId], references: [id])
   summaryId String?  @unique
 }
 
@@ -309,7 +309,7 @@ model Tag {
   createdByUserId String
 
   // 1-n -> A tag must belong to a project
-  Project   Project @relation(fields: [projectId], references: [id])
+  Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 }
 
