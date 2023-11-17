@@ -357,7 +357,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               >
                 <Transcript
                   words={words}
-                  audioRef={mediaRef}
+                  mediaRef={mediaRef}
                   user={user}
                   scrollToNoteId={noteId}
                   summaryHasLoaded={summaryHasLoaded}

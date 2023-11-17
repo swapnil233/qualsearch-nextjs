@@ -4,12 +4,12 @@ import { IconPlayerPlay } from "@tabler/icons-react";
 import { FC, useMemo } from "react";
 
 interface IPlayTranscriptBlockButton {
-  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+  mediaRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   startingTimestamp: number;
 }
 
 const PlayTranscriptBlockButton: FC<IPlayTranscriptBlockButton> = ({
-  audioRef,
+  mediaRef,
   startingTimestamp,
 }) => {
   const theme = useMantineTheme();
@@ -19,9 +19,9 @@ const PlayTranscriptBlockButton: FC<IPlayTranscriptBlockButton> = ({
   }, [startingTimestamp]);
 
   const handleTimestampClick = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = startingTimestamp;
-      audioRef.current.play();
+    if (mediaRef.current) {
+      mediaRef.current.currentTime = startingTimestamp;
+      mediaRef.current.play();
     }
   };
 

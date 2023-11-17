@@ -30,10 +30,10 @@ interface INoteCardProps {
     left: number;
   };
   note: NoteWithTagsAndCreator;
-  audioRef: React.MutableRefObject<HTMLAudioElement | null>;
+  mediaRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
 }
 
-export function NoteCard({ position, note, audioRef }: INoteCardProps) {
+export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
   const [noteIsPlaying, setNoteIsPlaying] = useState<boolean>(false);
 
   const router = useRouter();
@@ -41,41 +41,41 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
   const teamId = router.query.teamId as string;
 
   const handlePlayNote = () => {
-    if (audioRef.current) {
+    if (mediaRef.current) {
       const playAudioAfterSeek = () => {
-        audioRef.current?.play().catch((error) => {
+        mediaRef.current?.play().catch((error) => {
           console.error("Audio playback error:", error);
         });
         setNoteIsPlaying(true);
-        audioRef.current?.removeEventListener("seeked", playAudioAfterSeek);
+        mediaRef.current?.removeEventListener("seeked", playAudioAfterSeek);
       };
 
-      audioRef.current.addEventListener("seeked", playAudioAfterSeek);
+      mediaRef.current.addEventListener("seeked", playAudioAfterSeek);
 
-      audioRef.current.currentTime = note.start;
+      mediaRef.current.currentTime = note.start;
     }
   };
 
   const handleStopNote = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
+    if (mediaRef.current) {
+      mediaRef.current.pause();
       setNoteIsPlaying(false);
     }
   };
 
   useEffect(() => {
     const stopAtNoteEnd = () => {
-      if (audioRef.current && audioRef.current.currentTime >= note.end) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
+      if (mediaRef.current && mediaRef.current.currentTime >= note.end) {
+        mediaRef.current.pause();
+        mediaRef.current.removeEventListener("timeupdate", stopAtNoteEnd);
         setNoteIsPlaying(false);
       }
     };
 
-    const currentAudio = audioRef.current;
+    const currentAudio = mediaRef.current;
 
-    if (audioRef.current) {
-      audioRef.current.addEventListener("timeupdate", stopAtNoteEnd);
+    if (mediaRef.current) {
+      mediaRef.current.addEventListener("timeupdate", stopAtNoteEnd);
     }
 
     return () => {
@@ -83,7 +83,7 @@ export function NoteCard({ position, note, audioRef }: INoteCardProps) {
         currentAudio.removeEventListener("timeupdate", stopAtNoteEnd);
       }
     };
-  }, [audioRef, note.end]);
+  }, [mediaRef, note.end]);
 
   return (
     <Box
