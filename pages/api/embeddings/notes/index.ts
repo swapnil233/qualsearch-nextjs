@@ -114,7 +114,7 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
         ]);
 
         // Upsert transcript embeddings to Pinecone vector store.
-        const embeddings = await PineconeStore.fromDocuments(
+        await PineconeStore.fromDocuments(
             splitNoteInfo,
             new OpenAIEmbeddings({
                 openAIApiKey: process.env.OPENAI_API_KEY,
