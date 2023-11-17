@@ -16,7 +16,8 @@ export class TranscriptWordsGrouper {
 
       if (
         wordsGroupedBySpeaker.length === 0 ||
-        wordsGroupedBySpeaker[wordsGroupedBySpeaker.length - 1].speaker !== word.speaker
+        wordsGroupedBySpeaker[wordsGroupedBySpeaker.length - 1].speaker !==
+          word.speaker
       ) {
         wordsGroupedBySpeaker.push({
           speaker: word.speaker,

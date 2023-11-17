@@ -49,7 +49,9 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const { DEEPGRAM_API_KEY } = process.env;
 
     if (!DEEPGRAM_API_KEY) {
-      return res.status(HttpStatus.InternalServerError).json({ message: ErrorMessages.InternalServerError });
+      return res
+        .status(HttpStatus.InternalServerError)
+        .json({ message: ErrorMessages.InternalServerError });
     }
 
     // Extract values from the request body.
@@ -130,7 +132,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        url: uri
+        url: uri,
       }),
     });
     const data = await response.json();

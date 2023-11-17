@@ -108,7 +108,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         body: JSON.stringify({
           transcriptId: newTranscript.id,
         }),
-      })
+      });
       console.log("Embeddings created.");
 
       const teamWithUsers = await prisma.team.findUnique({

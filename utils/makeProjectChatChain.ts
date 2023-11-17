@@ -17,19 +17,19 @@ Question: {question}
 Helpful answer:`;
 
 export const makeProjectChatChain = (vectorstore: PineconeStore) => {
-    const model = new ChatOpenAI({
-        modelName: "gpt-4-1106-preview",
-        temperature: 0.3,
-    });
+  const model = new ChatOpenAI({
+    modelName: "gpt-4-1106-preview",
+    temperature: 0.3,
+  });
 
-    const chain = ConversationalRetrievalQAChain.fromLLM(
-        model,
-        vectorstore.asRetriever(),
-        {
-            qaTemplate: QA_TEMPLATE,
-            questionGeneratorTemplate: CONDENSE_TEMPLATE,
-            // returnSourceDocuments: true, //The number of source documents returned is 4 by default
-        }
-    );
-    return chain;
+  const chain = ConversationalRetrievalQAChain.fromLLM(
+    model,
+    vectorstore.asRetriever(),
+    {
+      qaTemplate: QA_TEMPLATE,
+      questionGeneratorTemplate: CONDENSE_TEMPLATE,
+      // returnSourceDocuments: true, //The number of source documents returned is 4 by default
+    }
+  );
+  return chain;
 };

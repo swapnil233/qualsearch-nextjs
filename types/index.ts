@@ -135,7 +135,7 @@ export type PrismaTranscript = {
   transcriptString: string;
   fileId: string;
   summaryId: string;
-}
+};
 
 export type Message = {
   type: "apiMessage" | "userMessage";
