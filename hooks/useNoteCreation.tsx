@@ -1,7 +1,11 @@
 import { SelectedText } from "@/components/transcript/interfaces";
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
-import { NoteWithTagsAndCreator, TagWithNoteIds, Transcript } from "@/types";
+import {
+  NoteWithTagsAndCreator,
+  TagWithNoteIds,
+  TranscriptWord,
+} from "@/types";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
@@ -10,12 +14,12 @@ import { useRouter } from "next/router";
 export const useNoteCreation = (
   selectedText: { start: number; end: number } | null,
   setSelectedText: React.Dispatch<React.SetStateAction<SelectedText | null>>,
-  transcript: Transcript,
+  words: TranscriptWord[],
   user: User,
   setNoteIsCreating: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const router = useRouter();
-  const { notes, setNotes } = useNotes();
+  const { setNotes } = useNotes();
   const { tags, setTags } = useTags();
   const { fileId, projectId } = router.query;
 
@@ -60,7 +64,7 @@ export const useNoteCreation = (
         participantOrganization: "",
       },
       // transcriptText is all the words between selectedText.start and selectedText.end
-      transcriptText: transcript
+      transcriptText: words
         .filter(
           (word) =>
             word.start >= selectedText!.start && word.end <= selectedText!.end

@@ -27,12 +27,15 @@ export type FileWithoutTranscriptAndUri = Prisma.FileGetPayload<{
   };
 }>;
 
-export type Transcript = {
-  start: number;
+export type TranscriptWord = {
   end: number;
+  word: string;
+  start: number;
   speaker: number;
+  confidence: number;
   punctuated_word: string;
-}[];
+  speaker_confidence: number;
+};
 
 export type NoteWithTagsAndCreator = Prisma.NoteGetPayload<{
   include: {
@@ -97,16 +100,6 @@ export type TagWithNoteIds = Prisma.TagGetPayload<{
   };
 }>;
 
-export type TranscriptWords = {
-  start: number;
-  end: number;
-  word: string;
-  punctuated_word: string;
-  confidence: number;
-  speaker: number;
-  speaker_confidence: number;
-}[];
-
 export type Sentence = {
   start: number;
   end: number;
@@ -121,6 +114,7 @@ export type TranscriptParagraph = {
   sentences: Sentence[];
 };
 
+// 'paragraphs' is an array of TranscriptParagraph the entire transcript as a string
 export type TranscriptParagraphs = {
   paragraphs: TranscriptParagraph[];
   transcript: string;
@@ -130,6 +124,18 @@ export type CleanedParagraph = {
   speaker: number;
   sentences: string; // Sentences are combined into a single string
 };
+
+export type PrismaTranscript = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  confidence: number;
+  words: TranscriptWord[];
+  paragraphs: TranscriptParagraph[];
+  transcriptString: string;
+  fileId: string;
+  summaryId: string;
+}
 
 export type Message = {
   type: "apiMessage" | "userMessage";

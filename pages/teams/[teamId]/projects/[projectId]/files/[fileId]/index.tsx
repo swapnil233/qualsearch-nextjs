@@ -8,7 +8,11 @@ import { NotesProvider } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
-import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
+import {
+  NoteWithTagsAndCreator,
+  TagWithNoteIds,
+  TranscriptWord,
+} from "@/types";
 import { getSignedUrl } from "@/utils/aws";
 import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
@@ -163,7 +167,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
 }) => {
   const theme = useMantineTheme();
   const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
-  const words = transcript.words;
+  const words = transcript.words as TranscriptWord[];
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
@@ -352,8 +356,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
                 }}
               >
                 <Transcript
-                  // @ts-ignore - Type 'JsonValue' from Prisma is not assignable to type '{ start: number; end: number; speaker: number; punctuated_word: string; }[]'.
-                  transcript={words}
+                  words={words}
                   audioRef={mediaRef}
                   user={user}
                   scrollToNoteId={noteId}

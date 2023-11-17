@@ -1,8 +1,8 @@
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
 import { useNoteCreation } from "@/hooks/useNoteCreation";
-import { Transcript as TranscriptType } from "@/types";
-import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
+import { TranscriptWord } from "@/types";
+import { TranscriptWordsGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box, Group } from "@mantine/core";
 import { User } from "@prisma/client";
@@ -15,7 +15,7 @@ import TranscriptText from "./TranscriptText";
 import { SelectedText } from "./interfaces";
 
 interface ITranscriptProps {
-  transcript: TranscriptType;
+  words: TranscriptWord[];
   audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
   user: User;
@@ -24,7 +24,7 @@ interface ITranscriptProps {
 }
 
 const Transcript: FC<ITranscriptProps> = ({
-  transcript,
+  words,
   audioRef,
   transcriptContainerDivRef,
   user,
@@ -41,14 +41,14 @@ const Transcript: FC<ITranscriptProps> = ({
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
 
-  const groupedTranscript = useMemo(() => {
-    return new TranscriptGrouper(transcript).groupBySpeaker();
-  }, [transcript]);
+  const wordsGroupedBySpeaker = useMemo(() => {
+    return new TranscriptWordsGrouper(words).groupWordsBySpeaker();
+  }, [words]);
 
   const { handleNoteSubmission } = useNoteCreation(
     selectedText,
     setSelectedText,
-    transcript,
+    words,
     user,
     setNoteIsCreating
   );
@@ -95,12 +95,9 @@ const Transcript: FC<ITranscriptProps> = ({
       if (audioRef.current) {
         const currentTime = audioRef.current.currentTime;
 
-        // loop through transcript to find the word that matches the current time
-        for (let i = 0; i < transcript.length; i++) {
-          if (
-            currentTime >= transcript[i].start &&
-            currentTime <= transcript[i].end
-          ) {
+        // loop through words to find the word that matches the current time
+        for (let i = 0; i < words.length; i++) {
+          if (currentTime >= words[i].start && currentTime <= words[i].end) {
             setCurrentWord(i);
             break;
           }
@@ -121,7 +118,7 @@ const Transcript: FC<ITranscriptProps> = ({
         currentAudio.removeEventListener("timeupdate", checkTime);
       }
     };
-  }, [audioRef, transcript]);
+  }, [audioRef, words]);
 
   // Updates the 'selectedText' state with the details of the selected text including its bounding rectangle.
   const handleTextSelect = (start: number, end: number): void => {
@@ -157,7 +154,7 @@ const Transcript: FC<ITranscriptProps> = ({
   return (
     <>
       <Box ref={transcriptContainerDivRef}>
-        {groupedTranscript.map((group, groupIndex) => (
+        {wordsGroupedBySpeaker.map((group, groupIndex) => (
           <Box key={groupIndex}>
             <Group mt={"2rem"} mb={"8px"}>
               <SpeakerName

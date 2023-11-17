@@ -1,33 +1,35 @@
-import { IGroup, ITranscript } from "@/components/transcript/interfaces";
+import { IGroup } from "@/components/transcript/interfaces";
+import { TranscriptWord } from "@/types";
 
-export class TranscriptGrouper {
-  transcript: ITranscript[];
+export class TranscriptWordsGrouper {
+  words: TranscriptWord[];
 
-  constructor(transcript: ITranscript[]) {
-    this.transcript = transcript;
+  constructor(words: TranscriptWord[]) {
+    this.words = words;
   }
 
-  groupBySpeaker(): IGroup[] {
-    const groupedTranscript: IGroup[] = [];
+  groupWordsBySpeaker(): IGroup[] {
+    const wordsGroupedBySpeaker: IGroup[] = [];
 
-    for (let i = 0; i < this.transcript.length; i++) {
-      const word = this.transcript[i];
+    for (let i = 0; i < this.words.length; i++) {
+      const word = this.words[i];
+
       if (
-        groupedTranscript.length === 0 ||
-        groupedTranscript[groupedTranscript.length - 1].speaker !== word.speaker
+        wordsGroupedBySpeaker.length === 0 ||
+        wordsGroupedBySpeaker[wordsGroupedBySpeaker.length - 1].speaker !== word.speaker
       ) {
-        groupedTranscript.push({
+        wordsGroupedBySpeaker.push({
           speaker: word.speaker,
           words: [{ ...word, index: i }],
         });
       } else {
-        groupedTranscript[groupedTranscript.length - 1].words.push({
+        wordsGroupedBySpeaker[wordsGroupedBySpeaker.length - 1].words.push({
           ...word,
           index: i,
         });
       }
     }
 
-    return groupedTranscript;
+    return wordsGroupedBySpeaker;
   }
 }
