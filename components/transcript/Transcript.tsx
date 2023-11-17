@@ -35,6 +35,7 @@ const Transcript: FC<ITranscriptProps> = ({
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
+  const [isTextSelected, setIsTextSelected] = useState(false);
   const [noteIsCreating, setNoteIsCreating] = useState<boolean>(false);
 
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
@@ -138,6 +139,18 @@ const Transcript: FC<ITranscriptProps> = ({
       end,
       selectedTextRectangle,
     });
+
+    // Update the 'isTextSelected' state.
+    setIsTextSelected(true);
+
+    // Remove the selection from the window.
+    selection.removeAllRanges();
+  };
+
+  const closeNotePopover = () => {
+    setSelectedText(null);
+    setIsTextSelected(false);
+    window.getSelection()?.removeAllRanges();
   };
 
   const handleWordClick = useCallback(
@@ -173,7 +186,13 @@ const Transcript: FC<ITranscriptProps> = ({
               notes={notes}
               currentWord={currentWord}
               onTextSelect={handleTextSelect}
+              isTextSelected={isTextSelected}
               onWordClick={handleWordClick}
+              selectedRange={
+                selectedText
+                  ? { start: selectedText.start, end: selectedText.end }
+                  : null
+              }
             />
           </Box>
         ))}
@@ -194,7 +213,7 @@ const Transcript: FC<ITranscriptProps> = ({
               150 +
               window.scrollX,
           }}
-          onClose={() => setSelectedText(null)}
+          onClose={closeNotePopover}
           noteIsCreating={noteIsCreating}
           onSubmit={handleNoteSubmission}
         />

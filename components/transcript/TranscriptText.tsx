@@ -11,6 +11,8 @@ interface ITranscriptTextProps {
   notes: NoteWithTagsAndCreator[];
   currentWord: number;
   onTextSelect: (_start: number, _end: number) => void;
+  isTextSelected: boolean;
+  selectedRange: { start: number; end: number } | null;
   onWordClick: (_start: number) => void;
 }
 
@@ -24,6 +26,8 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   notes,
   currentWord,
   onTextSelect,
+  isTextSelected,
+  selectedRange,
   onWordClick,
 }) => {
   const getSelectedTextDetails = useSelectedTextDetails();
@@ -39,6 +43,13 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
       currentWordDecoration: "rgba(160, 0, 100, 0.2)",
     };
   }, [theme]);
+
+  const selectedTextStyle = isTextSelected
+    ? {
+        // boxShadow: styles.noteUnderline,
+        background: styles.noteBackground,
+      }
+    : {};
 
   const handleMouseUp = () => {
     const selectedText = getSelectedTextDetails();
@@ -69,12 +80,19 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
           ...currentWordStyle,
         };
 
+        // Check if the word is within the selected range
+        const isSelected =
+          selectedRange &&
+          word.start >= selectedRange.start &&
+          word.end <= selectedRange.end;
+        const selectedStyle = isSelected ? selectedTextStyle : {};
+
         return (
           <span
             key={word.index}
             data-start={word.start}
             data-end={word.end}
-            style={combinedStyle}
+            style={{ ...combinedStyle, ...selectedStyle }}
             onClick={() => onWordClick(word.start)}
           >
             {word.punctuated_word + " "}
