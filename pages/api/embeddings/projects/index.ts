@@ -2,8 +2,8 @@ import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import pinecone from "@/utils/pinecone";
 import prisma from "@/utils/prisma";
+import { Document } from "langchain/document";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -101,30 +101,26 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
             }
         })
 
+        const docs = new Array(new Document({
+            pageContent: JSON.stringify(note)
+        }))
+
         const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME!);
-
-        // Split transcript into 10,000 char chunks with 500 char overlap
-        const splitter = new RecursiveCharacterTextSplitter({
-            chunkSize: 10000,
-            chunkOverlap: 500,
-        });
-
-        const splitNoteInfo = await splitter.createDocuments([
-            JSON.stringify(note),
-        ]);
 
         // Upsert transcript embeddings to Pinecone vector store.
         const embeddings = await PineconeStore.fromDocuments(
-            splitNoteInfo,
+            docs,
             new OpenAIEmbeddings({
                 openAIApiKey: process.env.OPENAI_API_KEY,
             }),
             {
                 pineconeIndex,
-                namespace: `project-${projectId}-notes`,
+                namespace: `project-${projectId}-notes-v2`,
                 textKey: "text",
             }
         );
+
+        console.log("Embeddings", embeddings.embeddings);
 
         return res.status(HttpStatus.Ok).send(embeddings);
     } catch (error) {
