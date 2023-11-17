@@ -1,12 +1,10 @@
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
-import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
+import { useNoteCreation } from "@/hooks/useNoteCreation";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box, Group } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
-import { IconX } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import PlayTranscriptBlockButton from "../buttons/PlayTranscriptBlockButton";
@@ -53,6 +51,20 @@ const Transcript: FC<ITranscriptProps> = ({
   const groupedTranscript = useMemo(() => {
     return new TranscriptGrouper(transcript).groupBySpeaker();
   }, [transcript]);
+
+  const { handleNoteSubmission } = useNoteCreation(
+    notes,
+    setNotes,
+    tags,
+    setTags,
+    selectedText,
+    setSelectedText,
+    transcript,
+    user,
+    fileId,
+    projectId,
+    setNoteIsCreating
+  );
 
   // Scroll down to scrollToNoteId if one is provided.
   useEffect(() => {
@@ -144,127 +156,6 @@ const Transcript: FC<ITranscriptProps> = ({
       selectedTextRectangle,
     });
   };
-
-  /**
-   * Create a new note in the database.
-   *
-   * @param { string } note - The text content of the note.
-   * @param { string[] } tags - An array of tags
-   * @param { string[] } newTagNamesFromMultiSelect - An array of new tag names created by the user from the multi-select component.
-   * @returns { NotesAndUsers } A NotesAndUsers object, containing the newly created note and the ID, name and image of the user who created it.
-   */
-  const handleNoteSubmission = useCallback(
-    async (
-      note: string,
-      tags: string[],
-      newTagNamesFromMultiSelect: string[]
-    ) => {
-      setNoteIsCreating(true);
-
-      try {
-        // Filter out any tags that match new tags created by the user frm the multi-select component
-        const filteredTags = tags.filter(
-          (tag) => !newTagNamesFromMultiSelect.includes(tag)
-        );
-
-        // Check if any of the tags selected are new. If so, create it, and return an array of newly created tags
-        const newTagsResponse = await fetch("/api/tags", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            newTagNames: newTagNamesFromMultiSelect,
-            projectId: projectId,
-            createdByUserId: user.id,
-          }),
-        });
-
-        if (!newTagsResponse.ok) {
-          notifications.show({
-            withCloseButton: true,
-            autoClose: 5000,
-            title: "We couldn't create those tags",
-            message:
-              "Something went wrong on our end. Try again in a few minutes.",
-            color: "red",
-            icon: <IconX />,
-            loading: false,
-          });
-          throw new Error(`Error: ${newTagsResponse.statusText}`);
-        }
-
-        // The response contains an array of the new tag IDs
-        const newTags: TagWithNoteIds[] = await newTagsResponse.json();
-
-        const tagIds = filteredTags.concat(newTags.map((tag) => tag.id));
-
-        const noteData = {
-          text: note,
-          start: selectedText?.start,
-          end: selectedText?.end,
-          fileId: fileId,
-          projectId: projectId,
-          createdByUserId: user.id,
-          tagIds: tagIds,
-        };
-
-        const newNoteResponse = await fetch("/api/notes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(noteData),
-        });
-
-        if (!newNoteResponse.ok) {
-          notifications.show({
-            withCloseButton: true,
-            autoClose: 5000,
-            title: "We couldn't create that note",
-            message:
-              "Something went wrong on our end. Try again in a few minutes.",
-            color: "red",
-            icon: <IconX />,
-            loading: false,
-          });
-          throw new Error(`Error: ${newNoteResponse.statusText}`);
-        }
-
-        const newNote: NoteWithTagsAndCreator = await newNoteResponse.json();
-
-        setNotes((prevNotes) => [...prevNotes, newNote]);
-        setTags((prevTags) => [...prevTags, ...newTags]);
-        setNoteIsCreating(false);
-        setSelectedText(null);
-
-        await fetch("/api/embeddings/notes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            fileId,
-            noteId: newNote.id,
-          }),
-        });
-
-        await fetch("/api/embeddings/projects", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            projectId: projectId,
-            noteId: newNote.id,
-          }),
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    [selectedText, fileId, projectId, user.id, setTags, setNotes]
-  );
 
   const handleWordClick = useCallback(
     (start: number) => {
