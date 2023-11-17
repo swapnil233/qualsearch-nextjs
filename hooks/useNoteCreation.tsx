@@ -1,8 +1,8 @@
-import { SelectedText } from "@/components/transcript/interfaces";
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
 import {
   NoteWithTagsAndCreator,
+  SelectedText,
   TagWithNoteIds,
   TranscriptWord,
 } from "@/types";
