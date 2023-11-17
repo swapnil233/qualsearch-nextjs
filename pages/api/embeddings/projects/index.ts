@@ -115,7 +115,7 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
             }),
             {
                 pineconeIndex,
-                namespace: `project-${projectId}-notes-v2`,
+                namespace: `project-${projectId}-notes`,
                 textKey: "text",
             }
         );
