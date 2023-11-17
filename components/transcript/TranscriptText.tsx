@@ -47,7 +47,10 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   const selectedTextStyle = isTextSelected
     ? {
         // boxShadow: styles.noteUnderline,
-        background: styles.noteBackground,
+        background:
+          theme.colorScheme === "light"
+            ? "rgb(255 149 62 / 60%)"
+            : "rgb(122 48 0)",
       }
     : {};
 
