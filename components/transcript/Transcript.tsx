@@ -1,11 +1,11 @@
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
 import { useNoteCreation } from "@/hooks/useNoteCreation";
+import { Transcript as TranscriptType } from "@/types";
 import { TranscriptGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box, Group } from "@mantine/core";
 import { User } from "@prisma/client";
-import { useRouter } from "next/router";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import PlayTranscriptBlockButton from "../buttons/PlayTranscriptBlockButton";
 import { CreateNotePopover } from "../note/CreateNotePopover";
@@ -15,12 +15,7 @@ import TranscriptText from "./TranscriptText";
 import { SelectedText } from "./interfaces";
 
 interface ITranscriptProps {
-  transcript: {
-    start: number;
-    end: number;
-    speaker: number;
-    punctuated_word: string;
-  }[];
+  transcript: TranscriptType;
   audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
   user: User;
@@ -36,10 +31,8 @@ const Transcript: FC<ITranscriptProps> = ({
   scrollToNoteId,
   summaryHasLoaded,
 }) => {
-  const router = useRouter();
   const { notes, setNotes } = useNotes();
-  const { tags, setTags } = useTags();
-  const { fileId, projectId } = router.query;
+  const { tags } = useTags();
   const [currentWord, setCurrentWord] = useState<number>(0);
 
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
@@ -53,16 +46,10 @@ const Transcript: FC<ITranscriptProps> = ({
   }, [transcript]);
 
   const { handleNoteSubmission } = useNoteCreation(
-    notes,
-    setNotes,
-    tags,
-    setTags,
     selectedText,
     setSelectedText,
     transcript,
     user,
-    fileId,
-    projectId,
     setNoteIsCreating
   );
 

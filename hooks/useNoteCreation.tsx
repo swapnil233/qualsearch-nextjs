@@ -1,34 +1,24 @@
 import { SelectedText } from "@/components/transcript/interfaces";
-import { NoteWithTagsAndCreator, TagWithNoteIds } from "@/types";
+import { useNotes } from "@/contexts/NotesContext";
+import { useTags } from "@/contexts/TagsContext";
+import { NoteWithTagsAndCreator, TagWithNoteIds, Transcript } from "@/types";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
 import { IconX } from "@tabler/icons-react";
+import { useRouter } from "next/router";
 
 export const useNoteCreation = (
-  notes: NoteWithTagsAndCreator[],
-  setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>,
-
-  tags: TagWithNoteIds[],
-  setTags: React.Dispatch<React.SetStateAction<TagWithNoteIds[]>>,
-
   selectedText: { start: number; end: number } | null,
   setSelectedText: React.Dispatch<React.SetStateAction<SelectedText | null>>,
-
-  transcript: {
-    start: number;
-    end: number;
-    speaker: number;
-    punctuated_word: string;
-  }[],
-
+  transcript: Transcript,
   user: User,
-
-  fileId: string | string[] | undefined,
-
-  projectId: string | string[] | undefined,
-
   setNoteIsCreating: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
+  const router = useRouter();
+  const { notes, setNotes } = useNotes();
+  const { tags, setTags } = useTags();
+  const { fileId, projectId } = router.query;
+
   const handleNoteSubmission = async (
     note: string,
     selectedTags: string[],
