@@ -1,11 +1,13 @@
 import useSelectedTextDetails from "@/hooks/useSelectedTextDetails";
-import { NoteWithTagsAndCreator } from "@/types";
+import {
+  NoteWithTagsAndCreator,
+  TranscriptWordsGroupedBySpeaker,
+} from "@/types";
 import { Text, useMantineTheme } from "@mantine/core";
 import React, { useMemo } from "react";
-import { IGroup } from "./interfaces";
 
 interface ITranscriptTextProps {
-  group: IGroup;
+  transcriptWordsGroupedBySpeaker: TranscriptWordsGroupedBySpeaker;
   notes: NoteWithTagsAndCreator[];
   currentWord: number;
   onTextSelect: (_start: number, _end: number) => void;
@@ -18,7 +20,7 @@ const DEFAULT_STYLE = {
 };
 
 const TranscriptText: React.FC<ITranscriptTextProps> = ({
-  group,
+  transcriptWordsGroupedBySpeaker,
   notes,
   currentWord,
   onTextSelect,
@@ -45,7 +47,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
 
   return (
     <Text onMouseUp={handleMouseUp} lh={1.7}>
-      {group.words.map((word) => {
+      {transcriptWordsGroupedBySpeaker.words.map((word) => {
         const isNote = notes.some(
           (note) => word.start >= note.start && word.end <= note.end
         );

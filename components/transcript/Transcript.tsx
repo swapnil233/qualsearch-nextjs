@@ -1,7 +1,7 @@
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
 import { useNoteCreation } from "@/hooks/useNoteCreation";
-import { TranscriptWord } from "@/types";
+import { SelectedText, TranscriptWord } from "@/types";
 import { TranscriptWordsGrouper } from "@/utils/TranscriptGrouper";
 import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box, Group } from "@mantine/core";
@@ -12,11 +12,10 @@ import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
 import { SpeakerName } from "../speakers/SpeakerName";
 import TranscriptText from "./TranscriptText";
-import { SelectedText } from "./interfaces";
 
 interface ITranscriptProps {
   words: TranscriptWord[];
-  audioRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
+  mediaRef: React.MutableRefObject<HTMLAudioElement | HTMLVideoElement | null>;
   transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
   user: User;
   scrollToNoteId: string | undefined;
@@ -25,7 +24,7 @@ interface ITranscriptProps {
 
 const Transcript: FC<ITranscriptProps> = ({
   words,
-  audioRef,
+  mediaRef,
   transcriptContainerDivRef,
   user,
   scrollToNoteId,
@@ -41,7 +40,7 @@ const Transcript: FC<ITranscriptProps> = ({
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
 
-  const wordsGroupedBySpeaker = useMemo(() => {
+  const transcriptWordsGroupedBySpeaker = useMemo(() => {
     return new TranscriptWordsGrouper(words).groupWordsBySpeaker();
   }, [words]);
 
@@ -92,8 +91,8 @@ const Transcript: FC<ITranscriptProps> = ({
   // Check word's time range with current audio time
   useEffect(() => {
     const checkTime = () => {
-      if (audioRef.current) {
-        const currentTime = audioRef.current.currentTime;
+      if (mediaRef.current) {
+        const currentTime = mediaRef.current.currentTime;
 
         // loop through words to find the word that matches the current time
         for (let i = 0; i < words.length; i++) {
@@ -105,9 +104,9 @@ const Transcript: FC<ITranscriptProps> = ({
       }
     };
 
-    const currentAudio = audioRef.current;
+    const currentAudio = mediaRef.current;
 
-    // add timeupdate event listener to audioRef
+    // add timeupdate event listener to mediaRef
     if (currentAudio) {
       currentAudio.addEventListener("timeupdate", checkTime);
     }
@@ -118,7 +117,7 @@ const Transcript: FC<ITranscriptProps> = ({
         currentAudio.removeEventListener("timeupdate", checkTime);
       }
     };
-  }, [audioRef, words]);
+  }, [mediaRef, words]);
 
   // Updates the 'selectedText' state with the details of the selected text including its bounding rectangle.
   const handleTextSelect = (start: number, end: number): void => {
@@ -143,18 +142,18 @@ const Transcript: FC<ITranscriptProps> = ({
 
   const handleWordClick = useCallback(
     (start: number) => {
-      if (audioRef.current) {
-        audioRef.current.currentTime = start;
-        audioRef.current.play();
+      if (mediaRef.current) {
+        mediaRef.current.currentTime = start;
+        mediaRef.current.play();
       }
     },
-    [audioRef]
+    [mediaRef]
   );
 
   return (
     <>
       <Box ref={transcriptContainerDivRef}>
-        {wordsGroupedBySpeaker.map((group, groupIndex) => (
+        {transcriptWordsGroupedBySpeaker.map((group, groupIndex) => (
           <Box key={groupIndex}>
             <Group mt={"2rem"} mb={"8px"}>
               <SpeakerName
@@ -165,12 +164,12 @@ const Transcript: FC<ITranscriptProps> = ({
                 setSpeakerNames={setSpeakerNames}
               />
               <PlayTranscriptBlockButton
-                audioRef={audioRef}
+                mediaRef={mediaRef}
                 startingTimestamp={group.words[0].start}
               />
             </Group>
             <TranscriptText
-              group={group}
+              transcriptWordsGroupedBySpeaker={group}
               notes={notes}
               currentWord={currentWord}
               onTextSelect={handleTextSelect}
@@ -217,7 +216,7 @@ const Transcript: FC<ITranscriptProps> = ({
             key={i}
             position={position}
             note={note}
-            audioRef={audioRef}
+            mediaRef={mediaRef}
           />
         );
       })}
