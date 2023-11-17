@@ -7,6 +7,7 @@ import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box, Group } from "@mantine/core";
 import { User } from "@prisma/client";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
+import ScrollToTop from "../affix/ScrollToTop";
 import PlayTranscriptBlockButton from "../buttons/PlayTranscriptBlockButton";
 import { CreateNotePopover } from "../note/CreateNotePopover";
 import { NoteCard } from "../note/NoteCard";
@@ -240,6 +241,8 @@ const Transcript: FC<ITranscriptProps> = ({
           />
         );
       })}
+
+      <ScrollToTop />
     </>
   );
 };
