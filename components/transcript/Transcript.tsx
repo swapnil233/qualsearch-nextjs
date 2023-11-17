@@ -72,6 +72,7 @@ const Transcript: FC<ITranscriptProps> = ({
         });
       }
     }
+    // Don't include 'notes' in the dependency array because we don't want to scroll to the note every time the notes state changes.
   }, [scrollToNoteId, summaryHasLoaded, transcriptContainerDivRef]);
 
   // Update note positions after summary loads
