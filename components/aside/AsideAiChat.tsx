@@ -131,7 +131,9 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
   };
 
   const scrollToBottom = () => {
-    messageListRef.current?.scrollTo(0, messageListRef.current.scrollHeight);
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
   };
 
   const handleEnterPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -146,9 +148,9 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
   return (
     <Card padding={"xs"} withBorder>
       <Stack justify="space-between">
-        <Stack>
+        <Stack h={"100%"}>
           <Text weight={500}>Ask a question about this interview</Text>
-          <ScrollArea h={"32rem"} ref={messageListRef}>
+          <ScrollArea mih={"calc(100vh - 500px)"} ref={messageListRef}>
             <Stack spacing={"lg"}>
               {messageState.messages.map((message, index) => (
                 <Group

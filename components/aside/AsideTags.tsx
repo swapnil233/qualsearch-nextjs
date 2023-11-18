@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { User } from "@prisma/client";
-import { IconDownload, IconUpload, IconX } from "@tabler/icons-react";
+import { IconX } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
@@ -111,7 +111,7 @@ export const AsideTags: React.FC<IAsideTags> = ({
           </Group>
         </Stack>
       </Card>
-      <Card withBorder title="d">
+      <Card withBorder>
         <Stack>
           <Text weight={500}>Tags repository ({tags.length} tags)</Text>
           <Group spacing={"xs"}>
@@ -126,19 +126,6 @@ export const AsideTags: React.FC<IAsideTags> = ({
           </Group>
         </Stack>
         <Divider mt={"md"} mb={"md"} />
-        {/* @TODO implement import and export features */}
-        <Group position="apart">
-          <Button compact variant="subtle" leftIcon={<IconUpload size={16} />}>
-            Import
-          </Button>
-          <Button
-            compact
-            variant="subtle"
-            leftIcon={<IconDownload size={16} />}
-          >
-            Export
-          </Button>
-        </Group>
       </Card>
     </Stack>
   );

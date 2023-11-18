@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Center,
-  Divider,
   Group,
   ScrollArea,
   SegmentedControl,
@@ -134,48 +133,52 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
           <>
             {notes.length > 0 ? (
               <>
-                <TextInput
-                  label="Filter by note"
-                  icon={<IconListSearch />}
-                  placeholder="Start typing to filter notes..."
-                  onChange={(e) =>
-                    setSearch(e.target.value.toLocaleLowerCase())
-                  }
-                />
-                <ScrollArea h={470}>
-                  <AsideNotes
-                    search={search}
-                    mediaRef={mediaRef}
-                    transcriptContainerDivRef={transcriptContainerDivRef}
-                    notes={filteredNotes}
-                  />
-                  {search.length > 0 && filteredNotes.length === 0 && (
-                    <Stack h={"100%"} spacing={"lg"} align="center" mt={"md"}>
-                      <Text color="dimmed">No matching notes found...</Text>
-                    </Stack>
-                  )}
+                <ScrollArea h={"calc(100vh - 160px)"}>
+                  <Stack>
+                    <TextInput
+                      label="Filter by note"
+                      icon={<IconListSearch />}
+                      placeholder="Start typing to filter notes..."
+                      onChange={(e) =>
+                        setSearch(e.target.value.toLocaleLowerCase())
+                      }
+                    />
+
+                    {filteredNotes.length > 0 && search.length > 0 && (
+                      <Text size={"sm"}>
+                        {`Showing ${filteredNotes.length} notes that match`}
+                      </Text>
+                    )}
+                    <AsideNotes
+                      search={search}
+                      mediaRef={mediaRef}
+                      transcriptContainerDivRef={transcriptContainerDivRef}
+                      notes={filteredNotes}
+                    />
+                    {search.length > 0 && filteredNotes.length === 0 && (
+                      <Stack h={"100%"} spacing={"lg"} align="center" mt={"md"}>
+                        <Text color="dimmed">No matching notes found...</Text>
+                      </Stack>
+                    )}
+                  </Stack>
                 </ScrollArea>
                 {filteredNotes.length > 0 && (
-                  <>
-                    <Divider mt={"md"} />
-                    {/* @TODO implement import and export features */}
-                    <Group position="apart">
-                      <Button
-                        compact
-                        variant="subtle"
-                        leftIcon={<IconUpload size={16} />}
-                      >
-                        Import
-                      </Button>
-                      <Button
-                        compact
-                        variant="subtle"
-                        leftIcon={<IconDownload size={16} />}
-                      >
-                        Export
-                      </Button>
-                    </Group>
-                  </>
+                  <Group position="apart">
+                    <Button
+                      compact
+                      variant="subtle"
+                      leftIcon={<IconUpload size={16} />}
+                    >
+                      Import
+                    </Button>
+                    <Button
+                      compact
+                      variant="subtle"
+                      leftIcon={<IconDownload size={16} />}
+                    >
+                      Export
+                    </Button>
+                  </Group>
                 )}
               </>
             ) : (
@@ -193,20 +196,40 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
         {segment === "tags" && (
           <>
             {tags.length > 0 ? (
-              <ScrollArea>
-                <AsideTags
-                  tags={tags}
-                  setTags={setTags}
-                  projectId={projectId as string}
-                  user={user}
-                />
-              </ScrollArea>
+              <>
+                <ScrollArea h={"calc(100vh - 160px)"}>
+                  <AsideTags
+                    tags={tags}
+                    setTags={setTags}
+                    projectId={projectId as string}
+                    user={user}
+                  />
+                </ScrollArea>
+                {tags.length > 0 && (
+                  <Group position="apart">
+                    <Button
+                      compact
+                      variant="subtle"
+                      leftIcon={<IconUpload size={16} />}
+                    >
+                      Import
+                    </Button>
+                    <Button
+                      compact
+                      variant="subtle"
+                      leftIcon={<IconDownload size={16} />}
+                    >
+                      Export
+                    </Button>
+                  </Group>
+                )}
+              </>
             ) : (
-              <Stack h={"60%"} justify="center">
+              <Stack justify="center">
                 <EmptyState
                   description="Start by selecting some text in the transcript and adding a note."
                   imageUrl="/empty-state-images/files/empty-file.svg"
-                  title="No notes yet..."
+                  title="No tags yet..."
                 />
               </Stack>
             )}
@@ -215,9 +238,9 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
 
         {segment === "ai" && (
           <>
-            <Box h={800}>
+            <ScrollArea h={"calc(100vh - 120px)"}>
               <AsideAiChat fileId={fileId} transcriptId={transcriptId} />
-            </Box>
+            </ScrollArea>
           </>
         )}
       </Stack>
