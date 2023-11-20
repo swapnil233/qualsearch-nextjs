@@ -2,7 +2,9 @@ import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import TeamDeletionConfirmationModal from "@/components/modal/delete/TeamDeletionConfirmationModal";
-import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
+import NewInvitationModal, {
+  Invitation,
+} from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
@@ -120,27 +122,38 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const [inviteOpened, inviteControls] = useDisclosure(false);
   const [inviting, setInviting] = useState(false);
 
+  const inviteForm = useForm<{ invitations: Invitation[] }>({
+    initialValues: {
+      invitations: [
+        { email: "", role: "member" },
+        { email: "", role: "member" },
+      ],
+    },
+  });
+
   // Delete Modal
   const [deleteOpened, deleteControls] = useDisclosure(false);
   const [deleting, setDeleting] = useState(false);
 
-  const inviteForm = useForm({
-    initialValues: {
-      invitedEmail: "",
-    },
-
-    validate: {
-      invitedEmail: (value) => (value.length > 0 ? null : "Email is required"),
-    },
-  });
-
   // POST /api/invitation/create
   const handleCreateNewInvitation = async (
-    values: { invitedEmail: string },
+    values: { invitations: Invitation[] },
     event: React.FormEvent
   ) => {
     // Prevent the default form submission
     event.preventDefault();
+
+    console.log(
+      JSON.stringify({
+        teamId: team.id,
+        invitations: values.invitations.map((invitation) => {
+          return {
+            email: invitation.email,
+            role: invitation.role,
+          };
+        }),
+      })
+    );
 
     try {
       setInviting(true);
@@ -151,7 +164,12 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         },
         body: JSON.stringify({
           teamId: team.id,
-          invitedEmail: inviteForm.values.invitedEmail,
+          invitations: values.invitations.map((invitation) => {
+            return {
+              email: invitation.email,
+              role: invitation.role,
+            };
+          }),
         }),
       });
 
@@ -443,7 +461,10 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
 
       <NewInvitationModal
         opened={inviteOpened}
-        close={inviteControls.close}
+        close={() => {
+          inviteForm.reset();
+          inviteControls.close();
+        }}
         inviting={inviting}
         handleCreateNewInvitation={handleCreateNewInvitation}
         form={inviteForm}
