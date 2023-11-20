@@ -269,40 +269,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     }
   };
 
-  const handleRoleChange = async (userId: string, role: string) => {
-    try {
-      const response = await fetch("/api/user/role", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          teamId: team.id,
-          userId,
-          role,
-        }),
-      });
-
-      if (response.status === 200) {
-        notifications.show({
-          title: "Role changed",
-          message: "The user's role has been changed.",
-          color: "teal",
-          icon: <IconCheck />,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      notifications.show({
-        title: "Couldn't change the user's role",
-        message:
-          "An error occurred while changing the user's role. We are working on a fix.",
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
-    }
-  };
-
   const handleEdit = () => {
     console.log("Edit");
   };
@@ -445,11 +411,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         View and manage the members of this team. Only the manager may remove
         members from the team.
       </Text>
-      <TeamTable
-        currentUser={user}
-        teamMembers={team.users}
-        handleRoleChange={handleRoleChange}
-      />
+      <TeamTable currentUser={user} teamMembers={team.users} />
 
       <CreateProjectModal
         opened={opened}

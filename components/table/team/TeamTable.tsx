@@ -1,11 +1,9 @@
 import {
   ActionIcon,
   Avatar,
-  Divider,
   Group,
   Menu,
   ScrollArea,
-  Select,
   Table,
   Text,
 } from "@mantine/core";
@@ -22,16 +20,9 @@ import { FC } from "react";
 export interface ITeamTable {
   currentUser: User;
   teamMembers: User[];
-  handleRoleChange: (_userId: string, _role: string) => void;
 }
 
-const rolesData = ["Manager", "Collaborator", "Contractor"];
-
-const TeamTable: FC<ITeamTable> = ({
-  currentUser,
-  teamMembers,
-  handleRoleChange,
-}) => {
+const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
   const rows = teamMembers.map((member) => (
     <tr key={member.id}>
       <td>
@@ -48,16 +39,6 @@ const TeamTable: FC<ITeamTable> = ({
         </Group>
       </td>
 
-      <td>
-        <Select
-          data={rolesData}
-          defaultValue={member.role}
-          variant={"unstyled"}
-          onChange={(role) => {
-            role && handleRoleChange(member.id, role);
-          }}
-        />
-      </td>
       <td>2 days ago</td>
 
       <td>
@@ -87,17 +68,6 @@ const TeamTable: FC<ITeamTable> = ({
                   >
                     Analytics
                   </Menu.Item>
-                  {currentUser.role === "Manager" && (
-                    <>
-                      <Divider opacity={"0.4"} />
-                      <Menu.Item
-                        icon={<IconTrash size="1rem" stroke={1.5} />}
-                        color="red"
-                      >
-                        Remove from team
-                      </Menu.Item>
-                    </>
-                  )}
                 </>
               ) : (
                 <Menu.Item
@@ -120,7 +90,6 @@ const TeamTable: FC<ITeamTable> = ({
         <thead>
           <tr>
             <th>Member</th>
-            <th>Role</th>
             <th>Last active</th>
             <th align="right">Actions</th>
           </tr>

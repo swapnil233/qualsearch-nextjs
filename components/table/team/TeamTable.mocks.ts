@@ -9,7 +9,6 @@ const base: ITeamTable = {
     image:
       "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
     phone: null,
-    role: "Manager",
   },
 
   teamMembers: [
@@ -21,7 +20,6 @@ const base: ITeamTable = {
       image:
         "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
       phone: null,
-      role: "Manager",
     },
     {
       id: "clj9dt8ea0006jlp06vsnc1ve",
@@ -30,7 +28,6 @@ const base: ITeamTable = {
       emailVerified: null,
       image: null,
       phone: null,
-      role: "Collaborator",
     },
     {
       id: "clj9j7dn30002r970eqhag6dy",
@@ -40,12 +37,8 @@ const base: ITeamTable = {
       image:
         "https://lh3.googleusercontent.com/a/AAcHTtd4ybh0ktj9xbDqTvwXELhwz1SWx9AOz-V_DSEB=s96-c",
       phone: null,
-      role: "Collaborator",
     },
   ],
-  handleRoleChange(userId, role) {
-    console.log(userId, role);
-  },
 };
 
 export const mockTeamTableProps = {
