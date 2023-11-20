@@ -31,6 +31,7 @@ model User {
   Speaker             Speaker[]
   Note                Note[]
   Tag                 Tag[]
+  teamsMembership     TeamMember[]
 }
 
 model Account {
@@ -87,9 +88,20 @@ model Team {
   createdBy       User         @relation("CreatedTeam", fields: [createdByUserId], references: [id])
   createdByUserId String
   Invitation      Invitation[]
+  members         TeamMember[]
 
   // Frequently fetching teams based on id
   @@index([id])
+}
+
+model TeamMember {
+  userId String
+  teamId String
+  role   Role   @default(MEMBER)
+  user   User   @relation(fields: [userId], references: [id])
+  team   Team   @relation(fields: [teamId], references: [id])
+
+  @@id([userId, teamId])
 }
 
 model Invitation {
@@ -100,6 +112,7 @@ model Invitation {
   status       InvitationStatus @default(PENDING)
   teamId       String
   team         Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role         Role             @default(MEMBER)
 
   // 1-n -> Invitation can be created by 1 user
   invitedByUserId String?
@@ -316,6 +329,13 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   DECLINED
+}
+
+enum Role {
+  GUEST
+  VIEWER
+  MEMBER
+  ADMIN
 }
 
 enum ProjectStatus {
