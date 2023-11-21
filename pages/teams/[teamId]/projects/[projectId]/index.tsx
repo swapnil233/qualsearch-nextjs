@@ -7,6 +7,7 @@ import DeleteProjectModal from "@/components/modal/delete/DeleteProjectModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
+import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { useFileCreation } from "@/hooks/useFileCreation";
 import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { useProjectDeletion } from "@/hooks/useProjectDeletion";
@@ -139,12 +140,11 @@ interface IProjectPage {
   initialNotes: NoteWithTagsAndCreator[];
 }
 
-const ProjectPage: NextPageWithLayout<IProjectPage> = ({
+const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
   project,
   initialFiles,
-  initialNotes,
 }) => {
-  const [notes, setNotes] = useState<NoteWithTagsAndCreator[]>(initialNotes);
+  const { notes, setNotes } = useNotes();
 
   const [opened, { open, close }] = useDisclosure(false);
   const [files, setFiles] =
@@ -295,7 +295,6 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
               Overview
             </Title>
             <NotesOverviewDataTable
-              notes={notes}
               teamId={project.teamId}
               projectId={project.id}
               openNoteDeletionModal={openNoteDeletionModal}
@@ -346,6 +345,14 @@ const ProjectPage: NextPageWithLayout<IProjectPage> = ({
         </Affix>
       </Box>
     </>
+  );
+};
+
+const ProjectPage: NextPageWithLayout<IProjectPage> = (props) => {
+  return (
+    <NotesProvider initialNotes={props.initialNotes}>
+      <ProjectPageContent {...props} />
+    </NotesProvider>
   );
 };
 

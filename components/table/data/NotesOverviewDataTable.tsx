@@ -1,3 +1,4 @@
+import { useNotes } from "@/contexts/NotesContext";
 import { NoteWithTagsAndCreator } from "@/types";
 import { exportToExcel } from "@/utils/exportToExcel";
 import HighlightSearch from "@/utils/highlightSearchTerm";
@@ -37,16 +38,15 @@ import React, { useEffect, useMemo, useState } from "react";
 interface INotesOverviewDataTable {
   teamId: string;
   projectId: string;
-  notes: NoteWithTagsAndCreator[];
   openNoteDeletionModal: (_noteId: string) => void;
 }
 
 const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
-  notes,
   teamId,
   projectId,
   openNoteDeletionModal,
 }) => {
+  const { notes } = useNotes();
   // Search and filter states
   const [search, setSearch] = useState("");
   const [filteredNotes, setFilteredNotes] =
