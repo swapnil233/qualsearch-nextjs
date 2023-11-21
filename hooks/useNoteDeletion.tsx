@@ -1,16 +1,14 @@
-import { NoteWithTagsAndCreator } from "@/types";
+import { useNotes } from "@/contexts/NotesContext";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
 
 export const useNoteDeletion = (
-  notes: NoteWithTagsAndCreator[],
-  setNotes: React.Dispatch<React.SetStateAction<NoteWithTagsAndCreator[]>>,
   noteIdToDelete: string,
-  setNoteIdToDelete: React.Dispatch<React.SetStateAction<string>>,
-  deletingNote: boolean,
   setDeletingNote: React.Dispatch<React.SetStateAction<boolean>>,
   closeNoteDeletionModal: () => void
 ) => {
+  const { notes, setNotes } = useNotes();
+
   const handleDeleteNote = async () => {
     if (!noteIdToDelete) return;
 

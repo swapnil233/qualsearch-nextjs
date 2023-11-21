@@ -177,11 +177,7 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
   };
 
   const { handleDeleteNote } = useNoteDeletion(
-    notes,
-    setNotes,
     noteIdToDelete,
-    setNoteIdToDelete,
-    deletingNote,
     setDeletingNote,
     closeNoteDeletionModal
   );
