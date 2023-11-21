@@ -1,5 +1,5 @@
+import { Invitation } from "@/components/modal/invitation/NewInvitationModal";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { sendEmail } from "@/lib/sendEmail";
 import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
@@ -12,11 +12,14 @@ import { authOptions } from "../auth/[...nextauth]";
  * This function is responsible for creating a new invitation.
  *
  * Here is a high-level overview of its flow:
- * 1. It verifies that the client is authenticated.
- * 2. It verifies that the request is a POST request and contains all required parameters.
- * 3. It validates that the user is a member of the team and has permissions to invite.
- * 4. It verifies that the invitee email is not already a member of the team.
- * 5. It creates a new invitation record in the database.
+ * 1. Verify the request method is POST.
+ * 2. Validate that the user is authenticated.
+ * 3. Destructure the needed properties from the request body.
+ * 4. Validate that the required parameters are provided.
+ * 5. Create the invitation in the database.
+ * 6. Send the invitation email(s).
+ * 7. Respond with the created invitation.
+ * 8. If there was a problem, respond with a 500 status code and the error message.
  *
  * @param req The HTTP request object.
  * @param res The HTTP response object.
@@ -38,65 +41,89 @@ export default async function Handler(
   }
 
   // Destructure the needed properties from the request body.
-  const { invitedEmail, teamId } = req.body;
+  const { teamId, invitations, invitedByUserId }: {
+    teamId: string;
+    invitations: Invitation[];
+    invitedByUserId: string;
+  } = req.body;
 
   // Validate that the required parameters are provided.
-  if (!invitedEmail || !teamId) {
+  if (!teamId || !invitations || !invitedByUserId) {
     return res
       .status(HttpStatus.BadRequest)
-      .send("Missing parameters: invitedEmail or teamId.");
+      .send("One or more required parameters are missing.");
   }
 
   try {
-    // Validate that the team exists and the user is a member.
-    // @ts-ignore
-    const team = await validateUserIsTeamMember(teamId, session.user.id);
+    const teamAndUsers = await prisma.team.findUnique({
+      where: {
+        id: teamId,
+      },
+      include: {
+        members: {
+          select: {
+            user: {
+              select: {
+                email: true,
+              },
+            }
+          }
+        }
+      },
+    });
 
-    // Verify the invitee email is not already a member of the team.
-    const inviteeExists = team.users.some(
-      (user) => user.email === invitedEmail
-    );
+    if (!teamAndUsers) {
+      return res
+        .status(HttpStatus.NotFound)
+        .send("The team you are trying to invite to does not exist");
+    }
 
-    if (inviteeExists) {
+    // Check if the emails already exist
+    const emails = teamAndUsers.members.map((member) => member.user.email)
+    const emailsToInvite = invitations.map((invitation) => invitation.email)
+    const emailsAlreadyExist = emailsToInvite.filter((email) => emails.includes(email))
+
+    if (emailsAlreadyExist.length > 0) {
       return res
         .status(HttpStatus.Conflict)
         .send(
-          "The user you are trying to invite is already a member of the team"
+          `The following emails are already members of the team: ${emailsAlreadyExist.join(", ")}`
         );
     }
 
-    // Verify the invitee email is not already invited to the team.
-    const inviteeAlreadyInvited = await prisma.invitation.findFirst({
-      where: {
-        invitedEmail: invitedEmail,
+    // Create the invitation in the database.
+    const createdInvitations = await prisma.invitation.createMany({
+      data: invitations.map((invitation) => ({
+        invitedEmail: invitation.email,
+        role: invitation.role,
+        invitedByUserId: invitedByUserId,
         teamId: teamId,
-      },
-    });
-    if (inviteeAlreadyInvited) {
-      return res
-        .status(409)
-        .send("An invitation has already been sent to this email.");
-    }
+      })),
+      skipDuplicates: true,
+    })
 
-    // Create the new invitation.
-    const invitation = await prisma.invitation.create({
-      data: {
-        invitedEmail: invitedEmail,
-        teamId: teamId,
-        // @ts-ignore
-        invitedByUserId: session.user.id,
-      },
-    });
-
-    await sendEmail(
-      [invitedEmail],
-      `QualSearch - You have been invited to join ${team.name} by ${session.user?.name}`,
-      `You have been invited to join the team ${team.name} by ${session.user?.name}. Visit ${host}/teams to accept the invitation.`,
-      `<p>You have been invited to join the team ${team.name} by ${session.user?.name}. Visit ${host}/teams to accept the invitation.</p>`
+    // Send the invitation email(s).
+    const emailPromises = invitations.map(invitation =>
+      sendEmail(
+        [invitation.email],
+        `QualSearch - You have been invited to join ${teamAndUsers.name}`,
+        `You have been invited to join the team ${teamAndUsers.name}. Visit ${host}/teams to accept the invitation.`,
+        `<p>You have been invited to join the team ${teamAndUsers.name}. Visit ${host}/teams to accept the invitation.</p>`
+      )
     );
 
-    // Respond with a 201 status code (Created) and the created invitation.
-    return res.status(201).json(invitation);
+    // Await all email sending promises and handle failures.
+    const emailResults = await Promise.allSettled(emailPromises);
+    const failedEmails = emailResults
+      .map((result, index) => result.status === 'rejected' ? invitations[index].email : null)
+      .filter(email => email !== null);
+
+    if (failedEmails.length > 0) {
+      console.error('Failed to send emails to:', failedEmails.join(', '));
+    }
+
+    // Respond with the created invitations and any failed email notifications.
+    return res.status(201).json({ invitations: createdInvitations, failedEmails });
   } catch (error) {
     console.log(error);
 

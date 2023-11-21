@@ -125,8 +125,8 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const inviteForm = useForm<{ invitations: Invitation[] }>({
     initialValues: {
       invitations: [
-        { email: "", role: "member" },
-        { email: "", role: "member" },
+        { email: "", role: "MEMBER" },
+        { email: "", role: "MEMBER" },
       ],
     },
   });
@@ -143,18 +143,6 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     // Prevent the default form submission
     event.preventDefault();
 
-    console.log(
-      JSON.stringify({
-        teamId: team.id,
-        invitations: values.invitations.map((invitation) => {
-          return {
-            email: invitation.email,
-            role: invitation.role,
-          };
-        }),
-      })
-    );
-
     try {
       setInviting(true);
       const response = await fetch("/api/invitation/create", {
@@ -163,13 +151,14 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          teamId: team.id,
+          teamId: team.id as string,
+          invitedByUserId: user.id as string,
           invitations: values.invitations.map((invitation) => {
             return {
               email: invitation.email,
               role: invitation.role,
             };
-          }),
+          }) as Invitation[],
         }),
       });
 

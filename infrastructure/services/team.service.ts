@@ -1,6 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import prisma from "@/utils/prisma";
-import { Project, Team, User } from "@prisma/client";
+import { Project, Role, Team, User } from "@prisma/client";
 
 /**
  * Validate inputs for creating or updating a team.
@@ -40,21 +40,41 @@ export async function createTeam(
   validateTeamInputs(teamName, teamDescription);
 
   try {
-    return await prisma.team.create({
-      data: {
-        name: teamName,
-        description: teamDescription,
-        createdByUserId: userId,
-        users: {
-          connect: {
-            id: userId,
+    // Prisma transaction to create a team and add the user to it and set their role to "admin".
+    return await prisma.$transaction(async (prisma) => {
+      const team = await prisma.team.create({
+        data: {
+          name: teamName,
+          description: teamDescription,
+          createdByUserId: userId,
+          users: {
+            connect: {
+              id: userId,
+            },
           },
         },
-      },
-      include: {
-        users: true,
-      },
+        include: {
+          users: true,
+        },
+      });
+
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          teamsMembership: {
+            create: {
+              teamId: team.id,
+              role: "ADMIN",
+            }
+          }
+        },
+      });
+
+      return team;
     });
+
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(`Error in createTeam: ${error.message}`);
@@ -232,7 +252,8 @@ export async function getTeamsByUser(
  */
 export async function addUserToTeam(
   teamId: string,
-  userId: string
+  userId: string,
+  role: Role
 ): Promise<Team & { users: User[] }> {
   try {
     return await prisma.team.update({
@@ -243,6 +264,12 @@ export async function addUserToTeam(
             id: userId,
           },
         },
+        members: {
+          create: {
+            userId: userId,
+            role: role,
+          }
+        }
       },
       include: { users: true },
     });

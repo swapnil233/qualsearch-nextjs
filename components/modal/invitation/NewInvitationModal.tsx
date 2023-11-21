@@ -12,12 +12,13 @@ import {
   rem,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { Role } from "@prisma/client";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { FC } from "react";
 
 export interface Invitation {
   email: string;
-  role: "guest" | "viewer" | "member" | "admin";
+  role: Role;
 }
 
 export interface INewInvitationModal {
@@ -38,15 +39,20 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
   form,
   handleCreateNewInvitation,
 }) => {
-  const roleOptions = [
-    { value: "guest", label: "Guest" },
-    { value: "viewer", label: "Viewer" },
-    { value: "member", label: "Member" },
-    { value: "admin", label: "Admin" },
+  const roleOptions: [
+    { value: Role; label: string },
+    { value: Role; label: string },
+    { value: Role; label: string },
+    { value: Role; label: string }
+  ] = [
+    { value: "GUEST", label: "Guest" },
+    { value: "VIEWER", label: "Viewer" },
+    { value: "MEMBER", label: "Member" },
+    { value: "ADMIN", label: "Admin" },
   ];
 
   const addEmail = () => {
-    const newInvitation: Invitation = { email: "", role: "member" };
+    const newInvitation: Invitation = { email: "", role: "MEMBER" };
     form.insertListItem("invitations", newInvitation);
   };
 
@@ -61,13 +67,17 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
           placeholder="Enter an email..."
           {...form.getInputProps(`invitations.${index}.email`)}
           required
-          sx={{ flex: 1 }}
+          type="email"
+          aria-label="Email"
         />
       </Grid.Col>
       <Grid.Col span={1}>
-        <Group spacing={4} noWrap>
+        <Group spacing={4} noWrap align="center">
           <Select
+            zIndex={1000}
+            withinPortal
             data={roleOptions}
+            aria-label="Role"
             {...form.getInputProps(`invitations.${index}.role`)}
           />
           {form.values.invitations.length > 1 && (
@@ -110,7 +120,7 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
                 Cancel
               </Button>
               <Button radius="xs" type="submit" loading={inviting}>
-                Send Invitation
+                Send Invitation{form.values.invitations.length > 1 && "s"}
               </Button>
             </Group>
           </Group>

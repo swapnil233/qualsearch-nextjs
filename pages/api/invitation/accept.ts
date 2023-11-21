@@ -76,7 +76,7 @@ export default async function Handler(
     });
 
     // @ts-ignore - session.user.id won't be recognized because it comes from authOptions
-    const updatedTeam = await addUserToTeam(invitation.teamId, session.user.id);
+    const updatedTeam = await addUserToTeam(invitation.teamId, session.user.id, invitation.role);
 
     // Respond with a 200 status code (OK) and the updated invitation.
     return res.status(HttpStatus.Ok).json({
