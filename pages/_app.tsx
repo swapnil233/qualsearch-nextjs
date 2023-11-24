@@ -1,4 +1,5 @@
 import { RouterTransition } from "@/components/RouterTransition";
+import useOnlineStatus from "@/hooks/useOnlineStatus";
 import "@/styles/globals.css";
 import {
   ColorScheme,
@@ -6,10 +7,12 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
-import { Notifications } from "@mantine/notifications";
+import { Notifications, notifications } from "@mantine/notifications";
+import { IconX } from "@tabler/icons-react";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
+import { useEffect } from "react";
 import { NextPageWithLayout } from "./page";
 
 interface AppPropsWithLayout extends AppProps {
@@ -20,6 +23,23 @@ export default function App({
   Component,
   pageProps: { session, ...pageProps },
 }: AppPropsWithLayout & { session: Session }) {
+  const isOnline = useOnlineStatus();
+  useEffect(() => {
+    if (!isOnline) {
+      notifications.show({
+        id: "offline-warning-notification",
+        title: "You're offline",
+        message:
+          "Your internet connection has been disconnected. Please re-connect to ensure your changes are saved.",
+        withCloseButton: false,
+        color: "red",
+        icon: <IconX />,
+      });
+    } else {
+      notifications.hide("offline-warning-notification");
+    }
+  }, [isOnline]);
+
   // Use the layout defined at the page level if available
   const getLayout = Component.getLayout || ((page) => page);
 
