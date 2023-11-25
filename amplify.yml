@@ -25,6 +25,8 @@ frontend:
         - echo "AMPLIFY_URL=$AMPLIFY_URL" >> .env
         - echo "EMAIL_USER=$EMAIL_USER" >> .env
         - echo "EMAIL_PASS=$EMAIL_PASS" >> .env
+        - echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env
+        - echo "EMAIL_DOMAIN=$EMAIL_DOMAIN" >> .env
         - npm ci
     build:
       commands:
