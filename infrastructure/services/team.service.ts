@@ -67,14 +67,13 @@ export async function createTeam(
             create: {
               teamId: team.id,
               role: "ADMIN",
-            }
-          }
+            },
+          },
         },
       });
 
       return team;
     });
-
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(`Error in createTeam: ${error.message}`);
@@ -268,8 +267,8 @@ export async function addUserToTeam(
           create: {
             userId: userId,
             role: role,
-          }
-        }
+          },
+        },
       },
       include: { users: true },
     });

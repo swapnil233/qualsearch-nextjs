@@ -6,7 +6,7 @@ import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { Resend } from 'resend';
+import { Resend } from "resend";
 import { authOptions } from "../auth/[...nextauth]";
 
 export default async function Handler(
@@ -25,12 +25,18 @@ export default async function Handler(
   }
 
   // Destructure the needed properties from the request body.
-  const { teamId, invitations, invitedByUserId, invitedByName, invitedByEmail }: {
+  const {
+    teamId,
+    invitations,
+    invitedByUserId,
+    invitedByName,
+    invitedByEmail,
+  }: {
     teamId: string;
     invitations: Invitation[];
     invitedByUserId: string;
-    invitedByName: string,
-    invitedByEmail: string,
+    invitedByName: string;
+    invitedByEmail: string;
   } = req.body;
 
   // Validate that the required parameters are provided.
@@ -52,9 +58,9 @@ export default async function Handler(
               select: {
                 email: true,
               },
-            }
-          }
-        }
+            },
+          },
+        },
       },
     });
 
@@ -65,15 +71,19 @@ export default async function Handler(
     }
 
     // Check if the emails already exist
-    const emails = teamAndUsers.members.map((member) => member.user.email)
-    const emailsToInvite = invitations.map((invitation) => invitation.email)
-    const emailsAlreadyExist = emailsToInvite.filter((email) => emails.includes(email))
+    const emails = teamAndUsers.members.map((member) => member.user.email);
+    const emailsToInvite = invitations.map((invitation) => invitation.email);
+    const emailsAlreadyExist = emailsToInvite.filter((email) =>
+      emails.includes(email)
+    );
 
     if (emailsAlreadyExist.length > 0) {
       return res
         .status(HttpStatus.Conflict)
         .send(
-          `The following emails are already members of the team: ${emailsAlreadyExist.join(", ")}`
+          `The following emails are already members of the team: ${emailsAlreadyExist.join(
+            ", "
+          )}`
         );
     }
 
@@ -86,36 +96,41 @@ export default async function Handler(
         teamId: teamId,
       })),
       skipDuplicates: true,
-    })
+    });
 
     // Send the invitation email(s).
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const emailPromises = invitations.map(async (invitation) =>
-      await resend.emails.send({
-        from: EmailAddresses.Noreply,
-        to: [invitation.email],
-        subject: `Join ${teamAndUsers.name} on QualSearch`,
-        react: NewTeamInvitationEmail({
-          invitedByName: invitedByName,
-          invitedByEmail: invitedByEmail,
-          teamName: teamAndUsers.name,
-          inviteLink: `${host}/teams`
+    const emailPromises = invitations.map(
+      async (invitation) =>
+        await resend.emails.send({
+          from: EmailAddresses.Noreply,
+          to: [invitation.email],
+          subject: `Join ${teamAndUsers.name} on QualSearch`,
+          react: NewTeamInvitationEmail({
+            invitedByName: invitedByName,
+            invitedByEmail: invitedByEmail,
+            teamName: teamAndUsers.name,
+            inviteLink: `${host}/teams`,
+          }),
         })
-      })
     );
 
     // Await all email sending promises and handle failures.
     const emailResults = await Promise.allSettled(emailPromises);
     const failedEmails = emailResults
-      .map((result, index) => result.status === 'rejected' ? invitations[index].email : null)
-      .filter(email => email !== null);
+      .map((result, index) =>
+        result.status === "rejected" ? invitations[index].email : null
+      )
+      .filter((email) => email !== null);
 
     if (failedEmails.length > 0) {
-      console.error('Failed to send emails to:', failedEmails.join(', '));
+      console.error("Failed to send emails to:", failedEmails.join(", "));
     }
 
     // Respond with the created invitations and any failed email notifications.
-    return res.status(201).json({ invitations: createdInvitations, failedEmails });
+    return res
+      .status(201)
+      .json({ invitations: createdInvitations, failedEmails });
   } catch (error) {
     console.log(error);
 
