@@ -1,29 +1,13 @@
+import NewTeamInvitationEmail from "@/components/emails/NewTeamInvitationEmail";
 import { Invitation } from "@/components/modal/invitation/NewInvitationModal";
+import { EmailAddresses } from "@/constants/EmailAddresses";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { sendEmail } from "@/lib/sendEmail";
 import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
+import { Resend } from 'resend';
 import { authOptions } from "../auth/[...nextauth]";
-
-/**
- * Handler for the '/api/invitations/create' API endpoint.
- * This function is responsible for creating a new invitation.
- *
- * Here is a high-level overview of its flow:
- * 1. Verify the request method is POST.
- * 2. Validate that the user is authenticated.
- * 3. Destructure the needed properties from the request body.
- * 4. Validate that the required parameters are provided.
- * 5. Create the invitation in the database.
- * 6. Send the invitation email(s).
- * 7. Respond with the created invitation.
- * 8. If there was a problem, respond with a 500 status code and the error message.
- *
- * @param req The HTTP request object.
- * @param res The HTTP response object.
- */
 
 export default async function Handler(
   req: NextApiRequest,
@@ -41,10 +25,12 @@ export default async function Handler(
   }
 
   // Destructure the needed properties from the request body.
-  const { teamId, invitations, invitedByUserId }: {
+  const { teamId, invitations, invitedByUserId, invitedByName, invitedByEmail }: {
     teamId: string;
     invitations: Invitation[];
     invitedByUserId: string;
+    invitedByName: string,
+    invitedByEmail: string,
   } = req.body;
 
   // Validate that the required parameters are provided.
@@ -103,13 +89,19 @@ export default async function Handler(
     })
 
     // Send the invitation email(s).
-    const emailPromises = invitations.map(invitation =>
-      sendEmail(
-        [invitation.email],
-        `QualSearch - You have been invited to join ${teamAndUsers.name}`,
-        `You have been invited to join the team ${teamAndUsers.name}. Visit ${host}/teams to accept the invitation.`,
-        `<p>You have been invited to join the team ${teamAndUsers.name}. Visit ${host}/teams to accept the invitation.</p>`
-      )
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const emailPromises = invitations.map(async (invitation) =>
+      await resend.emails.send({
+        from: EmailAddresses.Noreply,
+        to: [invitation.email],
+        subject: `Join ${teamAndUsers.name} on QualSearch`,
+        react: NewTeamInvitationEmail({
+          invitedByName: invitedByName,
+          invitedByEmail: invitedByEmail,
+          teamName: teamAndUsers.name,
+          inviteLink: `${host}/teams`
+        })
+      })
     );
 
     // Await all email sending promises and handle failures.

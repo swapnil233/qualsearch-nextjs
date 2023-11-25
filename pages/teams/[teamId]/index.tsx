@@ -151,8 +151,10 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          teamId: team.id as string,
-          invitedByUserId: user.id as string,
+          teamId: team.id,
+          invitedByName: user.name,
+          invitedByEmail: user.email,
+          invitedByUserId: user.id,
           invitations: values.invitations.map((invitation) => {
             return {
               email: invitation.email,

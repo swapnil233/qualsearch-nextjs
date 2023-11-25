@@ -1,11 +1,13 @@
+import TranscriptionCompletedEmail from "@/components/emails/TranscriptionCompletedEmail";
+import { EmailAddresses } from "@/constants/EmailAddresses";
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { sendEmail } from "@/lib/sendEmail";
 import { host } from "@/utils/host";
 import prisma from "@/utils/prisma";
 import { getSizeInBytes } from "@/utils/setSizeInBytes";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Resend } from "resend";
 
 const cors = Cors({
   allowMethods: ["POST", "HEAD"],
@@ -111,6 +113,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
       console.log("Embeddings created.");
 
+      // Get the team and users associated with this file
       const teamWithUsers = await prisma.team.findUnique({
         where: {
           id: fileWithThisRequestId.file.teamId,
@@ -119,30 +122,39 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           id: true,
           users: {
             select: {
+              name: true,
               email: true,
             },
           },
         },
       });
 
-      const userEmails = teamWithUsers?.users.map((user) => user.email);
-      const linkToTranscribedFile = process.env.AMPLIFY_URL
-        ? `${process.env.AMPLIFY_URL}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`
-        : `https://${process.env.VERCEL_URL}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`;
+      // Create the link to the transcribed file
+      const linkToTranscribedFile = `${host}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`;
 
       try {
-        userEmails &&
-          sendEmail(
-            userEmails,
-            "Transcription complete",
-            `Your file has been transcribed! Visit the file at ${linkToTranscribedFile}`,
-            `<h1>Transcription complete</h1><p>Your file has been transcribed! Visit the file at ${linkToTranscribedFile}</p>`
-          );
-      } catch (emailError: any) {
-        console.log("Email sending error:", emailError.message);
-      }
+        if (teamWithUsers) {
+          // Send the invitation email(s).
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          const emailPromises = teamWithUsers.users.map(async (user) => {
+            await resend.emails.send({
+              from: EmailAddresses.Noreply,
+              to: [user.email as string],
+              subject: `Transcription completed for ${fileWithThisRequestId.file.name}`,
+              react: TranscriptionCompletedEmail({
+                userName: user.name as string,
+                fileName: fileWithThisRequestId.file.name,
+                linkToTranscribedFile: linkToTranscribedFile,
+              }),
+            });
+          });
 
-      console.log("webhookHandler completed.");
+          // Await all email sending promises and handle failures.
+          await Promise.allSettled(emailPromises);
+        }
+      } catch (error) {
+        console.error("Failed to send email:", error);
+      }
 
       return res.status(HttpStatus.Ok).send({
         fileWithThisRequestId: fileWithThisRequestId.file.id,

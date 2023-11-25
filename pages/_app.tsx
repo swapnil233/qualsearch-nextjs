@@ -28,12 +28,13 @@ export default function App({
     if (!isOnline) {
       notifications.show({
         id: "offline-warning-notification",
-        title: "You're offline",
+        title: "You're offline...",
         message:
           "Your internet connection has been disconnected. Please re-connect to ensure your changes are saved.",
         withCloseButton: false,
         color: "red",
         icon: <IconX />,
+        autoClose: false,
       });
     } else {
       notifications.hide("offline-warning-notification");
