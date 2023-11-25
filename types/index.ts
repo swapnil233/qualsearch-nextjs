@@ -1,5 +1,7 @@
 import { Prisma, Team, User } from "@prisma/client";
+import { TablerIconsProps } from "@tabler/icons-react";
 import { Document } from "langchain/document";
+import { ReactElement } from "react";
 
 export type TeamWithUsers = Team & {
   users: User[];
@@ -186,4 +188,10 @@ export type SelectedText = {
   start: number;
   end: number;
   selectedTextRectangle: SelectedTextRectangle;
+};
+
+export type Stat = {
+  title: string;
+  value: string | number;
+  icon: ReactElement<TablerIconsProps>;
 };
