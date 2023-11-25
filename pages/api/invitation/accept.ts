@@ -75,9 +75,9 @@ export default async function Handler(
       },
     });
 
-    // @ts-ignore - session.user.id won't be recognized because it comes from authOptions
     const updatedTeam = await addUserToTeam(
       invitation.teamId,
+      // @ts-ignore - session.user.id won't be recognized because it comes from authOptions
       session.user.id,
       invitation.role
     );
