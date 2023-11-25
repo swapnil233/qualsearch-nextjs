@@ -1,15 +1,16 @@
 import { TranscriptPageAside } from "@/components/aside/TranscriptPageAside";
 import SummaryCard from "@/components/card/summary/SummaryCard";
+import StatsGrid from "@/components/grids/StatsGrid";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import StatsGrid from "@/components/stats/StatsGrid";
 import Transcript from "@/components/transcript/Transcript";
-import { NotesProvider } from "@/contexts/NotesContext";
+import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import {
   NoteWithTagsAndCreator,
+  Stat,
   TagWithNoteIds,
   TranscriptWord,
 } from "@/types";
@@ -25,11 +26,21 @@ import {
   Summary,
   User,
 } from "@prisma/client";
-import { IconEdit, IconTrash, IconWand } from "@tabler/icons-react";
+import {
+  IconBuilding,
+  IconCalendar,
+  IconEdit,
+  IconHourglass,
+  IconMessage,
+  IconTag,
+  IconTrash,
+  IconUser,
+  IconWand,
+} from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -157,33 +168,100 @@ interface IFilePage {
   user: User;
 }
 
-const FilePage: NextPageWithLayout<IFilePage> = ({
+const FilePageContent: NextPageWithLayout<IFilePage> = ({
   file,
-  initialNotes,
-  initialTags,
   transcript,
   mediaUrl,
   user,
 }) => {
+  const router = useRouter();
+  const { noteId: rawNoteId } = router.query;
+
   const theme = useMantineTheme();
+
   const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
-  const words = transcript.words as TranscriptWord[];
+
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
+  // Tabs of the aside component
   const [segment, setSegment] = useState<"tags" | "notes" | "ai">("notes");
 
+  const words = transcript.words as TranscriptWord[];
   const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
 
   const largeScreen = useMediaQuery("(min-width: 60em)");
 
-  const teamId = file.teamId;
-
-  const router = useRouter();
-  const { noteId: rawNoteId } = router.query;
   const noteId = (
     Array.isArray(rawNoteId) ? rawNoteId[0] : rawNoteId
   ) as string;
+
+  // Notes context
+  const { notes } = useNotes();
+
+  // Unique tags - used for stats grid
+  const [tagsCount, setTagsCount] = useState<number>(0);
+
+  // Calculate unique tags
+  useEffect(() => {
+    const uniqueTags = new Set(
+      notes.flatMap((note) => note.tags.map((tag) => tag.id))
+    );
+    setTagsCount(uniqueTags.size);
+  }, [notes]);
+
+  // Calculate unique contributors
+  const contributorsCount = useMemo(() => {
+    return new Set(notes.map((note) => note.createdByUserId)).size;
+  }, [notes]);
+
+  const statsGridIconStyles = {
+    color:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[3]
+        : theme.colors.gray[4],
+    size: "1.4rem",
+    stroke: 1.5,
+  };
+
+  const stats: Stat[] = [
+    {
+      title: "Duration",
+      value:
+        mediaRef.current && mediaRef.current.duration
+          ? `${Math.floor(mediaRef.current.duration / 60)} minutes`
+          : "Error",
+      icon: <IconHourglass {...statsGridIconStyles} />,
+    },
+    {
+      title: "Notes",
+      value: notes.length,
+      icon: <IconMessage {...statsGridIconStyles} />,
+    },
+    {
+      title: "Tags used",
+      value: tagsCount,
+      icon: <IconTag {...statsGridIconStyles} />,
+    },
+  ];
+
+  const userInterviewStats: Stat[] = [
+    {
+      title: "Participant",
+      value: file.participantName || "Not set",
+      icon: <IconUser {...statsGridIconStyles} />,
+    },
+    {
+      title: "Organization",
+      value: file.participantOrganization || "Not set",
+      icon: <IconBuilding {...statsGridIconStyles} />,
+    },
+    {
+      title: "Date conducted",
+      value: new Date(file.dateConducted!).toLocaleDateString() || "Not set",
+      icon: <IconCalendar {...statsGridIconStyles} />,
+    },
+  ];
 
   // Fetch summary if it exists, else create one.
   useEffect(() => {
@@ -265,126 +343,127 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="QualSearch" />
       </Head>
+      <PageHeading
+        title={file.name}
+        description={file.description || ""}
+        primaryButtonText="Summarize"
+        primaryButtonIcon={<IconWand size={"1.2rem"} />}
+        primaryButtonAction={handleSummarize}
+        secondaryButtonMenuItems={[
+          {
+            title: "Edit file",
+            action: editFile,
+            icon: <IconEdit size={14} />,
+          },
+          {
+            title: "Delete file",
+            action: handleDelete,
+            icon: <IconTrash size={14} />,
+          },
+        ]}
+        breadcrumbs={[
+          {
+            title: "Home",
+            href: "/",
+          },
+          {
+            title: "Teams",
+            href: "/teams",
+          },
+          {
+            title: "Projects",
+            href: `/teams/${file.teamId}`,
+          },
+          {
+            title: "Files",
+            href: `/teams/${file.teamId}/projects/${file.projectId}`,
+          },
+        ]}
+      />
 
-      <NotesProvider initialNotes={initialNotes}>
-        <TagsProvider initialTags={initialTags}>
-          <PageHeading
-            title={file.name}
-            description={file.description || ""}
-            primaryButtonText="Summarize"
-            primaryButtonIcon={<IconWand size={"1.2rem"} />}
-            primaryButtonAction={handleSummarize}
-            secondaryButtonMenuItems={[
-              {
-                title: "Edit file",
-                action: editFile,
-                icon: <IconEdit size={14} />,
-              },
-              {
-                title: "Delete file",
-                action: handleDelete,
-                icon: <IconTrash size={14} />,
-              },
-            ]}
-            breadcrumbs={[
-              {
-                title: "Home",
-                href: "/",
-              },
-              {
-                title: "Teams",
-                href: "/teams",
-              },
-              {
-                title: "Projects",
-                href: `/teams/${teamId}`,
-              },
-              {
-                title: "Files",
-                href: `/teams/${teamId}/projects/${file.projectId}`,
-              },
-            ]}
+      <div>
+        {file.type === "VIDEO" ? (
+          <video
+            src={mediaUrl}
+            controls
+            ref={mediaRef as React.MutableRefObject<HTMLVideoElement>}
+            className="w-full md:w-1/6 md:fixed bottom-[16px] z-50 right-[316px]"
           />
+        ) : (
+          <audio
+            src={mediaUrl}
+            controls
+            ref={mediaRef}
+            className="sticky top-4 w-full z-50"
+          />
+        )}
 
-          <div>
-            {file.type === "VIDEO" ? (
-              <video
-                src={mediaUrl}
-                controls
-                ref={mediaRef as React.MutableRefObject<HTMLVideoElement>}
-                className="w-full md:w-1/6 md:fixed bottom-[16px] z-50 right-[316px]"
-              />
-            ) : (
-              <audio
-                src={mediaUrl}
-                controls
-                ref={mediaRef}
-                className="sticky top-4 w-full z-50"
-              />
-            )}
+        <StatsGrid columns={3} stats={userInterviewStats} />
+        <StatsGrid columns={3} stats={stats} />
 
-            <Box mt={"lg"} id="summary-box">
-              {summary ? (
-                <SummaryCard
-                  summary={summary.content}
-                  dateSummarized={summary.createdAt}
-                />
-              ) : (
-                <SummaryCard summary="" dateSummarized="" />
-              )}
-            </Box>
-
-            <StatsGrid
-              duration={
-                mediaRef.current && mediaRef.current.duration
-                  ? `${Math.floor(mediaRef.current.duration / 60)} minutes`
-                  : "Error"
-              }
+        <Box mt={"lg"} id="summary-box">
+          {summary ? (
+            <SummaryCard
+              summary={summary.content}
+              dateSummarized={summary.createdAt}
             />
+          ) : (
+            <SummaryCard summary="" dateSummarized="" />
+          )}
+        </Box>
 
-            <Group>
-              <Box
-                sx={{
-                  marginTop: "1rem",
-                  width: useMediaQuery("(min-width: 60em)") ? "70%" : "90%",
-                  borderRight: `1px solid ${
-                    theme.colorScheme === "light"
-                      ? theme.colors.gray[1]
-                      : theme.colors.dark[6]
-                  }`,
-                  paddingRight: "0.5rem",
-                }}
-              >
-                <Transcript
-                  words={words}
-                  mediaRef={mediaRef}
-                  user={user}
-                  scrollToNoteId={noteId}
-                  summaryHasLoaded={summaryHasLoaded}
-                  transcriptContainerDivRef={transcriptContainerDivRef}
-                />
-              </Box>
+        <Group>
+          <Box
+            sx={{
+              marginTop: "1rem",
+              width: useMediaQuery("(min-width: 60em)") ? "70%" : "90%",
+              borderRight: `1px solid ${
+                theme.colorScheme === "light"
+                  ? theme.colors.gray[1]
+                  : theme.colors.dark[6]
+              }`,
+              paddingRight: "0.5rem",
+            }}
+          >
+            <Transcript
+              words={words}
+              mediaRef={mediaRef}
+              user={user}
+              scrollToNoteId={noteId}
+              summaryHasLoaded={summaryHasLoaded}
+              transcriptContainerDivRef={transcriptContainerDivRef}
+            />
+          </Box>
 
-              {largeScreen && (
-                <TranscriptPageAside
-                  segment={segment}
-                  setSegment={setSegment}
-                  mediaRef={mediaRef}
-                  transcriptContainerDivRef={transcriptContainerDivRef}
-                  user={user}
-                  fileId={file.id}
-                  transcriptId={transcript.id}
-                />
-              )}
-            </Group>
-          </div>
-        </TagsProvider>
-      </NotesProvider>
+          {largeScreen && (
+            <TranscriptPageAside
+              segment={segment}
+              setSegment={setSegment}
+              mediaRef={mediaRef}
+              transcriptContainerDivRef={transcriptContainerDivRef}
+              user={user}
+              fileId={file.id}
+              transcriptId={transcript.id}
+            />
+          )}
+        </Group>
+      </div>
     </>
   );
 };
 
+const FilePage: NextPageWithLayout<IFilePage> = (props) => {
+  return (
+    <NotesProvider initialNotes={props.initialNotes}>
+      <TagsProvider initialTags={props.initialTags}>
+        <FilePageContent {...props} />
+      </TagsProvider>
+    </NotesProvider>
+  );
+};
+
 export default FilePage;
+
 FilePage.getLayout = (page) => {
   return <PrimaryLayout>{page}</PrimaryLayout>;
 };
