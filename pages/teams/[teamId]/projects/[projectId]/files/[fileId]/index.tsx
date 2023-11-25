@@ -346,7 +346,7 @@ const FilePage: NextPageWithLayout<IFilePage> = ({
               <Box
                 sx={{
                   marginTop: "1rem",
-                  width: "70%",
+                  width: useMediaQuery("(min-width: 60em)") ? "70%" : "90%",
                   borderRight: `1px solid ${
                     theme.colorScheme === "light"
                       ? theme.colors.gray[1]
