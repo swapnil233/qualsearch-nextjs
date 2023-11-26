@@ -62,7 +62,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         file: File,
         transcript: PrismaTranscript,
         notes: NoteWithTagsAndCreator[],
-        tags: TagWithNoteIds[]
+        tags: TagWithNoteIds[],
       ];
 
       let [file, transcript, notes, tags]: BatchRequest = await Promise.all([

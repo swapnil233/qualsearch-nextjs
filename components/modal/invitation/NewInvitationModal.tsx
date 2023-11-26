@@ -43,7 +43,7 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
     { value: Role; label: string },
     { value: Role; label: string },
     { value: Role; label: string },
-    { value: Role; label: string }
+    { value: Role; label: string },
   ] = [
     { value: "GUEST", label: "Guest" },
     { value: "VIEWER", label: "Viewer" },
