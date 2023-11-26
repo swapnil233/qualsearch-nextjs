@@ -157,9 +157,9 @@ model File {
   updatedAt               DateTime   @updatedAt
   name                    String
   description             String?
-  participantName         String?
-  participantOrganization String?
-  dateConducted           DateTime?
+  participantName         String
+  participantOrganization String
+  dateConducted           DateTime
   uri                     String
   type                    FileType
   status                  FileStatus @default(PROCESSING)
