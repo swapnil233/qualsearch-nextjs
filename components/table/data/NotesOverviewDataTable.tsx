@@ -20,6 +20,7 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { Tag } from "@prisma/client";
 import {
   IconChevronDown,
@@ -76,6 +77,8 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     value: option.toString(),
     label: `${option}`,
   }));
+
+  const largeScreen = useMediaQuery("(min-width: 60em)");
 
   const tagsUsed = useMemo(() => {
     return notes
@@ -157,9 +160,28 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
 
   return (
     <div>
-      <Group mb="md" w={"100%"} position="apart" align="end">
-        <Group align="end" grow noWrap>
-          <Input.Wrapper label="Filter by note" w={"100%"} maw={400}>
+      <Group
+        mb="md"
+        w={"100%"}
+        position="apart"
+        align="end"
+        noWrap={largeScreen}
+      >
+        <Box
+          style={{
+            display: "flex",
+            flexDirection: largeScreen ? "row" : "column",
+            alignItems: "baseline",
+            gap: "1rem",
+            width: "100%",
+            flexWrap: "nowrap",
+          }}
+        >
+          <Input.Wrapper
+            label="Filter by note"
+            w={"100%"}
+            maw={largeScreen ? 400 : "100%"}
+          >
             <Input
               placeholder="Start typing to filter notes..."
               value={search}
@@ -179,7 +201,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             clearable
             icon={<IconTag size={"1.1rem"} />}
             w={"100%"}
-            maw={400}
+            maw={largeScreen ? 400 : "100%"}
           />
 
           {participants.length > 0 && (
@@ -191,7 +213,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               data={participants}
               styles={{ rightSection: { pointerEvents: "none" } }}
               w={"100%"}
-              maw={400}
+              maw={largeScreen ? 400 : "100%"}
               clearable
             />
           )}
@@ -208,9 +230,9 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             rightSectionWidth={30}
             styles={{ rightSection: { pointerEvents: "none" } }}
             w={"100%"}
-            maw={400}
+            maw={largeScreen ? 400 : "100%"}
           />
-        </Group>
+        </Box>
         <Button
           leftIcon={<IconDownload size={"1rem"} />}
           disabled={filteredNotes.length === 0}
