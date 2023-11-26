@@ -21,7 +21,9 @@ import {
   ActionIcon,
   Affix,
   Box,
+  Group,
   Popover,
+  Select,
   SimpleGrid,
   Stack,
   Title,
@@ -30,6 +32,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { Project } from "@prisma/client";
 import {
+  IconChevronDown,
   IconFilePlus,
   IconMessage,
   IconPencil,
@@ -37,7 +40,7 @@ import {
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -85,9 +88,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
                 request_id: true,
               },
             },
-          },
-          orderBy: {
-            createdAt: "asc",
           },
         });
 
@@ -144,7 +144,7 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
   project,
   initialFiles,
 }) => {
-  const { notes, setNotes } = useNotes();
+  const { notes } = useNotes();
 
   const [opened, { open, close }] = useDisclosure(false);
   const [files, setFiles] =
@@ -191,6 +191,67 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
     project.teamId,
     setDeletingProject
   );
+
+  // Options for sorting files
+  const fileSortingOptions = [
+    {
+      value: "nameAtoZ",
+      label: "Name (A-Z)",
+    },
+    {
+      value: "nameZtoA",
+      label: "Name (Z-A)",
+    },
+    {
+      value: "dateConducted",
+      label: "Date conducted",
+    },
+    {
+      value: "createdAt",
+      label: "Upload date",
+    },
+  ];
+
+  // State for sorting files
+  const [sortFilesBy, setSortFilesBy] = useState<string>("nameAtoZ");
+
+  // Select options for items per page
+  const selectOptions = fileSortingOptions.map((option) => ({
+    value: option.value,
+    label: option.label,
+  }));
+
+  // Sort files when the sortFilesBy state changes
+  useEffect(() => {
+    const sortFiles = (
+      files: FileWithoutTranscriptAndUri[],
+      sortBy: string
+    ): FileWithoutTranscriptAndUri[] => {
+      // Create a new array for sorting
+      const filesToSort = [...files];
+
+      // Sort the files by the selected option
+      return filesToSort.sort((a, b) => {
+        if (sortBy === "dateConducted") {
+          return (
+            new Date(a.dateConducted).getTime() -
+            new Date(b.dateConducted).getTime()
+          );
+        } else if (sortBy === "createdAt") {
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+        } else if (sortBy === "nameAtoZ") {
+          return a.name.localeCompare(b.name);
+        } else if (sortBy === "nameZtoA") {
+          return b.name.localeCompare(a.name);
+        }
+        return 0;
+      });
+    };
+
+    setFiles(sortFiles(files, sortFilesBy));
+  }, [sortFilesBy]);
 
   return (
     <>
@@ -259,9 +320,19 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
       ) : (
         <>
           <Stack w={"100%"}>
-            <Title order={3} fw={"normal"}>
-              Files
-            </Title>
+            <Group noWrap position="apart">
+              <Title order={3} fw={"normal"}>
+                Files
+              </Title>
+              <Select
+                value={sortFilesBy}
+                onChange={(value) => setSortFilesBy(value as string)}
+                data={selectOptions}
+                rightSection={<IconChevronDown size="1rem" />}
+                rightSectionWidth={30}
+                styles={{ rightSection: { pointerEvents: "none" } }}
+              />
+            </Group>
             <SimpleGrid
               cols={3}
               spacing={"md"}

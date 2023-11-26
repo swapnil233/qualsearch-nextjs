@@ -40,7 +40,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
@@ -208,11 +208,6 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
       notes.flatMap((note) => note.tags.map((tag) => tag.id))
     );
     setTagsCount(uniqueTags.size);
-  }, [notes]);
-
-  // Calculate unique contributors
-  const contributorsCount = useMemo(() => {
-    return new Set(notes.map((note) => note.createdByUserId)).size;
   }, [notes]);
 
   const statsGridIconStyles = {
