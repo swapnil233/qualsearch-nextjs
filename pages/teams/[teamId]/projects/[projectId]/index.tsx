@@ -344,7 +344,7 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
               ]}
             >
               {files.map((file) => (
-                <FileCard key={file.id} file={file} teamId={file.teamId} />
+                <FileCard key={file.id} file={file} />
               ))}
             </SimpleGrid>
           </Stack>
