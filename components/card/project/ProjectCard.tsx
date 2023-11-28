@@ -1,8 +1,15 @@
+import OptionsMenu from "@/components/menu/OptionsMenu";
 import { Button, Card, Group, Stack, Text, Tooltip } from "@mantine/core";
 import { Project } from "@prisma/client";
-import { IconNote, IconTags, IconVideo } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconNote,
+  IconTags,
+  IconTrash,
+  IconVideo,
+} from "@tabler/icons-react";
 import Link from "next/link";
-import { FC, memo } from "react";
+import { FC, memo, useMemo } from "react";
 
 export interface IProjectCard {
   project: Project;
@@ -17,6 +24,23 @@ const ProjectCard: FC<IProjectCard> = ({
   noteCount,
   tagCount,
 }) => {
+  const menuOptions = useMemo(
+    () => [
+      {
+        option: "Edit",
+        icon: <IconEdit size={"1rem"} />,
+        onClick: () => {},
+      },
+      {
+        option: "Delete",
+        color: "red",
+        icon: <IconTrash size={"1rem"} />,
+        onClick: () => {},
+      },
+    ],
+    []
+  );
+
   return (
     <Card
       withBorder
@@ -28,9 +52,12 @@ const ProjectCard: FC<IProjectCard> = ({
     >
       <Stack justify="space-between" align="stretch" h="100%" spacing={"xl"}>
         <Stack spacing={"xs"} justify="space-between" align="stretch">
-          <Text fz="lg" fw={500}>
-            {project.name}
-          </Text>
+          <Group noWrap position="apart">
+            <Text fz="lg" fw={500}>
+              {project.name}
+            </Text>
+            <OptionsMenu options={menuOptions} />
+          </Group>
           <Text fz="sm" c={"dimmed"} lineClamp={2}>
             {project.description}
           </Text>
@@ -38,6 +65,7 @@ const ProjectCard: FC<IProjectCard> = ({
         <Group position="apart">
           <Group spacing={"sm"}>
             <Tooltip
+              withinPortal
               label={`This project has ${fileCount || "no"} ${
                 fileCount !== 0 && fileCount <= 1 ? "file" : "files"
               }`}
@@ -49,6 +77,7 @@ const ProjectCard: FC<IProjectCard> = ({
             </Tooltip>
 
             <Tooltip
+              withinPortal
               label={`This project has ${noteCount || "no"} ${
                 noteCount !== 0 && noteCount <= 1 ? "note" : "notes"
               }`}
@@ -60,6 +89,7 @@ const ProjectCard: FC<IProjectCard> = ({
             </Tooltip>
 
             <Tooltip
+              withinPortal
               label={`This project has ${tagCount || "no"} ${
                 tagCount !== 0 && tagCount <= 1 ? "tag" : "tags"
               }`}

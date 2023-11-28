@@ -1,3 +1,4 @@
+import OptionsMenu from "@/components/menu/OptionsMenu";
 import { TeamWithUsers } from "@/types";
 import {
   Avatar,
@@ -8,25 +9,32 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
-import { User } from "@prisma/client";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { FC, memo } from "react";
+import { FC, memo, useMemo } from "react";
 
 export interface ITeamCard {
   team: TeamWithUsers;
 }
 
-interface UserAvatarProps {
-  user: User;
-}
-
-const UserAvatar: FC<UserAvatarProps> = ({ user }) => (
-  <Tooltip label={`${user.name}, ${user.email}`} position="top" withArrow>
-    <Avatar src={user.image} radius="xl" variant="filled" />
-  </Tooltip>
-);
-
 const TeamCard: FC<ITeamCard> = ({ team }) => {
+  const menuOptions = useMemo(
+    () => [
+      {
+        option: "Edit",
+        icon: <IconEdit size={"1rem"} />,
+        onClick: () => {},
+      },
+      {
+        option: "Delete",
+        color: "red",
+        icon: <IconTrash size={"1rem"} />,
+        onClick: () => {},
+      },
+    ],
+    []
+  );
+
   return (
     <Card
       withBorder
@@ -38,9 +46,12 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
     >
       <Stack justify="space-between" align="stretch" h="100%">
         <Stack spacing={"xs"} justify="space-between" align="stretch">
-          <Text fz="lg" fw={500}>
-            {team.name}
-          </Text>
+          <Group noWrap position="apart">
+            <Text fz="lg" fw={500}>
+              {team.name}
+            </Text>
+            <OptionsMenu options={menuOptions} />
+          </Group>
           <Text fz="sm" c={"dimmed"} lineClamp={3}>
             {team.description}
           </Text>
@@ -49,7 +60,15 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
         <Group position="apart">
           <Avatar.Group spacing="sm">
             {team.users.slice(0, 3).map((user) => (
-              <UserAvatar key={user.id} user={user} />
+              <Tooltip
+                key={user.id}
+                label={`${user.name}, ${user.email}`}
+                position="top"
+                withArrow
+                withinPortal
+              >
+                <Avatar src={user.image} radius="xl" variant="filled" />
+              </Tooltip>
             ))}
             {team.users.length > 3 && (
               <Tooltip
