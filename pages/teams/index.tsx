@@ -13,7 +13,7 @@ import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
-import { Badge, SimpleGrid, Tabs, Text, Title } from "@mantine/core";
+import { Badge, SimpleGrid, Tabs, Text, Title, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Invitation, Team, User } from "@prisma/client";
 import { IconUsersGroup } from "@tabler/icons-react";
@@ -132,13 +132,14 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
         />
       ) : (
         <SimpleGrid
-          cols={4}
+          cols={1}
           spacing={"md"}
           verticalSpacing={"md"}
           breakpoints={[
-            { maxWidth: "62rem", cols: 3, spacing: "md" },
-            { maxWidth: "48rem", cols: 2, spacing: "sm" },
-            { maxWidth: "36rem", cols: 1, spacing: "sm" },
+            { minWidth: rem(1900), cols: 4, spacing: "md" },
+            { minWidth: rem(1300), cols: 3, spacing: "md" },
+            { minWidth: rem(966), cols: 2, spacing: "sm" },
+            { minWidth: rem(320), cols: 1, spacing: "sm" },
           ]}
         >
           {showingTeams.map((team) => (

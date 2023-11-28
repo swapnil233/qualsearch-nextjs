@@ -334,13 +334,14 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
               />
             </Group>
             <SimpleGrid
-              cols={3}
+              cols={1}
               spacing={"md"}
               verticalSpacing={"md"}
               breakpoints={[
-                { maxWidth: "62rem", cols: 3, spacing: "md" },
-                { maxWidth: "48rem", cols: 2, spacing: "sm" },
-                { maxWidth: "36rem", cols: 1, spacing: "sm" },
+                { minWidth: rem(1900), cols: 4, spacing: "md" },
+                { minWidth: rem(1300), cols: 3, spacing: "md" },
+                { minWidth: rem(966), cols: 2, spacing: "sm" },
+                { minWidth: rem(320), cols: 1, spacing: "sm" },
               ]}
             >
               {files.map((file) => (
