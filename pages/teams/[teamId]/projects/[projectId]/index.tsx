@@ -11,11 +11,12 @@ import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { useFileCreation } from "@/hooks/useFileCreation";
 import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { useProjectDeletion } from "@/hooks/useProjectDeletion";
+import { getFilesWithoutTranscriptAndUriGivenTranscriptId } from "@/infrastructure/services/file.service";
+import { getNotesWithTagsAndCreators } from "@/infrastructure/services/note.service";
+import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
-import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
-import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import {
   ActionIcon,
@@ -48,11 +49,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const user = session.user;
 
     try {
-      let project: Project = await prisma.project.findUniqueOrThrow({
-        where: {
-          id: projectId as string,
-        },
-      });
+      const project = await getProjectById(projectId as string);
 
       // Validate if the user is a member of the team that the project belongs to
       try {
@@ -64,59 +61,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
-      // Get all files, don't include the transcript or the uri
-      let initialFiles: FileWithoutTranscriptAndUri[] =
-        await prisma.file.findMany({
-          where: {
-            projectId: projectId as string,
-          },
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            createdAt: true,
-            updatedAt: true,
-            type: true,
-            projectId: true,
-            teamId: true,
-            status: true,
-            participantName: true,
-            participantOrganization: true,
-            dateConducted: true,
-            transcriptRequestId: {
-              select: {
-                request_id: true,
-              },
-            },
-          },
-        });
+      const initialFiles =
+        await getFilesWithoutTranscriptAndUriGivenTranscriptId(
+          projectId as string
+        );
 
-      let notes: NoteWithTagsAndCreator[] = await prisma.note.findMany({
-        where: {
-          projectId: projectId as string,
-        },
-        include: {
-          createdBy: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-            },
-          },
-          tags: true,
-          file: {
-            select: {
-              participantName: true,
-              participantOrganization: true,
-              dateConducted: true,
-            },
-          },
-        },
-      });
-
-      project = formatDatesToIsoString(project);
-      initialFiles = formatDatesToIsoString(initialFiles);
-      notes = formatDatesToIsoString(notes);
+      const notes = await getNotesWithTagsAndCreators(projectId as string);
 
       return {
         props: {

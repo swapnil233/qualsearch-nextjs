@@ -1,4 +1,16 @@
+import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
+import { Project } from "@prisma/client";
+
+export async function getProjectById(projectId: string): Promise<Project> {
+  let project: Project = await prisma.project.findUniqueOrThrow({
+    where: {
+      id: projectId,
+    },
+  });
+
+  return formatDatesToIsoString(project);
+}
 
 export async function createProject(
   projectName: string,
