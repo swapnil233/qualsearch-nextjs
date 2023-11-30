@@ -2,7 +2,7 @@ import { FileWithoutTranscriptAndUri } from "@/types";
 import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
 import prisma from "@/utils/prisma";
 
-export async function getFilesWithoutTranscriptAndUriGivenTranscriptId(projectId: string): Promise<FileWithoutTranscriptAndUri[]> {
+export async function getFilesWithoutTranscriptAndUriGivenProjectId(projectId: string): Promise<FileWithoutTranscriptAndUri[]> {
     let file = await prisma.file.findMany({
         where: {
             projectId: projectId as string,

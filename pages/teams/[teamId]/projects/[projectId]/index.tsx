@@ -11,8 +11,8 @@ import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { useFileCreation } from "@/hooks/useFileCreation";
 import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { useProjectDeletion } from "@/hooks/useProjectDeletion";
-import { getFilesWithoutTranscriptAndUriGivenTranscriptId } from "@/infrastructure/services/file.service";
-import { getNotesWithTagsAndCreators } from "@/infrastructure/services/note.service";
+import { getFilesWithoutTranscriptAndUriGivenProjectId } from "@/infrastructure/services/file.service";
+import { getNotesWithTagsAndCreator } from "@/infrastructure/services/note.service";
 import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
@@ -61,12 +61,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         };
       }
 
-      const initialFiles =
-        await getFilesWithoutTranscriptAndUriGivenTranscriptId(
-          projectId as string
-        );
+      const initialFiles = await getFilesWithoutTranscriptAndUriGivenProjectId(
+        projectId as string
+      );
 
-      const notes = await getNotesWithTagsAndCreators(projectId as string);
+      const notes = await getNotesWithTagsAndCreator(projectId as string);
 
       return {
         props: {
