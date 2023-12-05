@@ -7,6 +7,7 @@ import Transcript from "@/components/transcript/Transcript";
 import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { getUserById } from "@/infrastructure/services/user.service";
 import { NextPageWithLayout } from "@/pages/page";
 import {
   NoteWithTagsAndCreator,
@@ -45,11 +46,7 @@ import { useEffect, useRef, useState } from "react";
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
     const { fileId, projectId } = context.query;
-    const user = await prisma.user.findUnique({
-      where: {
-        id: session.user.id,
-      },
-    });
+    const user = await getUserById(session.user.id);
 
     if (!user) {
       return {
