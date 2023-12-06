@@ -1,7 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { getTranscriptById } from "@/infrastructure/services/transcript.service";
 import pinecone from "@/utils/pinecone";
-import prisma from "@/utils/prisma";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
@@ -55,11 +55,7 @@ async function handleEmbedding(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Get the transcript from DB
-    const transcript = await prisma.transcript.findUnique({
-      where: {
-        id: transcriptId,
-      },
-    });
+    const transcript = await getTranscriptById(transcriptId as string);
 
     if (!transcript) {
       return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);

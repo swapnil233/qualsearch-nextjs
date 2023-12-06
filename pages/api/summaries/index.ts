@@ -1,5 +1,6 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { getTranscriptById } from "@/infrastructure/services/transcript.service";
 import prisma from "@/utils/prisma";
 import { get_encoding } from "@dqbd/tiktoken";
 import { LLMChain, loadSummarizationChain } from "langchain/chains";
@@ -68,11 +69,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Get the transcript from DB
-    const transcript = await prisma.transcript.findUnique({
-      where: {
-        id: transcriptId,
-      },
-    });
+    const transcript = await getTranscriptById(transcriptId as string);
 
     if (!transcript) {
       return res.status(HttpStatus.NotFound).send(ErrorMessages.NotFound);

@@ -1,7 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { getTranscriptById } from "@/infrastructure/services/transcript.service";
 import { CleanedParagraph, TranscriptParagraphs } from "@/types";
-import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -52,11 +52,7 @@ async function handleTranscriptCleanup(
         .json({ message: ErrorMessages.BadRequest });
     }
 
-    const transcript = await prisma.transcript.findUnique({
-      where: {
-        id: transcriptId as string,
-      },
-    });
+    const transcript = await getTranscriptById(transcriptId as string);
 
     if (!transcript) {
       return res
