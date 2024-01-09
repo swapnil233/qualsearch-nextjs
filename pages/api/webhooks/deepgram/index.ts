@@ -29,6 +29,8 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       .status(HttpStatus.BadRequest)
       .send("400 Bad request: request_id was not found in the request body.");
 
+  console.log("Deepgram request ID present. Proceeding...")
+
   const dgResponse = req.body.results.channels[0].alternatives[0];
   const metadata = req.body.metadata;
 
@@ -36,6 +38,8 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     // Find the file that has this request ID
+    console.log(`Searching for file with request_id: ${request_id}`);
+
     const fileWithThisRequestId =
       await prisma.deepgramTranscriptRequest.findUnique({
         where: {
@@ -46,12 +50,13 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-    console.log(`Searching for file with request_id: ${request_id}`);
     if (!fileWithThisRequestId?.file) {
       return res
         .status(HttpStatus.BadRequest)
         .send("No file associated with this Deepgram request_id");
     }
+
+    console.log(`File with ID "${fileWithThisRequestId.file.id}" found.`)
 
     const transcriptData = {
       confidence: dgResponse.confidence,
@@ -133,6 +138,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       const linkToTranscribedFile = `${host}/teams/${teamWithUsers?.id}/projects/${fileWithThisRequestId.file.projectId}/files/${fileWithThisRequestId.file.id}`;
 
       try {
+        console.log("Sending email(s)...");
         if (teamWithUsers) {
           // Send the invitation email(s).
           const resend = new Resend(process.env.RESEND_API_KEY);
@@ -147,6 +153,8 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
                 linkToTranscribedFile: linkToTranscribedFile,
               }),
             });
+
+            console.log(`Email sent to ${user.email}`);
           });
 
           // Await all email sending promises and handle failures.
