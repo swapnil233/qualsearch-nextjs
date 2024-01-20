@@ -9,6 +9,7 @@ import {
 import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 import { Notifications, notifications } from "@mantine/notifications";
 import { IconX } from "@tabler/icons-react";
+import { Analytics } from "@vercel/analytics/react";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
@@ -86,6 +87,7 @@ export default function App({
           <SessionProvider session={session}>
             <RouterTransition />
             {getLayout(<Component {...pageProps} />)}
+            <Analytics />
             <Notifications position="top-right" />
           </SessionProvider>
         </MantineProvider>
