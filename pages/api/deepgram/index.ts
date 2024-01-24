@@ -1,6 +1,5 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { host } from "@/utils/host"; // import the query string library
 import { NextApiRequest, NextApiResponse } from "next";
 import qs from "qs";
 
@@ -119,7 +118,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // Convert options to query string.
     const query = qs.stringify(options, { arrayFormat: "repeat" });
 
-    let cb = `${host}/api/webhooks/deepgram/`;
+    let cb = `https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/`;
 
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 
