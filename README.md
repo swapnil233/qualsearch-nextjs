@@ -1,5 +1,14 @@
 <h1> Transcription and summarization web application </h1>
 
+![screely-1706073813508](https://github.com/swapnil233/qualsearch-nextjs/assets/36313876/e31e8a5b-9384-4ca3-aff5-289903295c7a)
+
+![www qualsearch io_teams_clqvj9lk50004oop5p8pux1f7_projects_clqvj9r6s0006oop5n9pz0t6d_files_clr10dwkw000113qhnjbrml27(MacBook Air)](https://github.com/swapnil233/qualsearch-nextjs/assets/36313876/255492f3-a7d3-4df6-998c-b80c880e3e49)
+
+![screely-1706074195598](https://github.com/swapnil233/qualsearch-nextjs/assets/36313876/03bd1461-b67c-4b07-852d-f7e230d9390c)
+
+![screely-1706074101291](https://github.com/swapnil233/qualsearch-nextjs/assets/36313876/4567db48-3555-4273-b5f7-b3a30ab1d824)
+
+## How AI-generated summaries are created
 <img width="1865" alt="TC Architecture" src="https://github.com/swapnil233/next-transcriptions/assets/36313876/f9e9f178-4b15-4c4f-a5d0-b6858e117b04">
 
 #### How to run on your machine:
