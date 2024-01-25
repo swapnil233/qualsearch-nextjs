@@ -45,7 +45,7 @@ export default async function handler(
  */
 async function handlePost(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { DEEPGRAM_API_KEY } = process.env;
+    const { DEEPGRAM_API_KEY, EXPRESS_BACKEND_URL } = process.env;
 
     if (!DEEPGRAM_API_KEY) {
       return res
@@ -118,7 +118,8 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // Convert options to query string.
     const query = qs.stringify(options, { arrayFormat: "repeat" });
 
-    let cb = `https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/`;
+    // let cb = `https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/`;
+    const cb = `${EXPRESS_BACKEND_URL}/api/webhooks/deepgram/`
 
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 
