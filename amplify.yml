@@ -27,6 +27,8 @@ frontend:
         - echo "EMAIL_PASS=$EMAIL_PASS" >> .env
         - echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env
         - echo "EMAIL_DOMAIN=$EMAIL_DOMAIN" >> .env
+        - echo "SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN" >> .env
+        - echo "EXPRESS_BACKEND_URL=$EXPRESS_BACKEND_URL" >> .env
         - npm ci
     build:
       commands:
