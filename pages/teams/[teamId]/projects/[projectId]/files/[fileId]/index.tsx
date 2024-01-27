@@ -144,11 +144,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           },
         };
       } else {
+        console.error("Could not get signed URL for file");
         return {
           notFound: true,
         };
       }
     } catch (error) {
+      console.error(error);
       return {
         notFound: true,
       };
