@@ -77,8 +77,8 @@ const NotFound: NextPageWithLayout = () => {
         </Text>
         <Group position="center">
           <Link href="/">
-            <Button variant="subtle" size="md">
-              Take me back to home page
+            <Button variant="default" size="md">
+              Take me home
             </Button>
           </Link>
         </Group>
