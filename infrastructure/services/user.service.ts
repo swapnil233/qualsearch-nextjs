@@ -7,15 +7,15 @@ import { User } from "@prisma/client";
  * @returns The user with the given ID
  */
 export const getUserById = async (id: string): Promise<User | null> => {
-    try {
-        const user = await prisma.user.findUnique({
-            where: {
-                id: id
-            }
-        });
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
 
-        return user;
-    } catch (error: any) {
-        throw new Error(error);
-    }
-}
+    return user;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};

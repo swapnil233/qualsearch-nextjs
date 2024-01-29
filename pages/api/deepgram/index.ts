@@ -119,7 +119,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const query = qs.stringify(options, { arrayFormat: "repeat" });
 
     // let cb = `https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/`;
-    const cb = `${EXPRESS_BACKEND_URL}/api/webhooks/deepgram/`
+    const cb = `${EXPRESS_BACKEND_URL}/api/webhooks/deepgram/`;
 
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 

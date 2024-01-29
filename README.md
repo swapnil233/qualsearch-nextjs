@@ -9,6 +9,7 @@
 ![screely-1706074101291](https://github.com/swapnil233/qualsearch-nextjs/assets/36313876/4567db48-3555-4273-b5f7-b3a30ab1d824)
 
 ## How AI-generated summaries are created
+
 <img width="1865" alt="TC Architecture" src="https://github.com/swapnil233/next-transcriptions/assets/36313876/f9e9f178-4b15-4c4f-a5d0-b6858e117b04">
 
 #### How to run on your machine:

@@ -29,7 +29,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       .status(HttpStatus.BadRequest)
       .send("400 Bad request: request_id was not found in the request body.");
 
-  console.log("Deepgram request ID present. Proceeding...")
+  console.log("Deepgram request ID present. Proceeding...");
 
   const dgResponse = req.body.results.channels[0].alternatives[0];
   const metadata = req.body.metadata;
@@ -56,7 +56,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         .send("No file associated with this Deepgram request_id");
     }
 
-    console.log(`File with ID "${fileWithThisRequestId.file.id}" found.`)
+    console.log(`File with ID "${fileWithThisRequestId.file.id}" found.`);
 
     const transcriptData = {
       confidence: dgResponse.confidence,
