@@ -20,13 +20,11 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.456.0",
     "@aws-sdk/s3-request-presigner": "^3.456.0",
-    "@deepgram/sdk": "^2.4.0",
     "@dqbd/tiktoken": "^1.0.7",
     "@emotion/react": "^11.11.0",
     "@emotion/server": "^11.10.0",
     "@mantine/core": "^6.0.10",
     "@mantine/dates": "^6.0.16",
-    "@mantine/dropzone": "^6.0.7",
     "@mantine/ds": "^6.0.7",
     "@mantine/form": "^6.0.14",
     "@mantine/hooks": "^6.0.10",
