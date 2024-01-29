@@ -21,6 +21,7 @@ import prisma from "@/utils/prisma";
 import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Box, Group, useMantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
   File,
   Transcript as PrismaTranscript,
@@ -37,6 +38,7 @@ import {
   IconTrash,
   IconUser,
   IconWand,
+  IconX,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
 import Head from "next/head";
@@ -252,7 +254,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
     },
     {
       title: "Date conducted",
-      value: new Date(file.dateConducted!).toLocaleDateString() || "Not set",
+      value: new Date(file.dateConducted!).toDateString() || "Not set",
       icon: <IconCalendar {...statsGridIconStyles} />,
     },
   ];
@@ -291,7 +293,24 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
               setSummaryHasLoaded(true);
             }
           } catch (error) {
-            console.log(error);
+            // Summary creation failed
+            notifications.show({
+              withCloseButton: true,
+              autoClose: 5000,
+              title: "We couldn't create a summary for this transcript",
+              message: "Try again later.",
+              color: "red",
+              icon: <IconX />,
+              loading: false,
+            });
+            setSummaryHasLoaded(true);
+            setSummary({
+              id: "",
+              content:
+                "We couldn't create a summary for this transcript. Please try again later.",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
           }
         } else {
           console.error("Response error:", response.status);
