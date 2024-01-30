@@ -7,7 +7,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { NextApiRequest, NextApiResponse } from "next";
 /**
- * Handler for the '/api/embeddings' API endpoint.
+ * Handler for the `${process.env.EXPRESS_BACKEND_URL}/api/embeddings` API endpoint.
  * This function is responsible for creating/upserting embeddings for a given transcript.
  *
  * For this operation, the client must be authenticated.
@@ -37,7 +37,7 @@ export default async function handler(
 }
 
 /**
- * Handler for POST requests to '/api/embeddings'.
+ * Handler for POST requests to `${process.env.EXPRESS_BACKEND_URL}/api/embeddings`.
  * This function creates/upserts embeddings for a given transcript.
  * The transcript ID should be provided in the request body.
  *

@@ -160,7 +160,7 @@ export const useNoteCreation = (
       // setNoteIsCreating(false);
       setSelectedText(null);
 
-      await fetch("/api/embeddings/notes", {
+      await fetch(`${process.env.EXPRESS_BACKEND_URL}/api/embeddings/notes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,16 +171,19 @@ export const useNoteCreation = (
         }),
       });
 
-      await fetch("/api/embeddings/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          projectId: projectId,
-          noteId: newNote.id,
-        }),
-      });
+      await fetch(
+        `${process.env.EXPRESS_BACKEND_URL}/api/embeddings/projects`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: projectId,
+            noteId: newNote.id,
+          }),
+        }
+      );
     } catch (error) {
       console.error(error);
       // Step 4: Handle Failure - Remove the optimistic note and show error

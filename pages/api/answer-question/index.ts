@@ -1,6 +1,5 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { host } from "@/utils/host";
 import pinecone from "@/utils/pinecone";
 import { VectorDBQAChain } from "langchain/chains";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
@@ -56,7 +55,7 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
     if (
       !stats.namespaces ||
       stats.namespaces[`file-${fileId}-transcript-${transcriptId}`] ===
-        undefined
+      undefined
     ) {
       console.log(
         "Embeddings for the transcript not found in Pinecone. Creating embeddings..."
@@ -64,7 +63,7 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
       try {
         console.log("Creating embeddings for the transcript...");
         // Create embeddings for the transcript.
-        const response = await fetch(`${host}/api/embeddings`, {
+        const response = await fetch(`${process.env.EXPRESS_BACKEND_URL}/api/embeddings`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export default async function handler(
 }
 
 /**
- * Handler for POST requests to '/api/embeddings'.
+ * Handler for POST requests to `${process.env.EXPRESS_BACKEND_URL}/api/embeddings`.
  * This function takes the transcript.paragraph JSON from the DB given a transcript ID,
  * and returns essentially transcript.paragraphs.transcript but as a JSON object instead of a string.
  *

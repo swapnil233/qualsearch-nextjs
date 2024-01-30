@@ -9,7 +9,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]";
 /**
- * Handler for the '/api/embeddings/notes/' API endpoint.
+ * Handler for the `${process.env.EXPRESS_BACKEND_URL}/api/embeddings/notes/` API endpoint.
  * This function is responsible for creating/upserting embeddings of a note to a Pinecone namespace which contains embeddings of all notes in a file.
  *
  * For this operation, the client must be authenticated.
@@ -39,7 +39,7 @@ export default async function handler(
 }
 
 /**
- * Handler for POST requests to '/api/embeddings'.
+ * Handler for POST requests to `${process.env.EXPRESS_BACKEND_URL}/api/embeddings`.
  * This function creates/upserts embeddings for a given transcript.
  * The transcript ID should be provided in the request body.
  *

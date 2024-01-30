@@ -107,7 +107,7 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       // Create embeddings for the new transcript
       console.log("Creating embeddings for the new transcript...");
-      await fetch(`${host}/api/embeddings`, {
+      await fetch(`${process.env.EXPRESS_BACKEND_URL}/api/embeddings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
