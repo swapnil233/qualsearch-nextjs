@@ -264,7 +264,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
     const fetchSummary = async () => {
       try {
         const response = await fetch(
-          `/api/summaries?transcriptId=${transcript.id}`
+          `${process.env.EXPRESS_BACKEND_URL}/api/summaries?transcriptId=${transcript.id}`
         );
 
         // Summary exists in DB
@@ -277,14 +277,17 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
         // Create new summary since it doesn't exist in DB.
         else if (response.status === 404) {
           try {
-            const response = await fetch("/api/summaries/", {
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              method: "POST",
-              body: JSON.stringify({ transcriptId: transcript.id }),
-            });
+            const response = await fetch(
+              `${process.env.EXPRESS_BACKEND_URL}/api/summaries/`,
+              {
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({ transcriptId: transcript.id }),
+              }
+            );
 
             // Summary created successfully
             if (response.status === 200) {
