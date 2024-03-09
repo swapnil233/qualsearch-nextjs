@@ -65,6 +65,7 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
               ) : null
             }
             variant="default"
+            disabled={provider.name !== "Google"}
             onClick={() => signIn(provider.id)}
           >
             {type === "register" ? `${provider.name}` : `${provider.name}`}
