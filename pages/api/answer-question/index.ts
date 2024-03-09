@@ -63,7 +63,7 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
       try {
         console.log("Creating embeddings for the transcript...");
         // Create embeddings for the transcript.
-        const response = await fetch(`${process.env.EXPRESS_BACKEND_URL}/api/embeddings`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

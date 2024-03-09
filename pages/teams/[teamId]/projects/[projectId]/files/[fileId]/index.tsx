@@ -262,9 +262,12 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
   // Fetch summary if it exists, else create one.
   useEffect(() => {
     const fetchSummary = async () => {
+      console.log(
+        `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/summaries?transcriptId=${transcript.id}`
+      );
       try {
         const response = await fetch(
-          `${process.env.EXPRESS_BACKEND_URL}/api/summaries?transcriptId=${transcript.id}`
+          `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/summaries?transcriptId=${transcript.id}`
         );
 
         // Summary exists in DB
@@ -278,7 +281,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
         else if (response.status === 404) {
           try {
             const response = await fetch(
-              `${process.env.EXPRESS_BACKEND_URL}/api/summaries/`,
+              `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/summaries/`,
               {
                 headers: {
                   Accept: "application/json",

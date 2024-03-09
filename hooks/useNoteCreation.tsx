@@ -160,19 +160,22 @@ export const useNoteCreation = (
       // setNoteIsCreating(false);
       setSelectedText(null);
 
-      await fetch(`${process.env.EXPRESS_BACKEND_URL}/api/embeddings/notes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fileId,
-          noteId: newNote.id,
-        }),
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings/notes`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fileId,
+            noteId: newNote.id,
+          }),
+        }
+      );
 
       await fetch(
-        `${process.env.EXPRESS_BACKEND_URL}/api/embeddings/projects`,
+        `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings/projects`,
         {
           method: "POST",
           headers: {

@@ -32,7 +32,7 @@ module.exports = {
       },
       {
         // matching all API routes
-        source: `${process.env.EXPRESS_BACKEND_URL}/api/:path*`,
+        source: `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/:path*`,
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
           { key: "Access-Control-Allow-Origin", value: "*" },
