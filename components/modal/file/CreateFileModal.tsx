@@ -40,7 +40,7 @@ export interface ICreateFileModal {
       multipleSpeakers: boolean;
       audioType: string;
       redactions: string[];
-      transcriptionQuality: "nova" | "whisper" | "whisper-large";
+      transcriptionQuality: "nova-2" | "whisper" | "whisper-large";
     }>
   >;
 
@@ -55,7 +55,7 @@ export interface ICreateFileModal {
       multipleSpeakers: boolean;
       audioType: string;
       redactions: string[];
-      transcriptionQuality: "nova" | "whisper" | "whisper-large";
+      transcriptionQuality: "nova-2" | "whisper" | "whisper-large";
     },
     _event: React.FormEvent
   ) => void;
@@ -202,7 +202,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
             >
               <Group mt="xs">
                 <Stack spacing={"sm"}>
-                  <Radio value="nova" label="Good (recommended)" />
+                  <Radio value="nova-2" label="Good (recommended)" />
                   <Radio value="whisper" label="Better" />
                   <Radio
                     value="whisper-large"

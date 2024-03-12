@@ -48,6 +48,16 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     const { DEEPGRAM_API_KEY, NEXT_PUBLIC_EXPRESS_BACKEND_URL } = process.env;
 
     if (!DEEPGRAM_API_KEY) {
+      console.error("DEEPGRAM_API_KEY is not defined in the environment.");
+      return res
+        .status(HttpStatus.InternalServerError)
+        .json({ message: ErrorMessages.InternalServerError });
+    }
+
+    if (!NEXT_PUBLIC_EXPRESS_BACKEND_URL) {
+      console.error(
+        "NEXT_PUBLIC_EXPRESS_BACKEND_URL is not defined in the environment."
+      );
       return res
         .status(HttpStatus.InternalServerError)
         .json({ message: ErrorMessages.InternalServerError });
@@ -87,11 +97,11 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       // They are identified solely by the model name (e.g., 'whisper' or 'whisper-large').
       options["model"] = transcriptionQuality;
     } else {
-      // Update options based on audioType for 'nova' quality.
+      // Update options based on audioType for 'nova-2' quality.
       switch (audioType) {
         case "general":
           options["model"] = "general";
-          options["tier"] = "nova";
+          options["tier"] = "nova-2";
           break;
         case "phonecall":
           options["model"] = "phonecall";
@@ -103,7 +113,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
           break;
         default:
           options["model"] = "general";
-          options["tier"] = "nova";
+          options["tier"] = "nova-2";
           break;
       }
     }
@@ -118,13 +128,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
     // Convert options to query string.
     const query = qs.stringify(options, { arrayFormat: "repeat" });
 
-    // let cb = `https://main.dvws5ww9zrzf5.amplifyapp.com/api/webhooks/deepgram/`;
+    // Create callback URL.
     const cb = `${NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/webhooks/deepgram/`;
 
+    // Create request URL.
     const req_cheaper = `https://api.deepgram.com/v1/listen?${query}&tag=${teamId}-${projectId}&callback=${cb}`;
 
-    console.log("req_cheaper", req_cheaper);
-
+    // Send POST request to Deepgram API.
     const response = await fetch(req_cheaper, {
       method: "POST",
       headers: {
@@ -135,8 +145,13 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
         url: uri,
       }),
     });
+
     const data = await response.json();
     console.log("data", data);
+
+    // Respond to client with the webhook id.
+    // This just lets the client know that the request was successful.
+    // The client will receive the actual transcription via the webhook.
     res.status(HttpStatus.Ok).json(data);
   } catch (error) {
     console.error(error);
