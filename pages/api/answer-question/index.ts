@@ -55,7 +55,7 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
     if (
       !stats.namespaces ||
       stats.namespaces[`file-${fileId}-transcript-${transcriptId}`] ===
-      undefined
+        undefined
     ) {
       console.log(
         "Embeddings for the transcript not found in Pinecone. Creating embeddings..."
@@ -63,13 +63,16 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
       try {
         console.log("Creating embeddings for the transcript...");
         // Create embeddings for the transcript.
-        const response = await fetch(`${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ transcriptId }),
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ transcriptId }),
+          }
+        );
 
         if (!response.ok) {
           console.error("Error creating embeddings for the transcript");

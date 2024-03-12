@@ -107,15 +107,18 @@ const webhookHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       // Create embeddings for the new transcript
       console.log("Creating embeddings for the new transcript...");
-      await fetch(`${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          transcriptId: newTranscript.id,
-        }),
-      });
+      await fetch(
+        `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/embeddings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transcriptId: newTranscript.id,
+          }),
+        }
+      );
       console.log("Embeddings created.");
 
       // Get the team and users associated with this file
