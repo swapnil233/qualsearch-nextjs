@@ -22,7 +22,7 @@ Helpful answer:`;
 
 export const makeChain = (vectorstore: PineconeStore) => {
   const model = new ChatOpenAI({
-    modelName: "gpt-4-1106-preview",
+    modelName: "gpt-4o",
     temperature: 0.3,
   });
 

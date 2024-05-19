@@ -55,7 +55,7 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
     if (
       !stats.namespaces ||
       stats.namespaces[`file-${fileId}-transcript-${transcriptId}`] ===
-        undefined
+      undefined
     ) {
       console.log(
         "Embeddings for the transcript not found in Pinecone. Creating embeddings..."
@@ -102,7 +102,7 @@ async function handleQuestion(req: NextApiRequest, res: NextApiResponse) {
     );
 
     const model = new OpenAI({
-      modelName: "gpt-4-1106-preview",
+      modelName: "gpt-4o",
       temperature: 0.3,
     });
 
