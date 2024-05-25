@@ -1,5 +1,5 @@
-import { verifyPassword } from "@/utils/auth";
-import prisma from "@/utils/prisma";
+import { verifyPassword } from "@/lib/auth/auth";
+import prisma from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";

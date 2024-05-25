@@ -1,6 +1,6 @@
+import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
+import prisma from "@/lib/prisma";
 import { NoteWithTagsAndCreator } from "@/types";
-import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
-import prisma from "@/utils/prisma";
 
 export async function getNotesWithTagsAndCreator(
   projectId: string

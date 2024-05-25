@@ -1,8 +1,8 @@
 import { useNotes } from "@/contexts/NotesContext";
+import { exportToExcel } from "@/lib/export/exportToExcel";
+import HighlightSearch from "@/lib/highlightSearchTerm";
+import { host } from "@/lib/host";
 import { NoteWithTagsAndCreator } from "@/types";
-import { exportToExcel } from "@/utils/exportToExcel";
-import HighlightSearch from "@/utils/highlightSearchTerm";
-import { host } from "@/utils/host";
 import {
   ActionIcon,
   Avatar,

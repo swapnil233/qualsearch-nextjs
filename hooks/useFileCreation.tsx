@@ -1,5 +1,5 @@
+import sanitizeFileName from "@/lib/sanitizeFileName";
 import { FileWithoutTranscriptAndUri } from "@/types";
-import sanitizeFileName from "@/utils/sanitizeFileName";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconCheck, IconX } from "@tabler/icons-react";

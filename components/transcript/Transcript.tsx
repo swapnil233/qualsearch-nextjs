@@ -1,9 +1,9 @@
 import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
 import { useNoteCreation } from "@/hooks/useNoteCreation";
+import { TranscriptWordsGrouper } from "@/lib/TranscriptGrouper";
+import { calculateNoteCardPosition } from "@/lib/calculateNoteCardPosition";
 import { SelectedText, TranscriptWord } from "@/types";
-import { TranscriptWordsGrouper } from "@/utils/TranscriptGrouper";
-import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
 import { Box, Group } from "@mantine/core";
 import { User } from "@prisma/client";
 import React, { FC, useCallback, useEffect, useMemo, useState } from "react";

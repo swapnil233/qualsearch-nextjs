@@ -1,5 +1,5 @@
+import { getSignedUrl } from "@/lib/aws/aws";
 import { TagWithNotesAndURIs } from "@/types";
-import { getSignedUrl } from "@/utils/aws";
 import {
   ActionIcon,
   Box,

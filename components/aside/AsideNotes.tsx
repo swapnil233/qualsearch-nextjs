@@ -1,6 +1,6 @@
+import { calculateNoteCardPosition } from "@/lib/calculateNoteCardPosition";
+import HighlightSearch from "@/lib/highlightSearchTerm";
 import { NoteWithTagsAndCreator } from "@/types";
-import { calculateNoteCardPosition } from "@/utils/calculateNoteCardPosition";
-import HighlightSearch from "@/utils/highlightSearchTerm";
 import {
   ActionIcon,
   Avatar,

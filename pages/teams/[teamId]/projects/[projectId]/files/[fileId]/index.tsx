@@ -8,6 +8,10 @@ import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { getUserById } from "@/infrastructure/services/user.service";
+import { requireAuthentication } from "@/lib/auth/requireAuthentication";
+import { getSignedUrl } from "@/lib/aws/aws";
+import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
+import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
 import {
   NoteWithTagsAndCreator,
@@ -15,10 +19,6 @@ import {
   TagWithNoteIds,
   TranscriptWord,
 } from "@/types";
-import { getSignedUrl } from "@/utils/aws";
-import { formatDatesToIsoString } from "@/utils/formatDatesToIsoString";
-import prisma from "@/utils/prisma";
-import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Box, Group, useMantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";

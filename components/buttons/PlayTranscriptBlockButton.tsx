@@ -1,4 +1,4 @@
-import convertToTimestamp from "@/utils/convertToTimestamp";
+import convertToTimestamp from "@/lib/convertToTimestamp";
 import { Button, useMantineTheme } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 import { FC, useMemo } from "react";

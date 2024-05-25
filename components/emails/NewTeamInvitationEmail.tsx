@@ -11,7 +11,7 @@ import {
   Tailwind,
   Text,
 } from "@react-email/components";
-import { host } from "../../utils/host";
+import { host } from "../../lib/host";
 
 interface VercelInviteUserEmailProps {
   invitedByName?: string;

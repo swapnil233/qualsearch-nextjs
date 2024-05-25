@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextApiRequest, NextApiResponse } from "next";
-const logger = require("@/utils/logger"); // Import the logger middleware using the 'require' syntax
+const logger = require("@/lib/logger"); // Import the logger middleware using the 'require' syntax
 
 const createPresignedUrlWithClient = async ({
   region,

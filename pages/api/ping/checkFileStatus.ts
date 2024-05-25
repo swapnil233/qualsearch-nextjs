@@ -1,5 +1,5 @@
 import { HttpStatus } from "@/constants/HttpStatus";
-import prisma from "@/utils/prisma";
+import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(

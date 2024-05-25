@@ -1,7 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import pinecone from "@/utils/pinecone";
-import prisma from "@/utils/prisma";
+import pinecone from "@/lib/ai/pinecone";
+import prisma from "@/lib/prisma";
 import { Document } from "langchain/document";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { PineconeStore } from "langchain/vectorstores/pinecone";

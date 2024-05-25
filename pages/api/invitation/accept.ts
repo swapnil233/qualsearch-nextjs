@@ -1,7 +1,7 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
 import { addUserToTeam } from "@/infrastructure/services/team.service";
-import prisma from "@/utils/prisma";
+import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";

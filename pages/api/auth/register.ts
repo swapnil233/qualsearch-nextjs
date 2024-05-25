@@ -1,5 +1,5 @@
-import { hashPassword } from "@/utils/auth";
-import prisma from "@/utils/prisma";
+import { hashPassword } from "@/lib/auth/auth";
+import prisma from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function register(

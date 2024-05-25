@@ -2,9 +2,9 @@ import TranscriptionCompletedEmail from "@/components/emails/TranscriptionComple
 import { EmailAddresses } from "@/constants/EmailAddresses";
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { host } from "@/utils/host";
-import prisma from "@/utils/prisma";
-import { getSizeInBytes } from "@/utils/setSizeInBytes";
+import { host } from "@/lib/host";
+import prisma from "@/lib/prisma";
+import { getSizeInBytes } from "@/lib/setSizeInBytes";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Resend } from "resend";

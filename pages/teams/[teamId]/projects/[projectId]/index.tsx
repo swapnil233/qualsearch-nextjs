@@ -15,9 +15,9 @@ import { getFilesWithoutTranscriptAndUriGivenProjectId } from "@/infrastructure/
 import { getNotesWithTagsAndCreator } from "@/infrastructure/services/note.service";
 import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { requireAuthentication } from "@/lib/auth/requireAuthentication";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
-import { requireAuthentication } from "@/utils/requireAuthentication";
 import {
   ActionIcon,
   Affix,

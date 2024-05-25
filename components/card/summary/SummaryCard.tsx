@@ -1,4 +1,4 @@
-import parseMarkdown from "@/utils/parseMarkdown";
+import parseMarkdown from "@/lib/parseMarkdown";
 import { Card, Skeleton, Stack, Text, Title } from "@mantine/core";
 import { FC, memo } from "react";
 

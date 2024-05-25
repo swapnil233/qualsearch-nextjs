@@ -9,10 +9,10 @@ import InvitationsTable, {
 import useTeamCreation from "@/hooks/useTeamCreation";
 import useTeamInvitation from "@/hooks/useTeamInvitation";
 import { getTeamsByUser } from "@/infrastructure/services/team.service";
+import { requireAuthentication } from "@/lib/auth/requireAuthentication";
+import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
-import prisma from "@/utils/prisma";
-import { requireAuthentication } from "@/utils/requireAuthentication";
 import { Badge, SimpleGrid, Tabs, Text, Title, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Invitation, Team, User } from "@prisma/client";

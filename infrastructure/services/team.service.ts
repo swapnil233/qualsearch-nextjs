@@ -1,5 +1,5 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
-import prisma from "@/utils/prisma";
+import prisma from "@/lib/prisma";
 import { Project, Role, Team, User } from "@prisma/client";
 
 /**

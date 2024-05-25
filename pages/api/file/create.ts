@@ -1,8 +1,8 @@
 import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
+import { host } from "@/lib/host";
+import prisma from "@/lib/prisma";
 import { FileWithoutTranscriptAndUri } from "@/types";
-import { host } from "@/utils/host";
-import prisma from "@/utils/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import fetch from "node-fetch";
