@@ -34,6 +34,7 @@ const passwordRequirements = [
 const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
   const [type, toggle] = useToggle(["login", "register"]);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const form = useForm({
@@ -41,7 +42,7 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
       email: "",
       name: "",
       password: "",
-      terms: true,
+      terms: false,
     },
 
     validate: {
@@ -186,7 +187,6 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           />
 
           <PasswordInput
-            // disabled
             required
             label="Password"
             placeholder="Your password"
@@ -203,7 +203,20 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           />
 
           {type === "register" && (
-            <Stack>
+            <PasswordInput
+              required
+              label="Confirm password"
+              placeholder="Confirm your password"
+              value={confirmPassword}
+              onChange={(event) => {
+                setConfirmPassword(event.currentTarget.value);
+              }}
+              radius="md"
+            />
+          )}
+
+          {type === "register" && (
+            <Stack spacing={"xs"}>
               {passwordValidation.map((req, index) => (
                 <Group key={index} spacing="xs">
                   {req.meets ? (
@@ -214,6 +227,14 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
                   <Text size="sm">{req.label}</Text>
                 </Group>
               ))}
+              <Group spacing="xs">
+                {confirmPassword === password && confirmPassword !== "" ? (
+                  <IconCircleCheck size={16} color="teal" />
+                ) : (
+                  <IconX size={16} color="red" />
+                )}
+                <Text size="sm">Passwords match</Text>
+              </Group>
             </Stack>
           )}
 
@@ -229,33 +250,35 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           )}
         </Stack>
 
-        <Group position="apart" mt="xl">
-          <Anchor
-            component="button"
-            type="button"
-            c="dimmed"
-            onClick={() => toggle()}
-            size="xs"
-          >
-            {type === "register"
-              ? "Already have an account? Login"
-              : "Don't have an account? Register"}
-          </Anchor>
+        <Stack mt={"xl"}>
           <Button
             type="submit"
-            radius="xl"
             loading={loading}
             disabled={
               type === "register"
                 ? !form.values.terms ||
                   passwordValidation.some((req) => !req.meets) ||
-                  loading
+                  loading ||
+                  confirmPassword !== password
                 : false
             }
           >
             {upperFirst(type)}
           </Button>
-        </Group>
+          <Anchor
+            component="button"
+            type="button"
+            mt={"md"}
+            onClick={() => toggle()}
+            size="sm"
+            fw={500}
+            color="black"
+          >
+            {type === "register"
+              ? "Already have an account? Login"
+              : "Don't have an account? Register"}
+          </Anchor>
+        </Stack>
       </form>
     </Paper>
   );
