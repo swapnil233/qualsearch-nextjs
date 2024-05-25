@@ -12,15 +12,17 @@ import {
 } from "@mantine/core";
 import { TwitterIcon } from "@mantine/ds";
 import { useForm } from "@mantine/form";
-import { upperFirst, useToggle } from "@mantine/hooks";
+import { upperFirst } from "@mantine/hooks";
 import { IconBrandSlack, IconCircleCheck, IconX } from "@tabler/icons-react";
 import { Provider } from "next-auth/providers";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import { FC, useState } from "react";
 import { GoogleIcon } from "../buttons/GoogleIcon";
 
 interface IAuthenticationFormProps {
   providers: Provider[];
+  type: "login" | "register";
 }
 
 const passwordRequirements = [
@@ -31,8 +33,10 @@ const passwordRequirements = [
   { regex: /[^A-Za-z0-9]/, label: "At least one special character" },
 ];
 
-const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
-  const [type, toggle] = useToggle(["login", "register"]);
+const AuthenticationForm: FC<IAuthenticationFormProps> = ({
+  providers,
+  type,
+}) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,7 +83,6 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
 
       // Handle registration error
       if (!response.ok) {
-        // Handle registration error
         alert("Registration failed");
         setLoading(false);
         return;
@@ -94,7 +97,6 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
       });
 
       if (result?.error) {
-        // Handle login error
         alert("Login failed");
         setLoading(false);
       }
@@ -113,7 +115,6 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
       });
 
       if (result?.error) {
-        // Handle login error
         alert("Login failed");
         setLoading(false);
       }
@@ -161,7 +162,6 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
         <Stack>
           {type === "register" && (
             <TextInput
-              // disabled
               label="Name"
               required
               placeholder="John Doe"
@@ -174,7 +174,6 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           )}
 
           <TextInput
-            // disabled
             required
             label="Email"
             placeholder="john.doe@work.com"
@@ -265,19 +264,27 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           >
             {upperFirst(type)}
           </Button>
-          <Anchor
-            component="button"
-            type="button"
-            mt={"md"}
-            onClick={() => toggle()}
-            size="sm"
-            fw={500}
-            color="black"
-          >
-            {type === "register"
-              ? "Already have an account? Login"
-              : "Don't have an account? Register"}
-          </Anchor>
+          {type === "register" ? (
+            <Anchor
+              component={Link}
+              href="/signin"
+              mt={"md"}
+              size="sm"
+              fw={500}
+            >
+              Already have an account? Login
+            </Anchor>
+          ) : (
+            <Anchor
+              component={Link}
+              href="/register"
+              mt={"md"}
+              size="sm"
+              fw={500}
+            >
+              Don&apos;t have an account? Register
+            </Anchor>
+          )}
         </Stack>
       </form>
     </Paper>

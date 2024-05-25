@@ -23,23 +23,23 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   };
 }
 
-interface ISignInPage {
+interface IRegisterPage {
   providers: Provider[];
 }
 
-const SignInPage: React.FC<ISignInPage> = ({ providers }) => {
+const RegisterPage: React.FC<IRegisterPage> = ({ providers }) => {
   const theme = useMantineTheme();
   return (
     <>
       <Head>
-        <title>{`Sign In | QualSearch`}</title>
+        <title>{`Register | QualSearch`}</title>
         <meta
           name="viewport"
           content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
         ></meta>
-        <meta name="description" content="Sign in to QualSearch.io" />
-        <meta property="og:title" content={`Sign In | QualSearch`} />
-        <meta property="og:description" content="Sign in to QualSearch.io" />
+        <meta name="description" content="Register at QualSearch.io" />
+        <meta property="og:title" content={`Register | QualSearch`} />
+        <meta property="og:description" content="Register at QualSearch.io" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="QualSearch" />
       </Head>
@@ -51,10 +51,10 @@ const SignInPage: React.FC<ISignInPage> = ({ providers }) => {
         align="center"
         bg={theme.colors.dark[8]}
       >
-        <AuthenticationForm providers={providers} type="login" />
+        <AuthenticationForm providers={providers} type="register" />
       </Stack>
     </>
   );
 };
 
-export default SignInPage;
+export default RegisterPage;
