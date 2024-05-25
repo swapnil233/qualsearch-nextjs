@@ -29,7 +29,6 @@ const useTeamInvitation = (
         });
 
         const updatedTeam: TeamWithUsers = data.team;
-        console.log("updated team: ", updatedTeam);
 
         // Update the teams state
         setShowingTeams((prevTeams) => [...prevTeams, updatedTeam]);

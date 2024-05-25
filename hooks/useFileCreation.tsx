@@ -67,7 +67,6 @@ export const useFileCreation = (
 
       // If no file is selected, show an error
       if (!values.file) {
-        console.log("No file selected");
         notifications.show({
           id: "error-file",
           withCloseButton: true,

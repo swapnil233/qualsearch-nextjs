@@ -77,8 +77,6 @@ export const Sidebar: FC<ISidebarProps> = ({ opened }) => {
 
   const { asPath } = useRouter();
 
-  console.log(asPath.split("/"));
-
   const linksData: LinksGroupProps[] = [
     {
       label: "Dashboard",
