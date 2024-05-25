@@ -1,19 +1,57 @@
+import { verifyPassword } from "@/utils/auth";
+import prisma from "@/utils/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import NextAuth, { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-
-const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.JWT_SECRET,
   adapter: PrismaAdapter(prisma),
 
-  // Google Provider for now
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: {},
+        password: {},
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) {
+          console.log("Email and password are required");
+          throw new Error("Email and password are required");
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user) {
+          console.log("No user found with the given email");
+          throw new Error("No user found with the given email");
+        }
+
+        const isValid = await verifyPassword(
+          credentials.password,
+          user.password || ""
+        );
+
+        if (!isValid) {
+          console.log("Invalid password");
+          throw new Error("Invalid password");
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
+      },
     }),
   ],
 
@@ -21,24 +59,26 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signin",
   },
 
-  // Longer session than the default
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 60 * 60 * 24 * 30, // 30 days
     updateAge: 60 * 60 * 24, // 24 hours
   },
 
-  // https://next-auth.js.org/configuration/callbacks
   callbacks: {
-    // Attach the user's ID to the session so Prisma can access it
-    async session({ session, user }) {
-      if (session?.user) {
-        return {
-          ...session,
-          user: {
-            ...session.user,
-            id: user.id,
-          },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && typeof token.id === "string") {
+        session.user = {
+          id: token.id,
+          name: token.name,
+          email: token.email,
+          image: token.picture,
         };
       }
       return session;

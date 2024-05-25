@@ -13,20 +13,28 @@ import {
 import { TwitterIcon } from "@mantine/ds";
 import { useForm } from "@mantine/form";
 import { upperFirst, useToggle } from "@mantine/hooks";
-import { IconBrandSlack } from "@tabler/icons-react";
+import { IconBrandSlack, IconCircleCheck, IconX } from "@tabler/icons-react";
 import { Provider } from "next-auth/providers";
 import { signIn } from "next-auth/react";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { GoogleIcon } from "../buttons/GoogleIcon";
 
 interface IAuthenticationFormProps {
   providers: Provider[];
 }
 
+const passwordRequirements = [
+  { regex: /.{6,}/, label: "At least 6 characters" },
+  { regex: /[A-Z]/, label: "At least one uppercase letter" },
+  { regex: /[a-z]/, label: "At least one lowercase letter" },
+  { regex: /[0-9]/, label: "At least one number" },
+  { regex: /[^A-Za-z0-9]/, label: "At least one special character" },
+];
+
 const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
   const [type, toggle] = useToggle(["login", "register"]);
-
-  console.log(providers);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -45,6 +53,76 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
     },
   });
 
+  const checkPasswordRequirements = (password: string) =>
+    passwordRequirements.map((requirement) => ({
+      label: requirement.label,
+      meets: requirement.regex.test(password),
+    }));
+
+  const passwordValidation = checkPasswordRequirements(password);
+
+  const handleSubmit = async (values: typeof form.values) => {
+    if (loading) return;
+
+    setLoading(true);
+
+    if (type === "register") {
+      // Register user
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      // Handle registration error
+      if (!response.ok) {
+        // Handle registration error
+        alert("Registration failed");
+        setLoading(false);
+        return;
+      }
+
+      // Login user
+      const result = await signIn("credentials", {
+        redirect: true,
+        callbackUrl: "/teams",
+        email: values.email,
+        password: values.password,
+      });
+
+      if (result?.error) {
+        // Handle login error
+        alert("Login failed");
+        setLoading(false);
+      }
+
+      setLoading(false);
+      return;
+    }
+
+    // Login user
+    if (type === "login") {
+      const result = await signIn("credentials", {
+        redirect: true,
+        callbackUrl: "/teams",
+        email: values.email,
+        password: values.password,
+      });
+
+      if (result?.error) {
+        // Handle login error
+        alert("Login failed");
+        setLoading(false);
+      }
+
+      setLoading(false);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <Paper radius="md" p="xl" m={"lg"} withBorder w={"90%"} maw={400}>
       <Text size="lg" fw={500}>
@@ -52,36 +130,40 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
       </Text>
 
       <Group grow mb="md" mt="md">
-        {Object.values(providers).map((provider) => (
-          <Button
-            key={provider.name}
-            leftIcon={
-              provider.name === "Google" ? (
-                <GoogleIcon />
-              ) : provider.name === "Twitter" ? (
-                <TwitterIcon />
-              ) : provider.name === "Slack" ? (
-                <IconBrandSlack />
-              ) : null
-            }
-            variant="default"
-            disabled={provider.name !== "Google"}
-            onClick={() => signIn(provider.id)}
-          >
-            {type === "register" ? `${provider.name}` : `${provider.name}`}
-          </Button>
-        ))}
+        {Object.values(providers).map(
+          (provider) =>
+            provider.name !== "Credentials" && (
+              <Button
+                key={provider.name}
+                leftIcon={
+                  provider.name === "Google" ? (
+                    <GoogleIcon />
+                  ) : provider.name === "Twitter" ? (
+                    <TwitterIcon />
+                  ) : provider.name === "Slack" ? (
+                    <IconBrandSlack />
+                  ) : null
+                }
+                variant="default"
+                disabled={provider.name !== "Google"}
+                onClick={() => signIn(provider.id)}
+              >
+                {provider.name}
+              </Button>
+            )
+        )}
       </Group>
 
       <Divider label="Or continue with email" labelPosition="center" my="lg" />
 
-      <form onSubmit={form.onSubmit(() => {})}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
           {type === "register" && (
             <TextInput
-              disabled
+              // disabled
               label="Name"
-              placeholder="Your name"
+              required
+              placeholder="John Doe"
               value={form.values.name}
               onChange={(event) =>
                 form.setFieldValue("name", event.currentTarget.value)
@@ -91,10 +173,10 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           )}
 
           <TextInput
-            disabled
+            // disabled
             required
             label="Email"
-            placeholder="hello@qualsearch.com"
+            placeholder="john.doe@work.com"
             value={form.values.email}
             onChange={(event) =>
               form.setFieldValue("email", event.currentTarget.value)
@@ -104,14 +186,15 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           />
 
           <PasswordInput
-            disabled
+            // disabled
             required
             label="Password"
             placeholder="Your password"
             value={form.values.password}
-            onChange={(event) =>
-              form.setFieldValue("password", event.currentTarget.value)
-            }
+            onChange={(event) => {
+              form.setFieldValue("password", event.currentTarget.value);
+              setPassword(event.currentTarget.value);
+            }}
             error={
               form.errors.password &&
               "Password should include at least 6 characters"
@@ -120,8 +203,23 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
           />
 
           {type === "register" && (
+            <Stack>
+              {passwordValidation.map((req, index) => (
+                <Group key={index} spacing="xs">
+                  {req.meets ? (
+                    <IconCircleCheck size={16} color="teal" />
+                  ) : (
+                    <IconX size={16} color="red" />
+                  )}
+                  <Text size="sm">{req.label}</Text>
+                </Group>
+              ))}
+            </Stack>
+          )}
+
+          {type === "register" && (
             <Checkbox
-              disabled
+              mt={"md"}
               label="I accept terms and conditions"
               checked={form.values.terms}
               onChange={(event) =>
@@ -143,7 +241,18 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({ providers }) => {
               ? "Already have an account? Login"
               : "Don't have an account? Register"}
           </Anchor>
-          <Button type="submit" radius="xl" disabled>
+          <Button
+            type="submit"
+            radius="xl"
+            loading={loading}
+            disabled={
+              type === "register"
+                ? !form.values.terms ||
+                  passwordValidation.some((req) => !req.meets) ||
+                  loading
+                : false
+            }
+          >
             {upperFirst(type)}
           </Button>
         </Group>
