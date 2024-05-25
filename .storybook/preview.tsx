@@ -1,6 +1,7 @@
 // @ts-check
 import type { Preview } from "@storybook/react";
 import * as NextImage from "next/image";
+import React from "react";
 
 // Might have to leave this off. Interferes with Mantine.
 // import "../styles/globals.css";
