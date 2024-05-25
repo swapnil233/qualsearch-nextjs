@@ -2,7 +2,6 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import SlackProvider from "next-auth/providers/slack";
 
 const prisma = new PrismaClient();
 
@@ -15,10 +14,6 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    SlackProvider({
-      clientId: process.env.SLACK_CLIENT_ID!,
-      clientSecret: process.env.SLACK_CLIENT_SECRET!,
     }),
   ],
 
