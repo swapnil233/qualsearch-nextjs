@@ -15,6 +15,7 @@ const base: ITeamCard = {
         id: "a",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -24,6 +25,7 @@ const base: ITeamCard = {
         id: "b",
         name: "Alex Rider",
         email: "alex@example.com",
+        password: null,
         emailVerified: null,
         image:
           "https://images.unsplash.com/photo-1595211877493-41a4e5f236b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=715&q=80",
@@ -33,6 +35,7 @@ const base: ITeamCard = {
         id: "c",
         name: "Donald Glover",
         email: "donald@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
@@ -42,6 +45,7 @@ const base: ITeamCard = {
         id: "d",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -51,6 +55,7 @@ const base: ITeamCard = {
         id: "e",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -60,6 +65,7 @@ const base: ITeamCard = {
         id: "f",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -69,6 +75,7 @@ const base: ITeamCard = {
         id: "g",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -78,6 +85,7 @@ const base: ITeamCard = {
         id: "h",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -87,6 +95,7 @@ const base: ITeamCard = {
         id: "i",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -96,6 +105,7 @@ const base: ITeamCard = {
         id: "j",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
@@ -105,6 +115,7 @@ const base: ITeamCard = {
         id: "k",
         name: "Hasan Iqbal",
         email: "swapniliqbal@gmail.com",
+        password: null,
         emailVerified: null,
         image:
           "https://lh3.googleusercontent.com/a/AAcHTtfpOFZiIMNTC7pbtGRFgxjtushxIaka6wCR701zbjg=s96-c",
