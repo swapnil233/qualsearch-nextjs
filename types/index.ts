@@ -11,13 +11,13 @@ type ApiError = {
 
 export type ApiResponse<T = unknown> =
   | {
-    data: T;
-    error: never;
-  }
+      data: T;
+      error: never;
+    }
   | {
-    data: never;
-    error: ApiError;
-  };
+      data: never;
+      error: ApiError;
+    };
 
 export type TeamWithMemberCount = Prisma.TeamGetPayload<{
   include: {

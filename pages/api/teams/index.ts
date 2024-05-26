@@ -5,7 +5,7 @@ import {
   deleteTeam,
   getTeamById,
   getTeamsByUser,
-  validateUserIsTeamMember
+  validateUserIsTeamMember,
 } from "@/infrastructure/services/team.service";
 import { getCurrentUser } from "@/infrastructure/services/user.service";
 import { NextApiRequest, NextApiResponse } from "next";

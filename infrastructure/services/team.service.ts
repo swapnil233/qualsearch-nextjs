@@ -212,9 +212,7 @@ export async function getTeamById(teamId: string): Promise<Team | null> {
  * @param orderBy "asc" or "desc"
  * @returns A Promise resolving to the list of teams.
  */
-export async function getTeamsByUser(
-  userId: string,
-): Promise<Team[]> {
+export async function getTeamsByUser(userId: string): Promise<Team[]> {
   try {
     return await prisma.team.findMany({
       where: {
@@ -229,7 +227,7 @@ export async function getTeamsByUser(
       },
       orderBy: {
         createdAt: "asc",
-      }
+      },
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
