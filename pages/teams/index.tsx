@@ -8,7 +8,7 @@ import InvitationsTable, {
 } from "@/components/table/invitations/InvitationsTable";
 import useTeamCreation from "@/hooks/useTeamCreation";
 import useTeamInvitation from "@/hooks/useTeamInvitation";
-import { getTeamsByUser } from "@/infrastructure/services/team.service";
+import { getTeamsByUserAndOrder } from "@/infrastructure/services/team.service";
 import { requireAuthentication } from "@/lib/auth/requireAuthentication";
 import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async (
   return requireAuthentication(context, async (session: any) => {
     const user: User = session.user;
 
-    let teams = await getTeamsByUser(user.id, "desc");
+    let teams = await getTeamsByUserAndOrder(user.id, "desc");
 
     // @ts-ignore
     teams = teams.map((team) => ({

@@ -1,3 +1,4 @@
+import { TeamDropdown } from "@/components/shared/TeamDropdown";
 import {
   Group,
   Navbar,
@@ -20,7 +21,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
-import { UserButton } from "../../buttons/UserButton";
 import { navbarStyles } from "../navbar/Navbar.styles";
 import { LinksGroup, LinksGroupProps } from "./NavbarLinksGroup";
 
@@ -143,14 +143,13 @@ export const Sidebar: FC<ISidebarProps> = ({ opened }) => {
             }
           />
         </Group>
+        <Group mt={"md"} grow>
+          <TeamDropdown />
+        </Group>
       </Navbar.Section>
 
       <Navbar.Section grow className={classes.links} component={ScrollArea}>
         <div className={classes.linksInner}>{links}</div>
-      </Navbar.Section>
-
-      <Navbar.Section className={classes.footer}>
-        <UserButton image={user?.image} name={user?.name} email={user?.email} />
       </Navbar.Section>
     </Navbar>
   );

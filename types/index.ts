@@ -3,6 +3,30 @@ import { TablerIconsProps } from "@tabler/icons-react";
 import { Document } from "langchain/document";
 import { ReactElement } from "react";
 
+type ApiError = {
+  code: number;
+  message: string;
+  values: { [key: string]: string };
+};
+
+export type ApiResponse<T = unknown> =
+  | {
+    data: T;
+    error: never;
+  }
+  | {
+    data: never;
+    error: ApiError;
+  };
+
+export type TeamWithMemberCount = Prisma.TeamGetPayload<{
+  include: {
+    _count: {
+      select: { members: true };
+    };
+  };
+}>;
+
 export type TeamWithUsers = Team & {
   users: User[];
 };

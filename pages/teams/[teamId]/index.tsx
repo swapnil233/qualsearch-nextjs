@@ -113,7 +113,6 @@ interface ITeamPage {
 const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
-  const [showingProjects, setShowingProjects] = useState(projects);
 
   // Modals
   const [opened, { open, close }] = useDisclosure(false);
@@ -241,7 +240,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         });
 
         const newProject = data;
-        setShowingProjects([...showingProjects, newProject]);
+        projects.push(newProject); // Update projects with the new project
 
         form.reset();
         setCreating(false);
@@ -357,7 +356,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         ]}
       ></PageHeading>
 
-      {showingProjects.length === 0 ? (
+      {projects.length === 0 ? (
         <EmptyState
           title="Start with a project"
           description="Create a project for your UX interviews and usability tests. Think of projects as folders."
@@ -382,7 +381,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
                 { minWidth: rem(320), cols: 1, spacing: "sm" },
               ]}
             >
-              {showingProjects.map((project) => (
+              {projects.map((project) => (
                 <ProjectCard
                   key={project.id}
                   project={project}

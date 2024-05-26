@@ -4,8 +4,10 @@ import {
   createTeam,
   deleteTeam,
   getTeamById,
-  validateUserIsTeamMember,
+  getTeamsByUser,
+  validateUserIsTeamMember
 } from "@/infrastructure/services/team.service";
+import { getCurrentUser } from "@/infrastructure/services/user.service";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
@@ -99,6 +101,23 @@ async function handleGet(
   // Validate the request query.
   const { teamId } = req.query;
 
+  if (!teamId) {
+    // If there's no teamId, return all the teams a user is a member of.
+    try {
+      const user = await getCurrentUser(req, res);
+      const teams = await getTeamsByUser(user.id);
+
+      console.log(teams);
+      console.log(user);
+
+      return res.status(200).json({ data: teams });
+    } catch (error: any) {
+      console.error(error);
+      return res.status(HttpStatus.InternalServerError).send(error.message);
+    }
+  }
+
+  // If a teamId is provided, get the team's information, but only if the user is a member of the team.
   try {
     // @ts-ignore
     const userId = session.user.id;

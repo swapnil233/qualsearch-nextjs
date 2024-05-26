@@ -214,7 +214,43 @@ export async function getTeamById(teamId: string): Promise<Team | null> {
  */
 export async function getTeamsByUser(
   userId: string,
-  orderBy: "desc" | "asc"
+): Promise<Team[]> {
+  try {
+    return await prisma.team.findMany({
+      where: {
+        users: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        users: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      }
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`Error in getTeamsByUser: ${error.message}`);
+    } else {
+      console.error(`An unknown error occurred in getTeamsByUser`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Retrieves all teams that a user is a part of and orders them by the updatedAt field.
+ *
+ * @param userId The ID of the user.
+ * @param orderBy "asc" or "desc"
+ * @returns A Promise resolving to the list of teams.
+ */
+export async function getTeamsByUserAndOrder(
+  userId: string,
+  orderBy?: "desc" | "asc"
 ): Promise<Team[]> {
   try {
     return await prisma.team.findMany({

@@ -1,3 +1,4 @@
+import useTeams from "@/hooks/useTeams";
 import { TeamWithUsers } from "@/types";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
@@ -19,6 +20,8 @@ const useTeamCreation = (
       teamName: (value) => (value.length > 0 ? null : "Team name is required"),
     },
   });
+
+  const { mutateTeams } = useTeams();
 
   // POST /api/teams - Create a new team
   const handleCreateNewTeam = async (
@@ -56,6 +59,7 @@ const useTeamCreation = (
         form.reset();
         setCreating(false);
         close();
+        mutateTeams();
       }
     } catch (error) {
       console.error(error);
