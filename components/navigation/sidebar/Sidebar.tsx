@@ -16,7 +16,6 @@ import {
   IconSun,
   IconUsers,
 } from "@tabler/icons-react";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -71,9 +70,6 @@ export const Sidebar: FC<ISidebarProps> = ({ opened }) => {
   const { classes } = useStyles();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { theme } = navbarStyles();
-
-  const { data } = useSession();
-  const user = data?.user;
 
   const { asPath } = useRouter();
 
