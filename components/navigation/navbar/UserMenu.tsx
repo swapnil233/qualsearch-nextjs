@@ -117,7 +117,7 @@ const UserMenu: FC<IUserMenuProps> = ({
           onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
           variant="default"
           component="a"
-          href="register"
+          href="signin"
         >
           Sign in
         </Button>
