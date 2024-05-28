@@ -222,9 +222,6 @@ export async function getTeamsByUser(userId: string): Promise<Team[]> {
           },
         },
       },
-      include: {
-        users: true,
-      },
       orderBy: {
         createdAt: "asc",
       },
