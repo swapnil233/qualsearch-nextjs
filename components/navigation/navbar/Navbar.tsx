@@ -57,9 +57,9 @@ const Navbar: FC<INavbar> = () => {
 
   return (
     <Box>
-      <Header height={60}>
+      <Header height={70}>
         <Group
-          className="max-w-6xl w-full mx-auto sm:px-4 px-6"
+          className="max-w-7xl w-full mx-auto sm:px-4 px-6"
           position="apart"
           h={"100%"}
         >
@@ -70,24 +70,11 @@ const Navbar: FC<INavbar> = () => {
                   ? "/logo-dark.svg"
                   : "/logo-light.svg"
               }
-              height={30}
-              width={109}
+              height={40}
+              width={139}
               alt="Logo"
             />
           </Link>
-
-          <Group
-            sx={{ height: "100%" }}
-            spacing={0}
-            className={classes.hiddenMobile}
-          >
-            <Link href="/" className={classes.link}>
-              Home
-            </Link>
-            <Link href="/teams" className={classes.link}>
-              Teams
-            </Link>
-          </Group>
 
           <Group className={classes.hiddenMobile}>{userMenu}</Group>
 

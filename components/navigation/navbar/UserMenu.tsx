@@ -14,9 +14,9 @@ import {
   IconChevronDown,
   IconLogout,
   IconMoonStars,
-  IconSettings,
   IconSun,
   IconUser,
+  IconUsersGroup,
 } from "@tabler/icons-react";
 import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -79,20 +79,20 @@ const UserMenu: FC<IUserMenuProps> = ({
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
-          <Link href="/profile/" className="no-underline">
+          <Link href="teams" className="no-underline">
+            <Menu.Item
+              icon={<IconUsersGroup size="1.1rem" />}
+              color={theme.colorScheme === "dark" ? theme.white : theme.black}
+            >
+              Teams
+            </Menu.Item>
+          </Link>
+          <Link href="/account/" className="no-underline">
             <Menu.Item
               icon={<IconUser size="1.1rem" />}
               color={theme.colorScheme === "dark" ? theme.white : theme.black}
             >
-              My profile
-            </Menu.Item>
-          </Link>
-          <Link href="/profile/settings" className="no-underline">
-            <Menu.Item
-              icon={<IconSettings size="1.1rem" />}
-              color={theme.colorScheme === "dark" ? theme.white : theme.black}
-            >
-              Account settings
+              Account
             </Menu.Item>
           </Link>
           <Menu.Divider />
@@ -112,9 +112,19 @@ const UserMenu: FC<IUserMenuProps> = ({
     userMenu = <Loader size={"sm"} />;
   } else if (status === "unauthenticated") {
     userMenu = (
-      <Button onClick={() => signIn(undefined, { callbackUrl: "/teams" })}>
-        Log in
-      </Button>
+      <Group>
+        <Button
+          onClick={() => signIn(undefined, { callbackUrl: "/teams" })}
+          variant="default"
+          component="a"
+          href="register"
+        >
+          Sign in
+        </Button>
+        <Link href="register">
+          <Button variant="filled">Sign up</Button>
+        </Link>
+      </Group>
     );
   }
 
