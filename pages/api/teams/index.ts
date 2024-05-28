@@ -12,19 +12,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
-/**
- * Handler for the '/api/teams' API endpoint.
- * This function is responsible for performing various team-related operations,
- * depending on the HTTP method of the request:
- * 1. POST: Create a new team.
- * 2. GET: Fetch a team's information.
- * 3. DELETE: Delete a team.
- *
- * For all operations, the client must be authenticated.
- *
- * @param req {NextApiRequest} The HTTP request object.
- * @param res {NextApiResponse} The HTTP response object.
- */
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -50,14 +38,6 @@ export default async function handler(
   }
 }
 
-/**
- * Handler for POST requests to '/api/teams'.
- * This function creates a new team.
- *
- * @param req {NextApiRequest} The HTTP request object.
- * @param res {NextApiResponse} The HTTP response object.
- * @param session {Session} The session object.
- */
 async function handlePost(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -85,14 +65,6 @@ async function handlePost(
   }
 }
 
-/**
- * Handler for GET requests to '/api/teams'.
- * This function fetches a team's information.
- *
- * @param req {NextApiRequest} The HTTP request object.
- * @param res {NextApiResponse} The HTTP response object.
- * @param session {Session} The session object.
- */
 async function handleGet(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -106,9 +78,6 @@ async function handleGet(
     try {
       const user = await getCurrentUser(req, res);
       const teams = await getTeamsByUser(user.id);
-
-      console.log(teams);
-      console.log(user);
 
       return res.status(200).json({ data: teams });
     } catch (error: any) {
@@ -143,14 +112,6 @@ async function handleGet(
   }
 }
 
-/**
- * Handler for DELETE requests to '/api/teams'.
- * This function deletes a team.
- *
- * @param req {NextApiRequest} The HTTP request object.
- * @param res {NextApiResponse} The HTTP response object.
- * @param session {Session} The session object.
- */
 async function handleDelete(
   req: NextApiRequest,
   res: NextApiResponse,
