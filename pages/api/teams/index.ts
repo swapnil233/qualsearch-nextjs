@@ -12,7 +12,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
