@@ -1,12 +1,14 @@
 import useTeamRedirect from "@/hooks/useTeamRedirect";
 import { Box, Button, Container, Text, Title } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useStyles } from "./HomePageStyles";
 
 export const Hero = () => {
   const { classes } = useStyles();
   const teamRedirectUrl = useTeamRedirect();
+  const { data: session, status } = useSession();
 
   return (
     <div className={classes.inner}>
@@ -37,7 +39,10 @@ export const Hero = () => {
         >
           Demo
         </Button>
-        <Link href={teamRedirectUrl} className={classes.control}>
+        <Link
+          href={status === "unauthenticated" ? "/signin" : teamRedirectUrl}
+          className={classes.control}
+        >
           <Button className="w-full" size="lg">
             Get started
           </Button>
