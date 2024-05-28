@@ -38,7 +38,9 @@ export const Hero = () => {
           Demo
         </Button>
         <Link href={teamRedirectUrl} className={classes.control}>
-          <Button size="lg">Get started</Button>
+          <Button className="w-full" size="lg">
+            Get started
+          </Button>
         </Link>
       </Box>
     </div>
