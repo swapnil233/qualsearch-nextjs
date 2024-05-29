@@ -1,30 +1,24 @@
-import NewTeamInvitationEmail from "@/components/emails/NewTeamInvitationEmail";
-import { Invitation } from "@/components/modal/invitation/NewInvitationModal";
-import { EmailAddresses } from "@/constants/EmailAddresses";
+import { ErrorMessages } from "@/constants/ErrorMessages";
 import { HttpStatus } from "@/constants/HttpStatus";
-import { host } from "@/lib/host";
-import prisma from "@/lib/prisma";
+import { sendBulkTeamInvitationEmails } from "@/infrastructure/services/email.service";
+import { createInvitations, getTeamNameAndMemberEmails, ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { Resend } from "resend";
 import { authOptions } from "../auth/[...nextauth]";
 
-export default async function Handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Verify the request method is POST.
   if (req.method !== "POST") {
-    return res.status(405).send("Method not allowed");
+    return res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
   }
 
-  // Validate that the user is authenticated.
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
-    return res.status(401).send("Unauthorized");
+    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
   }
 
-  // Destructure the needed properties from the request body.
   const {
     teamId,
     invitations,
@@ -33,110 +27,49 @@ export default async function Handler(
     invitedByEmail,
   }: {
     teamId: string;
-    invitations: Invitation[];
+    invitations: ICreateInvitationsPayload[];
     invitedByUserId: string;
     invitedByName: string;
     invitedByEmail: string;
   } = req.body;
 
-  // Validate that the required parameters are provided.
   if (!teamId || !invitations || !invitedByUserId) {
-    return res
-      .status(HttpStatus.BadRequest)
-      .send("One or more required parameters are missing.");
+    return res.status(HttpStatus.BadRequest).send("One or more required parameters are missing.");
   }
 
   try {
-    const teamAndUsers = await prisma.team.findUnique({
-      where: {
-        id: teamId,
-      },
-      include: {
-        members: {
-          select: {
-            user: {
-              select: {
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const teamAndUsers = await getTeamNameAndMemberEmails(teamId);
 
     if (!teamAndUsers) {
-      return res
-        .status(HttpStatus.NotFound)
-        .send("The team you are trying to invite to does not exist");
+      return res.status(HttpStatus.NotFound).send("The team you are trying to invite to does not exist.");
     }
 
-    // Check if the emails already exist
-    const emails = teamAndUsers.members.map((member) => member.user.email);
+    const existingEmails = teamAndUsers.users.map((user) => user.email);
     const emailsToInvite = invitations.map((invitation) => invitation.email);
-    const emailsAlreadyExist = emailsToInvite.filter((email) =>
-      emails.includes(email)
+    const emailsThatAlreadyExist = emailsToInvite.filter((email) =>
+      existingEmails.includes(email)
     );
 
-    if (emailsAlreadyExist.length > 0) {
+    if (emailsThatAlreadyExist.length > 0) {
       return res
         .status(HttpStatus.Conflict)
         .send(
-          `The following emails are already members of the team: ${emailsAlreadyExist.join(
-            ", "
-          )}`
+          `The following email${emailsThatAlreadyExist.length > 1 ? "s" : ""} ${emailsThatAlreadyExist.length > 1 ? "are" : ""} already ${emailsThatAlreadyExist.length > 1 ? "members" : "a member"} of the team: ${emailsThatAlreadyExist.join(", ")}`
         );
     }
 
-    // Create the invitation in the database.
-    const createdInvitations = await prisma.invitation.createMany({
-      data: invitations.map((invitation) => ({
-        invitedEmail: invitation.email,
-        role: invitation.role,
-        invitedByUserId: invitedByUserId,
-        teamId: teamId,
-      })),
-      skipDuplicates: true,
-    });
+    const createdInvitations = await createInvitations(invitations, invitedByUserId, teamId);
 
-    // Send the invitation email(s).
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const emailPromises = invitations.map(
-      async (invitation) =>
-        await resend.emails.send({
-          from: EmailAddresses.Noreply,
-          to: [invitation.email],
-          subject: `Join ${teamAndUsers.name} on QualSearch`,
-          react: NewTeamInvitationEmail({
-            invitedByName: invitedByName,
-            invitedByEmail: invitedByEmail,
-            teamName: teamAndUsers.name,
-            inviteLink: `${host}/teams`,
-          }),
-        })
+    const failedEmailAddresses = await sendBulkTeamInvitationEmails(
+      invitations,
+      invitedByName,
+      invitedByEmail,
+      teamAndUsers.name
     );
 
-    // Await all email sending promises and handle failures.
-    const emailResults = await Promise.allSettled(emailPromises);
-    const failedEmails = emailResults
-      .map((result, index) =>
-        result.status === "rejected" ? invitations[index].email : null
-      )
-      .filter((email) => email !== null);
-
-    if (failedEmails.length > 0) {
-      console.error("Failed to send emails to:", failedEmails.join(", "));
-    }
-
-    // Respond with the created invitations and any failed email notifications.
-    return res
-      .status(201)
-      .json({ invitations: createdInvitations, failedEmails });
+    return res.status(201).json({ invitations: createdInvitations, failedEmailAddresses });
   } catch (error) {
-    console.log(error);
-
-    // If there was a problem, respond with a 500 status code and the error message.
-    return res
-      .status(500)
-      .json({ error: "An error occurred while creating the invitation." });
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred while creating the invitation." });
   }
 }

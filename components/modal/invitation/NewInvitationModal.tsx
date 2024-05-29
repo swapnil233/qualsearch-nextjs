@@ -1,3 +1,4 @@
+import { ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
 import {
   ActionIcon,
   Box,
@@ -16,18 +17,15 @@ import { Role } from "@prisma/client";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { FC } from "react";
 
-export interface Invitation {
-  email: string;
-  role: Role;
-}
-
 export interface INewInvitationModal {
   opened: boolean;
   close: () => void;
   inviting: boolean;
-  form: ReturnType<typeof useForm<{ invitations: Invitation[] }>>;
+  form: ReturnType<
+    typeof useForm<{ invitations: ICreateInvitationsPayload[] }>
+  >;
   handleCreateNewInvitation: (
-    _values: { invitations: Invitation[] },
+    _values: { invitations: ICreateInvitationsPayload[] },
     _event: React.FormEvent
   ) => void;
 }
@@ -52,7 +50,10 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
   ];
 
   const addEmail = () => {
-    const newInvitation: Invitation = { email: "", role: "MEMBER" };
+    const newInvitation: ICreateInvitationsPayload = {
+      email: "",
+      role: "MEMBER",
+    };
     form.insertListItem("invitations", newInvitation);
   };
 

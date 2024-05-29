@@ -2,13 +2,13 @@ import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import TeamDeletionConfirmationModal from "@/components/modal/delete/TeamDeletionConfirmationModal";
-import NewInvitationModal, {
-  Invitation,
-} from "@/components/modal/invitation/NewInvitationModal";
+import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
+import { HttpStatus } from "@/constants/HttpStatus";
+import { ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
 import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
 import { requireAuthentication } from "@/lib/auth/requireAuthentication";
 import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
@@ -121,7 +121,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   const [inviteOpened, inviteControls] = useDisclosure(false);
   const [inviting, setInviting] = useState(false);
 
-  const inviteForm = useForm<{ invitations: Invitation[] }>({
+  const inviteForm = useForm<{ invitations: ICreateInvitationsPayload[] }>({
     initialValues: {
       invitations: [
         { email: "", role: "MEMBER" },
@@ -136,7 +136,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
 
   // POST /api/invitation/create
   const handleCreateNewInvitation = async (
-    values: { invitations: Invitation[] },
+    values: { invitations: ICreateInvitationsPayload[] },
     event: React.FormEvent
   ) => {
     // Prevent the default form submission
@@ -159,7 +159,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
               email: invitation.email,
               role: invitation.role,
             };
-          }) as Invitation[],
+          }) as ICreateInvitationsPayload[],
         }),
       });
 
@@ -174,10 +174,10 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
         inviteForm.reset();
         setInviting(false);
         inviteControls.close();
-      } else if (response.status === 409) {
+      } else if (response.status === HttpStatus.Conflict) {
         notifications.show({
-          title: "Invitation already sent",
-          message: "An invitation has already been sent to this email.",
+          title: "Already a member",
+          message: await response.text(),
           color: "red",
           icon: <IconX size="1.1rem" />,
         });
@@ -186,13 +186,14 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
       }
     } catch (error: any) {
       console.error(error);
-      setInviting(false);
       notifications.show({
         title: "Error",
         message: error.message,
         color: "red",
         icon: <IconAlertCircle />,
       });
+    } finally {
+      setInviting(false);
     }
   };
 
@@ -263,7 +264,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
     console.log("Edit");
   };
 
-  // POST /api/invitation/create
+  // DELETE /api/teams
   const handleDelete = async (teamId: string) => {
     try {
       setDeleting(true);

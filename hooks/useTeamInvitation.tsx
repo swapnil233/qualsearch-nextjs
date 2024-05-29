@@ -10,16 +10,14 @@ const useTeamInvitation = (
   const handleAcceptInvitation = async (invitationId: string) => {
     try {
       const response = await fetch("/api/invitation/accept", {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          invitationId,
-        }),
+        body: JSON.stringify({ invitationId }),
       });
 
-      if (response.status === 200) {
+      if (response.ok) {
         const data = await response.json();
         notifications.show({
           title: "Invitation accepted",
@@ -37,6 +35,8 @@ const useTeamInvitation = (
         setShowingInvitations((prevInvitations) =>
           prevInvitations.filter((invitation) => invitation.id !== invitationId)
         );
+      } else {
+        throw new Error("Failed to accept invitation");
       }
     } catch (error) {
       console.error(error);
@@ -52,16 +52,14 @@ const useTeamInvitation = (
   const handleDeclineInvitation = async (invitationId: string) => {
     try {
       const response = await fetch("/api/invitation/decline", {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          invitationId,
-        }),
+        body: JSON.stringify({ invitationId }),
       });
 
-      if (response.status === 200) {
+      if (response.ok) {
         notifications.show({
           title: "Invitation declined",
           message: "You have successfully declined the invitation.",
@@ -73,12 +71,14 @@ const useTeamInvitation = (
         setShowingInvitations((prevInvitations) =>
           prevInvitations.filter((invitation) => invitation.id !== invitationId)
         );
+      } else {
+        throw new Error("Failed to decline invitation");
       }
     } catch (error) {
       console.error(error);
       notifications.show({
         title: "Error",
-        message: "An error occurred while accepting the invitation.",
+        message: "An error occurred while declining the invitation.",
         color: "red",
         icon: <IconAlertCircle />,
       });
