@@ -1,4 +1,5 @@
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import SharedHead from "@/components/shared/SharedHead";
 import {
   Button,
   Container,
@@ -8,7 +9,6 @@ import {
   createStyles,
   rem,
 } from "@mantine/core";
-import Head from "next/head";
 import Link from "next/link";
 import { NextPageWithLayout } from "./page";
 
@@ -58,10 +58,7 @@ const NotFound: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head>
-        <title>QualSearch | 404!</title>
-        <meta name="description" content="404! This page does not exist." />
-      </Head>
+      <SharedHead title="404" description="404! This page does not exist." />
       <Container className={classes.root}>
         <div className={classes.label}>404</div>
         <Title className={classes.title}>Error 404: Lost in Cyberspace</Title>

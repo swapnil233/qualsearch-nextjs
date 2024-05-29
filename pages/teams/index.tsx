@@ -2,6 +2,7 @@ import TeamCard from "@/components/card/team/TeamCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateTeamModal from "@/components/modal/team/CreateTeamModal";
+import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import InvitationsTable, {
   IInvitationData,
@@ -18,7 +19,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { Invitation, Team, User } from "@prisma/client";
 import { IconUsersGroup } from "@tabler/icons-react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import Head from "next/head";
 import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (
@@ -100,19 +100,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
 
   return (
     <>
-      <Head>
-        <title>{`Teams | QualSearch`}</title>
-        <meta
-          name="viewport"
-          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        ></meta>
-        <meta name="description" content="Teams overview." />
-
-        <meta property="og:title" content={`Teams | QualSearch`} />
-        <meta property="og:description" content="Teams overview" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="QualSearch" />
-      </Head>
+      <SharedHead title="Teams" description="Teams overview." />
 
       <PageHeading
         title="Teams overview"

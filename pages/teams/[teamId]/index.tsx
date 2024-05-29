@@ -6,6 +6,7 @@ import NewInvitationModal, {
   Invitation,
 } from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
+import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
 import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
@@ -28,7 +29,6 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import fetch from "node-fetch";
 import { useState } from "react";
@@ -301,25 +301,7 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
 
   return (
     <>
-      <Head>
-        <title>{`${team.name} | QualSearch`}</title>
-        <meta
-          name="viewport"
-          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        ></meta>
-        <meta
-          name="description"
-          content={`Team description: ${team.description}`}
-        />
-
-        <meta property="og:title" content={`${team.name} | QualSearch`} />
-        <meta
-          property="og:description"
-          content={`Team description: ${team.description}`}
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="QualSearch" />
-      </Head>
+      <SharedHead title={team.name} description={team.description || ""} />
 
       <PageHeading
         title={team.name}

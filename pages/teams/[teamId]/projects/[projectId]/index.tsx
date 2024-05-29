@@ -5,6 +5,7 @@ import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import DeleteNoteModal from "@/components/modal/delete/DeleteNoteModal";
 import DeleteProjectModal from "@/components/modal/delete/DeleteProjectModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
+import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
 import { NotesProvider, useNotes } from "@/contexts/NotesContext";
@@ -40,7 +41,6 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
-import Head from "next/head";
 import { useEffect, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -204,25 +204,10 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
 
   return (
     <>
-      <Head>
-        <title>{`${project.name} | QualSearch`}</title>
-        <meta
-          name="viewport"
-          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        ></meta>
-        <meta
-          name="description"
-          content={`Project description: ${project.description}`}
-        />
-
-        <meta property="og:title" content={`${project.name} | QualSearch`} />
-        <meta
-          property="og:description"
-          content={`Project description: ${project.description}`}
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="QualSearch" />
-      </Head>
+      <SharedHead
+        title={project.name}
+        description={project.description || ""}
+      />
 
       <PageHeading
         title={project.name}

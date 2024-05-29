@@ -1,4 +1,5 @@
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import SharedHead from "@/components/shared/SharedHead";
 import {
   Button,
   Container,
@@ -8,7 +9,6 @@ import {
   createStyles,
   rem,
 } from "@mantine/core";
-import Head from "next/head";
 import Link from "next/link";
 import { NextPageWithLayout } from "./page";
 
@@ -58,10 +58,10 @@ const NotFound: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head>
-        <title>QualSearch | Error 500!</title>
-        <meta name="description" content="500! Internal server error." />
-      </Head>
+      <SharedHead
+        title="Error 500!"
+        description="500! Internal server error."
+      />
       <Container className={classes.root}>
         <div className={classes.label}>500</div>
         <Title className={classes.title}>

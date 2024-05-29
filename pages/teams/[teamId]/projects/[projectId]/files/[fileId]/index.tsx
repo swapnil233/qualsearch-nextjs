@@ -3,6 +3,7 @@ import SummaryCard from "@/components/card/summary/SummaryCard";
 import StatsGrid from "@/components/grids/StatsGrid";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import SharedHead from "@/components/shared/SharedHead";
 import Transcript from "@/components/transcript/Transcript";
 import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
@@ -41,7 +42,6 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
@@ -343,25 +343,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
 
   return (
     <>
-      <Head>
-        <title>{`${file.name} | QualSearch`}</title>
-        <meta
-          name="viewport"
-          content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        ></meta>
-        <meta
-          name="description"
-          content={`File description: ${file.description}`}
-        />
-
-        <meta property="og:title" content={`${file.name} | QualSearch`} />
-        <meta
-          property="og:description"
-          content={`File description: ${file.description}`}
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="QualSearch" />
-      </Head>
+      <SharedHead title={file.name} description={file.description || ""} />
       <PageHeading
         title={file.name}
         description={file.description || ""}
