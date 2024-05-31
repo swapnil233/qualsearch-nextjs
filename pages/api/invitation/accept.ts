@@ -1,4 +1,7 @@
-import { getInvitationById, updateInvitationStatus } from "@/infrastructure/services/invitation.service";
+import {
+  getInvitationById,
+  updateInvitationStatus,
+} from "@/infrastructure/services/invitation.service";
 import { addUserToTeam } from "@/infrastructure/services/team.service";
 import { ErrorMessages } from "@/lib/constants/ErrorMessages";
 import { HttpStatus } from "@/lib/constants/HttpStatus";
@@ -18,19 +21,25 @@ export default async function handler(
 
   const session = await getServerSession(req, res, authOptions);
   if (!session) {
-    return res.status(HttpStatus.Unauthorized).json({ error: ErrorMessages.Unauthorized });
+    return res
+      .status(HttpStatus.Unauthorized)
+      .json({ error: ErrorMessages.Unauthorized });
   }
 
   const { invitationId } = req.body;
   if (!invitationId) {
-    return res.status(HttpStatus.BadRequest).json({ error: ErrorMessages.BadRequest });
+    return res
+      .status(HttpStatus.BadRequest)
+      .json({ error: ErrorMessages.BadRequest });
   }
 
   try {
     const invitation = await getInvitationById(invitationId);
 
     if (!invitation) {
-      return res.status(HttpStatus.NotFound).json({ error: ErrorMessages.NotFound });
+      return res
+        .status(HttpStatus.NotFound)
+        .json({ error: ErrorMessages.NotFound });
     }
 
     if (invitation.invitedEmail !== session.user.email) {
@@ -39,13 +48,17 @@ export default async function handler(
         .json({ error: ErrorMessages.Unauthorized });
     }
 
-    if (invitation.status !== 'PENDING') {
+    if (invitation.status !== "PENDING") {
       return res
         .status(HttpStatus.BadRequest)
         .json({ error: "Invitation has already been processed" });
     }
 
-    const updatedInvitation = await updateInvitationStatus(invitationId, "ACCEPTED", session.user.id);
+    const updatedInvitation = await updateInvitationStatus(
+      invitationId,
+      "ACCEPTED",
+      session.user.id
+    );
 
     const updatedTeam = await addUserToTeam(
       invitation.teamId,

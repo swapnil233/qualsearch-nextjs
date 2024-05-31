@@ -1,5 +1,9 @@
 import { sendBulkTeamInvitationEmails } from "@/infrastructure/services/email.service";
-import { createInvitations, getTeamNameAndMemberEmails, ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
+import {
+  createInvitations,
+  getTeamNameAndMemberEmails,
+  ICreateInvitationsPayload,
+} from "@/infrastructure/services/invitation.service";
 import { ErrorMessages } from "@/lib/constants/ErrorMessages";
 import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -11,7 +15,9 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    return res.status(HttpStatus.MethodNotAllowed).send(ErrorMessages.MethodNotAllowed);
+    return res
+      .status(HttpStatus.MethodNotAllowed)
+      .send(ErrorMessages.MethodNotAllowed);
   }
 
   const session = await getServerSession(req, res, authOptions);
@@ -34,14 +40,18 @@ export default async function handler(
   } = req.body;
 
   if (!teamId || !invitations || !invitedByUserId) {
-    return res.status(HttpStatus.BadRequest).send("One or more required parameters are missing.");
+    return res
+      .status(HttpStatus.BadRequest)
+      .send("One or more required parameters are missing.");
   }
 
   try {
     const teamAndUsers = await getTeamNameAndMemberEmails(teamId);
 
     if (!teamAndUsers) {
-      return res.status(HttpStatus.NotFound).send("The team you are trying to invite to does not exist.");
+      return res
+        .status(HttpStatus.NotFound)
+        .send("The team you are trying to invite to does not exist.");
     }
 
     const existingEmails = teamAndUsers.users.map((user) => user.email);
@@ -54,11 +64,19 @@ export default async function handler(
       return res
         .status(HttpStatus.Conflict)
         .send(
-          `The following email${emailsThatAlreadyExist.length > 1 ? "s" : ""} ${emailsThatAlreadyExist.length > 1 ? "are" : ""} already ${emailsThatAlreadyExist.length > 1 ? "members" : "a member"} of the team: ${emailsThatAlreadyExist.join(", ")}`
+          `The following email${emailsThatAlreadyExist.length > 1 ? "s" : ""} ${
+            emailsThatAlreadyExist.length > 1 ? "are" : ""
+          } already ${
+            emailsThatAlreadyExist.length > 1 ? "members" : "a member"
+          } of the team: ${emailsThatAlreadyExist.join(", ")}`
         );
     }
 
-    const createdInvitations = await createInvitations(invitations, invitedByUserId, teamId);
+    const createdInvitations = await createInvitations(
+      invitations,
+      invitedByUserId,
+      teamId
+    );
 
     const failedEmailAddresses = await sendBulkTeamInvitationEmails(
       invitations,
@@ -67,9 +85,13 @@ export default async function handler(
       teamAndUsers.name
     );
 
-    return res.status(201).json({ invitations: createdInvitations, failedEmailAddresses });
+    return res
+      .status(201)
+      .json({ invitations: createdInvitations, failedEmailAddresses });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "An error occurred while creating the invitation." });
+    return res
+      .status(500)
+      .json({ error: "An error occurred while creating the invitation." });
   }
 }
