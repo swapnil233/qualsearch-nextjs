@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/navigation/sidebar/Sidebar";
+import { SideNav } from "@/components/navigation/sidenav/SideNav";
 import {
   AppShell,
   Burger,
@@ -31,7 +31,7 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
         }}
         navbarOffsetBreakpoint="sm"
         asideOffsetBreakpoint="sm"
-        navbar={<Sidebar opened={opened} />}
+        navbar={<SideNav opened={opened} />}
         header={
           !largeScreen ? (
             <Header height={{ base: 50, md: 70 }} p="1rem 2rem">
