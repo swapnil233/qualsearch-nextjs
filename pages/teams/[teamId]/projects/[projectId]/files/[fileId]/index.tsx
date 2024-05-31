@@ -377,7 +377,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
           },
           {
             title: "Files",
-            href: `/teams/${file.teamId}/projects/${file.projectId}`,
+            href: `/teams/${file.teamId}/projects/${file.projectId}/files`,
           },
         ]}
       />

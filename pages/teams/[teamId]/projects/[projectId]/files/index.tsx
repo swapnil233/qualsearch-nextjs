@@ -43,6 +43,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import { useEffect, useState } from "react";
 
+// /teams/[teamId]/projects/[projectId]/files
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
     const { projectId } = context.query;
@@ -83,13 +84,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   });
 }
 
-interface IProjectPage {
+interface IFilesPage {
   project: Project;
   initialFiles: FileWithoutTranscriptAndUri[];
   initialNotes: NoteWithTagsAndCreator[];
 }
 
-const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
+const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
   project,
   initialFiles,
 }) => {
@@ -238,7 +239,7 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
           },
           {
             title: "Projects",
-            href: `/teams/${project.teamId}`,
+            href: `/teams/${project.teamId}/projects`,
           },
         ]}
       />
@@ -350,10 +351,10 @@ const ProjectPageContent: NextPageWithLayout<IProjectPage> = ({
   );
 };
 
-const ProjectPage: NextPageWithLayout<IProjectPage> = (props) => {
+const ProjectPage: NextPageWithLayout<IFilesPage> = (props) => {
   return (
     <NotesProvider initialNotes={props.initialNotes}>
-      <ProjectPageContent {...props} />
+      <FilesPageContent {...props} />
     </NotesProvider>
   );
 };

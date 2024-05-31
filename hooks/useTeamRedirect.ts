@@ -5,7 +5,9 @@ const useTeamRedirect = () => {
   const lastCreatedTeamId = teams?.[0]?.id || "";
 
   const teamRedirectUrl =
-    lastCreatedTeamId !== "" ? `/teams/${lastCreatedTeamId}` : "/teams";
+    lastCreatedTeamId !== ""
+      ? `/teams/${lastCreatedTeamId}/projects`
+      : "/teams";
 
   return teamRedirectUrl;
 };

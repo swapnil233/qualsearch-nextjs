@@ -13,6 +13,7 @@ import { requireAuthentication } from "@/lib/auth/requireAuthentication";
 import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
+import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
 import { SimpleGrid, Stack, Text, Title, rem } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -32,9 +33,8 @@ import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import fetch from "node-fetch";
 import { useState } from "react";
-import { NextPageWithLayout } from "../../page";
 
-// Page /teams/[teamId]/
+// Page /teams/[teamId]/projects
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   return requireAuthentication(context, async (session: any) => {
     const { teamId } = context.query;
@@ -94,7 +94,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   });
 }
 
-interface ITeamPage {
+interface IProjectsPage {
   user: User;
   team: TeamWithUsers;
   projects: Prisma.ProjectGetPayload<{
@@ -110,7 +110,11 @@ interface ITeamPage {
   }>[];
 }
 
-const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
+const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
+  user,
+  team,
+  projects,
+}) => {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
 
@@ -417,8 +421,8 @@ const TeamPage: NextPageWithLayout<ITeamPage> = ({ user, team, projects }) => {
   );
 };
 
-export default TeamPage;
+export default ProjectsPage;
 
-TeamPage.getLayout = (page) => {
+ProjectsPage.getLayout = (page) => {
   return <PrimaryLayout>{page}</PrimaryLayout>;
 };

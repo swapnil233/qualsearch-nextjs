@@ -21,6 +21,7 @@ import { IconUsersGroup } from "@tabler/icons-react";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { useState } from "react";
 
+// /teams
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
@@ -79,7 +80,7 @@ interface ITeamsPage {
   invitations: IInvitationData[];
 }
 
-const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
+const TeamsPage: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [creating, setCreating] = useState(false);
   const [showingTeams, setShowingTeams] = useState<TeamWithUsers[]>(teams);
@@ -189,7 +190,7 @@ const Teams: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
   );
 };
 
-export default Teams;
-Teams.getLayout = (page) => {
+export default TeamsPage;
+TeamsPage.getLayout = (page) => {
   return <PrimaryLayout>{page}</PrimaryLayout>;
 };

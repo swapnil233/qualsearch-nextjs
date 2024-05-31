@@ -88,7 +88,7 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
               </Tooltip>
             )}
           </Avatar.Group>
-          <Link href={`/teams/${team.id}`} passHref>
+          <Link href={`/teams/${team.id}/projects`} passHref>
             <Button variant="default">View</Button>
           </Link>
         </Group>

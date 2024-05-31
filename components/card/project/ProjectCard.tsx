@@ -101,7 +101,7 @@ const ProjectCard: FC<IProjectCard> = ({
             </Tooltip>
           </Group>
           <Link
-            href={`/teams/${project.teamId}/projects/${project.id}`}
+            href={`/teams/${project.teamId}/projects/${project.id}/files`}
             passHref
           >
             <Button variant="default">View</Button>
