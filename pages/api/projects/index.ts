@@ -1,10 +1,10 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
 import {
   createProject,
   deleteProject,
 } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import {
   DeleteObjectsCommand,
   ListObjectsV2Command,

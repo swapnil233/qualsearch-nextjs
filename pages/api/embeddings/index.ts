@@ -1,7 +1,7 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
 import { getTranscriptById } from "@/infrastructure/services/transcript.service";
 import pinecone from "@/lib/ai/pinecone";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";

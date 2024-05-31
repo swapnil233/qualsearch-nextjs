@@ -1,6 +1,6 @@
-import { ErrorMessages } from '@/constants/ErrorMessages';
-import { HttpStatus } from '@/constants/HttpStatus';
 import { getInvitationById, updateInvitationStatus } from '@/infrastructure/services/invitation.service';
+import { ErrorMessages } from '@/lib/constants/ErrorMessages';
+import { HttpStatus } from '@/lib/constants/HttpStatus';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]';

@@ -1,5 +1,5 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { host } from "@/lib/host";
 import prisma from "@/lib/prisma";
 import { FileWithoutTranscriptAndUri } from "@/types";

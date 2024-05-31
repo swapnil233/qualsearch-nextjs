@@ -1,7 +1,7 @@
 import TranscriptionCompletedEmail from "@/components/emails/TranscriptionCompletedEmail";
-import { EmailAddresses } from "@/constants/EmailAddresses";
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
+import { EmailAddresses } from "@/lib/constants/EmailAddresses";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { host } from "@/lib/host";
 import prisma from "@/lib/prisma";
 import { getSizeInBytes } from "@/lib/setSizeInBytes";

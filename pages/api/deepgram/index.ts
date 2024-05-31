@@ -1,5 +1,5 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { NextApiRequest, NextApiResponse } from "next";
 import qs from "qs";
 

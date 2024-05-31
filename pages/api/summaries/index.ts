@@ -1,6 +1,6 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
 import { getTranscriptById } from "@/infrastructure/services/transcript.service";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import prisma from "@/lib/prisma";
 import { get_encoding } from "@dqbd/tiktoken";
 import { LLMChain, loadSummarizationChain } from "langchain/chains";

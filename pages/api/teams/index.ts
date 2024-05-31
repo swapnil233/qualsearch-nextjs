@@ -1,5 +1,3 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
 import {
   createTeam,
   deleteTeam,
@@ -8,6 +6,8 @@ import {
   validateUserIsTeamMember,
 } from "@/infrastructure/services/team.service";
 import { getCurrentUser } from "@/infrastructure/services/user.service";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";

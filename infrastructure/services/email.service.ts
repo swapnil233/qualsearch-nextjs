@@ -1,6 +1,6 @@
 import NewTeamInvitationEmail from "@/components/emails/NewTeamInvitationEmail";
-import { EmailAddresses } from "@/constants/EmailAddresses";
 import { ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
+import { EmailAddresses } from "@/lib/constants/EmailAddresses";
 import { host } from "@/lib/host";
 import { Resend } from "resend";
 

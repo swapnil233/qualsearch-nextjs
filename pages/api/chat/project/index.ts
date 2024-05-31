@@ -1,7 +1,7 @@
-import { ErrorMessages } from "@/constants/ErrorMessages";
-import { HttpStatus } from "@/constants/HttpStatus";
 import { makeProjectChatChain } from "@/lib/ai/makeProjectChatChain";
 import pinecone from "@/lib/ai/pinecone";
+import { ErrorMessages } from "@/lib/constants/ErrorMessages";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { AIMessage, HumanMessage } from "langchain/schema";
 import { PineconeStore } from "langchain/vectorstores/pinecone";

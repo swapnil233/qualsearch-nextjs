@@ -1,4 +1,4 @@
-import { HttpStatus } from "@/constants/HttpStatus";
+import { HttpStatus } from "@/lib/constants/HttpStatus";
 import Cors from "micro-cors";
 import { NextApiRequest, NextApiResponse } from "next";
 
