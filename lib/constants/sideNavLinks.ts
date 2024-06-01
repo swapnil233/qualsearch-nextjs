@@ -2,15 +2,13 @@ import { SideNavLinkProps } from "@/components/navigation/sidenav/SideNavLink";
 import {
   IconFiles,
   IconFolder,
-  IconGraph,
   IconLayoutDashboard,
   IconNotes,
   IconPlus,
-  IconPresentation,
   IconSettings,
   IconTags,
   IconUser,
-  IconUsers,
+  IconUsers
 } from "@tabler/icons-react";
 
 export const generalLinks: SideNavLinkProps[] = [
@@ -56,15 +54,5 @@ export const projectLinks = (
       label: "Tags",
       icon: IconTags,
       href: `/teams/${teamId}/projects/${projectId}/tags`,
-    },
-    {
-      label: "Statistics",
-      icon: IconGraph,
-      href: `/teams/${teamId}/projects/${projectId}/statistics`,
-    },
-    {
-      label: "Presentations",
-      icon: IconPresentation,
-      href: `/teams/${teamId}/projects/${projectId}/presentations`,
     },
   ];
