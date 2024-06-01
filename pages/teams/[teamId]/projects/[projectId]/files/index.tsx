@@ -1,112 +1,93 @@
 import FileCard from "@/components/card/file/FileCard";
-import ProjectNotesChat from "@/components/chat/ProjectNotesChat";
 import PageHeading from "@/components/layout/heading/PageHeading";
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
-import DeleteNoteModal from "@/components/modal/delete/DeleteNoteModal";
 import DeleteProjectModal from "@/components/modal/delete/DeleteProjectModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
-import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
-import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { useFileCreation } from "@/hooks/useFileCreation";
-import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { useProjectDeletion } from "@/hooks/useProjectDeletion";
 import { getFilesWithoutTranscriptAndUriGivenProjectId } from "@/infrastructure/services/file.service";
-import { getNotesWithTagsAndCreator } from "@/infrastructure/services/note.service";
 import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
-import { requireAuthentication } from "@/lib/auth/requireAuthentication";
 import { NextPageWithLayout } from "@/pages/page";
-import { FileWithoutTranscriptAndUri, NoteWithTagsAndCreator } from "@/types";
-import {
-  ActionIcon,
-  Affix,
-  Box,
-  Group,
-  Popover,
-  Select,
-  SimpleGrid,
-  Stack,
-  Title,
-  rem,
-} from "@mantine/core";
+import { FileWithoutTranscriptAndUri } from "@/types";
+import { Box, Group, Select, SimpleGrid, Stack, rem } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Project } from "@prisma/client";
 import {
   IconChevronDown,
   IconFilePlus,
-  IconMessage,
   IconPencil,
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
+import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 // /teams/[teamId]/projects/[projectId]/files
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (session: any) => {
-    const { projectId } = context.query;
-    const user = session.user;
+  const { projectId, teamId } = context.query;
+  const session = await getSession(context);
 
-    try {
-      const project = await getProjectById(projectId as string);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
 
-      // Validate if the user is a member of the team that the project belongs to
-      try {
-        await validateUserIsTeamMember(project.teamId, user.id);
-      } catch (error) {
-        // If validation fails (user is not in the team), return notFound
-        return {
-          notFound: true,
-        };
-      }
+  const user = session.user;
 
-      const initialFiles = await getFilesWithoutTranscriptAndUriGivenProjectId(
-        projectId as string
-      );
+  // Validate if the user is a member of the team that the project belongs to
+  try {
+    await validateUserIsTeamMember(teamId as string, user.id);
+  } catch (error) {
+    return {
+      notFound: true,
+    };
+  }
 
-      const notes = await getNotesWithTagsAndCreator(projectId as string);
+  try {
+    const project = await getProjectById(projectId as string);
+    const files = await getFilesWithoutTranscriptAndUriGivenProjectId(
+      projectId as string
+    );
 
-      return {
-        props: {
-          project,
-          initialFiles,
-          initialNotes: notes,
-        },
-      };
-    } catch (error) {
-      console.log(error);
-      return {
-        notFound: true,
-      };
-    }
-  });
+    return {
+      props: {
+        project,
+        files,
+      },
+    };
+  } catch (error) {
+    return {
+      notFound: true,
+    };
+  }
 }
 
 interface IFilesPage {
   project: Project;
-  initialFiles: FileWithoutTranscriptAndUri[];
-  initialNotes: NoteWithTagsAndCreator[];
+  files: FileWithoutTranscriptAndUri[];
 }
 
-const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
+const FilesPage: NextPageWithLayout<IFilesPage> = ({
   project,
-  initialFiles,
+  files: initialFiles,
 }) => {
-  const { notes } = useNotes();
-
   const [opened, { open, close }] = useDisclosure(false);
   const [files, setFiles] =
     useState<FileWithoutTranscriptAndUri[]>(initialFiles);
 
-  const [noteDeletionModalOpened, setNoteDeletionModalOpened] = useState(false);
-  const [noteIdToDelete, setNoteIdToDelete] = useState<string>("");
-  const [deletingNote, setDeletingNote] = useState<boolean>(false);
-
   const [projectDeletionModalOpened, setProjectDeletionModalOpened] =
     useState(false);
   const [deletingProject, setDeletingProject] = useState<boolean>(false);
+
+  // State for sorting files
+  const [sortFilesBy, setSortFilesBy] = useState<string>("nameAtoZ");
 
   const { form, creating, buttonText, handleCreateNewFile } = useFileCreation(
     project.teamId,
@@ -114,22 +95,6 @@ const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
     files,
     setFiles,
     close
-  );
-
-  const openNoteDeletionModal = (noteId: string) => {
-    setNoteIdToDelete(noteId as string);
-    setNoteDeletionModalOpened(true);
-  };
-
-  const closeNoteDeletionModal = () => {
-    setNoteIdToDelete("");
-    setNoteDeletionModalOpened(false);
-  };
-
-  const { handleDeleteNote } = useNoteDeletion(
-    noteIdToDelete,
-    setDeletingNote,
-    closeNoteDeletionModal
   );
 
   const handleEdit = () => {
@@ -161,9 +126,6 @@ const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
       label: "Upload date",
     },
   ];
-
-  // State for sorting files
-  const [sortFilesBy, setSortFilesBy] = useState<string>("nameAtoZ");
 
   // Select options for items per page
   const selectOptions = fileSortingOptions.map((option) => ({
@@ -206,12 +168,12 @@ const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
   return (
     <>
       <SharedHead
-        title={project.name}
+        title={`Files - ${project.name}`}
         description={project.description || ""}
       />
 
       <PageHeading
-        title={project.name}
+        title={`Files - ${project.name}`}
         description={project.description || ""}
         primaryButtonText="Add new file"
         primaryButtonAction={open}
@@ -255,10 +217,7 @@ const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
       ) : (
         <>
           <Stack w={"100%"}>
-            <Group noWrap position="apart">
-              <Title order={3} fw={"normal"}>
-                Files
-              </Title>
+            <Group>
               <Select
                 value={sortFilesBy}
                 onChange={(value) => setSortFilesBy(value as string)}
@@ -292,19 +251,6 @@ const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
           position: "relative",
         }}
       >
-        {notes.length > 0 && (
-          <Stack w={"100%"} mt={"lg"}>
-            <Title order={3} fw={"normal"}>
-              Overview
-            </Title>
-            <NotesOverviewDataTable
-              teamId={project.teamId}
-              projectId={project.id}
-              openNoteDeletionModal={openNoteDeletionModal}
-            />
-          </Stack>
-        )}
-
         <CreateFileModal
           opened={opened}
           close={close}
@@ -314,53 +260,19 @@ const FilesPageContent: NextPageWithLayout<IFilesPage> = ({
           buttonText={buttonText}
         />
 
-        <DeleteNoteModal
-          opened={noteDeletionModalOpened}
-          close={closeNoteDeletionModal}
-          handleDelete={handleDeleteNote}
-          deleting={deletingNote}
-        />
-
         <DeleteProjectModal
           opened={projectDeletionModalOpened}
           close={() => setProjectDeletionModalOpened(false)}
           handleDelete={handleDeleteProject}
           deleting={deletingProject}
         />
-
-        <Affix position={{ bottom: rem(20), right: rem(20) }}>
-          <Popover
-            width={400}
-            position="top"
-            shadow="xl"
-            closeOnClickOutside
-            closeOnEscape
-          >
-            <Popover.Target>
-              <ActionIcon color="blue.9" size="xl" radius="xl" variant="filled">
-                <IconMessage size="1.75rem" />
-              </ActionIcon>
-            </Popover.Target>
-            <Popover.Dropdown>
-              <ProjectNotesChat projectId={project.id} />
-            </Popover.Dropdown>
-          </Popover>
-        </Affix>
       </Box>
     </>
   );
 };
 
-const ProjectPage: NextPageWithLayout<IFilesPage> = (props) => {
-  return (
-    <NotesProvider initialNotes={props.initialNotes}>
-      <FilesPageContent {...props} />
-    </NotesProvider>
-  );
-};
+export default FilesPage;
 
-export default ProjectPage;
-
-ProjectPage.getLayout = (page) => {
+FilesPage.getLayout = (page) => {
   return <PrimaryLayout>{page}</PrimaryLayout>;
 };
