@@ -66,7 +66,7 @@ export const TeamDropdown = () => {
             <Menu.Item
               key={team.id}
               icon={<IconFolder size="1.1rem" />}
-              onClick={() => router.push(`/teams/${team.id}/`)}
+              onClick={() => router.push(`/teams/${team.id}/projects`)}
             >
               {team.name}
             </Menu.Item>
