@@ -162,8 +162,7 @@ async function handleDelete(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
-    console.log("Deleted note:", deletedNote);
-    res.status(200).json(deletedNote); // Return the deleted note
+    res.status(200).json(deletedNote);
   } catch (error) {
     console.error("Error deleting note:", error);
     res.status(500).json({ error: "Failed to delete note." });
