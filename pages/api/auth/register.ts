@@ -35,6 +35,13 @@ export default async function register(
       email,
       name,
       password: hashedPassword,
+      accounts: {
+        create: {
+          type: "credentials",
+          provider: "email",
+          providerAccountId: email,
+        },
+      },
     },
   });
 
