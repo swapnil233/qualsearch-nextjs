@@ -216,8 +216,19 @@ model Transcript {
   fileId String @unique
 
   // 1-1: a Transcript can have 1 summary.
-  summary   Summary? @relation(fields: [summaryId], references: [id])
-  summaryId String?  @unique
+  summary     Summary?      @relation(fields: [summaryId], references: [id])
+  summaryId   String?       @unique
+  SpeakerName SpeakerName[]
+}
+
+model SpeakerName {
+  id           String     @id @default(cuid())
+  speakerIndex Int
+  name         String
+  transcript   Transcript @relation(fields: [transcriptId], references: [id])
+  transcriptId String
+
+  @@unique([transcriptId, speakerIndex])
 }
 
 model Summary {

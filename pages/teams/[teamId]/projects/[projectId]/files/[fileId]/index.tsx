@@ -433,6 +433,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
               scrollToNoteId={noteId}
               summaryHasLoaded={summaryHasLoaded}
               transcriptContainerDivRef={transcriptContainerDivRef}
+              transcriptId={transcript.id}
             />
           </Box>
 

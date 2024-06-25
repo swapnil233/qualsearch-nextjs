@@ -21,6 +21,7 @@ interface ITranscriptProps {
   user: User;
   scrollToNoteId: string | undefined;
   summaryHasLoaded: Boolean;
+  transcriptId: string;
 }
 
 const Transcript: FC<ITranscriptProps> = ({
@@ -30,6 +31,7 @@ const Transcript: FC<ITranscriptProps> = ({
   user,
   scrollToNoteId,
   summaryHasLoaded,
+  transcriptId,
 }) => {
   const { notes, setNotes } = useNotes();
   const { tags } = useTags();
@@ -51,6 +53,29 @@ const Transcript: FC<ITranscriptProps> = ({
     user,
     setNoteIsCreating
   );
+
+  useEffect(() => {
+    const fetchSpeakerNames = async () => {
+      try {
+        const response = await fetch(
+          `/api/transcripts/${transcriptId}/speakers?transcriptId=${transcriptId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setSpeakerNames(
+            data.reduce((acc: any, speaker: any) => {
+              acc[speaker.speakerIndex] = speaker.name;
+              return acc;
+            }, {})
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching speaker names:", error);
+      }
+    };
+
+    fetchSpeakerNames();
+  }, [transcriptId]);
 
   // Scroll down to scrollToNoteId if one is provided.
   useEffect(() => {
@@ -166,6 +191,7 @@ const Transcript: FC<ITranscriptProps> = ({
                 newSpeakerName={newSpeakerName}
                 setNewSpeakerName={setNewSpeakerName}
                 setSpeakerNames={setSpeakerNames}
+                transcriptId={transcriptId as string}
               />
               <PlayTranscriptBlockButton
                 mediaRef={mediaRef}

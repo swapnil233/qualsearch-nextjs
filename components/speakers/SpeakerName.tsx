@@ -16,6 +16,7 @@ interface ISpeakerName {
   setSpeakerNames: Dispatch<SetStateAction<Record<number, string>>>;
   newSpeakerName: string;
   setNewSpeakerName: Dispatch<SetStateAction<string>>;
+  transcriptId: string;
 }
 
 export const SpeakerName: FC<ISpeakerName> = ({
@@ -24,20 +25,40 @@ export const SpeakerName: FC<ISpeakerName> = ({
   setSpeakerNames,
   newSpeakerName,
   setNewSpeakerName,
+  transcriptId,
 }) => {
   const theme = useMantineTheme();
-  /**
-   * Handle the change of the speaker name by updating the state and clearing the input
-   * @param speaker
-   * @param name
-   */
-  const handleSpeakerNameChange = (speaker: number, name: string) => {
-    setSpeakerNames((prev) => ({
-      ...prev,
-      [speaker]: name,
-    }));
 
-    setNewSpeakerName("");
+  const handleSpeakerNameChange = async (speaker: number, name: string) => {
+    try {
+      const response = await fetch(
+        `/api/transcripts/${transcriptId}/speakers`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transcriptId: transcriptId,
+            speakerIndex: speaker,
+            name,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        setSpeakerNames((prev) => ({
+          ...prev,
+          [speaker]: name,
+        }));
+        setNewSpeakerName("");
+      } else {
+        // Handle error
+        console.error("Failed to update speaker name");
+      }
+    } catch (error) {
+      console.error("Error updating speaker name:", error);
+    }
   };
 
   const firstTwoLettersOfName = useMemo(() => {
@@ -49,13 +70,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
 
   return (
     <Box>
-      <Popover
-        width={300}
-        trapFocus
-        position="bottom-start"
-        withArrow
-        shadow="lg"
-      >
+      <Popover width={300} trapFocus position="bottom" withArrow shadow="lg">
         <Popover.Target>
           <Group spacing={"xs"}>
             <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
