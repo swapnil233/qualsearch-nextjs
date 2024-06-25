@@ -34,11 +34,9 @@ const Transcript: FC<ITranscriptProps> = ({
   const { notes, setNotes } = useNotes();
   const { tags } = useTags();
   const [currentWord, setCurrentWord] = useState<number>(0);
-
   const [selectedText, setSelectedText] = useState<SelectedText | null>(null);
   const [isTextSelected, setIsTextSelected] = useState(false);
   const [noteIsCreating, setNoteIsCreating] = useState<boolean>(false);
-
   const [speakerNames, setSpeakerNames] = useState<Record<number, string>>({});
   const [newSpeakerName, setNewSpeakerName] = useState<string>("");
 
@@ -84,43 +82,34 @@ const Transcript: FC<ITranscriptProps> = ({
   // Update the notes state when the window is resized
   useEffect(() => {
     const handleContentChange = () => setNotes((prevNotes) => [...prevNotes]);
-
     window.addEventListener("resize", handleContentChange);
     return () => {
       window.removeEventListener("resize", handleContentChange);
     };
   }, [notes, setNotes]);
 
-  // Check word's time range with current audio time
   useEffect(() => {
-    const checkTime = () => {
+    let animationFrameId: number;
+
+    const updateCurrentWord = () => {
       if (mediaRef.current) {
         const currentTime = mediaRef.current.currentTime;
-
-        // loop through words to find the word that matches the current time
-        for (let i = 0; i < words.length; i++) {
-          if (currentTime >= words[i].start && currentTime <= words[i].end) {
-            setCurrentWord(i);
-            break;
-          }
+        const currentWordIndex = words.findIndex(
+          (word) => currentTime >= word.start && currentTime <= word.end
+        );
+        if (currentWordIndex !== -1 && currentWordIndex !== currentWord) {
+          setCurrentWord(currentWordIndex);
         }
+        animationFrameId = requestAnimationFrame(updateCurrentWord);
       }
     };
 
-    const currentAudio = mediaRef.current;
-
-    // add timeupdate event listener to mediaRef
-    if (currentAudio) {
-      currentAudio.addEventListener("timeupdate", checkTime);
-    }
+    animationFrameId = requestAnimationFrame(updateCurrentWord);
 
     return () => {
-      // cleanup - remove the event listener
-      if (currentAudio) {
-        currentAudio.removeEventListener("timeupdate", checkTime);
-      }
+      cancelAnimationFrame(animationFrameId);
     };
-  }, [mediaRef, words]);
+  }, [mediaRef, words, currentWord]);
 
   // Updates the 'selectedText' state with the details of the selected text including its bounding rectangle.
   const handleTextSelect = (start: number, end: number): void => {
