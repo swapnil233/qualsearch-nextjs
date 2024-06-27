@@ -15,7 +15,8 @@
     "prepack": "husky install",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "email": "email dev --dir components/emails"
+    "email": "email dev --dir components/emails",
+    "reset": "rm -rf node_modules .next/ && npm i && npm run postinstall && npm run dev"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.456.0",
