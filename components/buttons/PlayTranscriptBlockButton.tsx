@@ -1,5 +1,5 @@
 import convertToTimestamp from "@/lib/convertToTimestamp";
-import { Button, useMantineTheme } from "@mantine/core";
+import { Button, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 import { FC, useMemo } from "react";
 
@@ -12,6 +12,7 @@ const PlayTranscriptBlockButton: FC<IPlayTranscriptBlockButton> = ({
   mediaRef,
   startingTimestamp,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
 
   const formattedTimestamp = useMemo(() => {
@@ -28,9 +29,9 @@ const PlayTranscriptBlockButton: FC<IPlayTranscriptBlockButton> = ({
   return (
     <Button
       variant="outline"
-      color={theme.colorScheme === "dark" ? "gray" : "dark"}
-      compact
-      leftIcon={<IconPlayerPlay size={"1rem"} />}
+      color={colorScheme === "dark" ? "gray" : "dark"}
+      size="compact-md"
+      leftSection={<IconPlayerPlay size={"1rem"} />}
       onClick={handleTimestampClick}
     >
       {formattedTimestamp}

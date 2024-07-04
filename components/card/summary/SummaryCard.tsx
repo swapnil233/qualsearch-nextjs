@@ -1,5 +1,12 @@
 import parseMarkdown from "@/lib/parseMarkdown";
-import { Card, Skeleton, Stack, Text, Title } from "@mantine/core";
+import {
+  Card,
+  Skeleton,
+  Stack,
+  Text,
+  Title,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { FC, memo } from "react";
 
 export interface ISummaryCard {
@@ -8,17 +15,18 @@ export interface ISummaryCard {
 }
 
 const SummaryCard: FC<ISummaryCard> = ({ summary, dateSummarized }) => {
+  const { colorScheme } = useMantineColorScheme();
   return (
     <Card
       withBorder
       radius="sm"
-      sx={(theme) => ({
+      style={(theme) => ({
         backgroundColor:
-          theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+          colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
       })}
     >
-      <Stack spacing={"xl"}>
-        <Stack spacing={"md"}>
+      <Stack gap={"xl"}>
+        <Stack gap={"md"}>
           <Title order={3}>Summary</Title>
           {summary !== "" ? (
             summary

@@ -27,7 +27,7 @@ const OptionsMenu: React.FC<IOptionsMenuProps> = ({ options }) => {
             color={option.color}
             key={index}
             onClick={option.onClick}
-            icon={option.icon}
+            leftSection={option.icon}
           >
             {option.option}
           </Menu.Item>

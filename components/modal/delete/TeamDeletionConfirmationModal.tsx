@@ -34,7 +34,7 @@ const TeamDeletionConfirmationModal: React.FunctionComponent<
       centered
       padding={"lg"}
     >
-      <Stack spacing={"xl"}>
+      <Stack gap={"xl"}>
         <Stack>
           <Text>
             This will permanently erase all associated projects and files, and
@@ -47,14 +47,14 @@ const TeamDeletionConfirmationModal: React.FunctionComponent<
             value={inputValue}
             onChange={(e) => setInputValue(e.currentTarget.value)}
             size="sm"
-            sx={{
+            style={{
               fontStyle: "italic",
             }}
             radius={"xs"}
             required
           />
         </Stack>
-        <Group position="apart">
+        <Group justify="space-between">
           <Button variant="default" onClick={close}>
             Cancel
           </Button>

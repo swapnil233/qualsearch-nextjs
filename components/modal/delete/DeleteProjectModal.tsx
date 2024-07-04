@@ -30,7 +30,7 @@ const DeleteProjectModal: FC<IDeleteProjectModal> = ({
         This project will be removed from the team and any places it has been
         shared or added to. <b>This action cannot be undone.</b>
       </Text>
-      <Group position="apart" mt={"lg"}>
+      <Group justify="space-between" mt={"lg"}>
         <Button variant="outline" radius="xs" onClick={close} color="dark">
           Cancel
         </Button>

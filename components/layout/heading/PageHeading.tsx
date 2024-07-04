@@ -6,6 +6,7 @@ import {
   Stack,
   Text,
   Title,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import { IconDots } from "@tabler/icons-react";
@@ -39,6 +40,7 @@ const PageHeading: FC<IPageHeading> = ({
   primaryButtonIcon,
   secondaryButtonMenuItems,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const breadcrumbItems =
     breadcrumbs?.map((item, index) => (
@@ -50,7 +52,7 @@ const PageHeading: FC<IPageHeading> = ({
           textDecoration: "none",
         }}
       >
-        <Text color={theme.colorScheme === "dark" ? "#8C9BAB" : "#626F86"}>
+        <Text color={colorScheme === "dark" ? "#8C9BAB" : "#626F86"}>
           {item.title}
         </Text>
       </Link>
@@ -62,7 +64,7 @@ const PageHeading: FC<IPageHeading> = ({
       <Box className="flex justify-between flex-col md:flex-row">
         {description ? (
           <>
-            <Stack spacing={0} mb={"1rem"} className="md:mb-0">
+            <Stack gap={0} mb={"1rem"} className="md:mb-0">
               <Title order={1} size={"1.875rem"} fw={500} mb={"1rem"}>
                 {title}
               </Title>
@@ -80,7 +82,10 @@ const PageHeading: FC<IPageHeading> = ({
         )}
         <div className="flex">
           {primaryButtonText && primaryButtonAction && (
-            <Button onClick={primaryButtonAction} leftIcon={primaryButtonIcon}>
+            <Button
+              onClick={primaryButtonAction}
+              leftSection={primaryButtonIcon}
+            >
               {primaryButtonText}
             </Button>
           )}
@@ -89,12 +94,12 @@ const PageHeading: FC<IPageHeading> = ({
               <Menu.Target>
                 <Button
                   variant="filled"
-                  color={theme.colorScheme === "dark" ? "gray.9" : "gray.4"}
+                  color={colorScheme === "dark" ? "gray.9" : "gray.4"}
                   ml={primaryButtonText ? "xs" : 0}
                 >
                   <IconDots
                     color={
-                      theme.colorScheme === "dark"
+                      colorScheme === "dark"
                         ? theme.colors.gray[3]
                         : theme.colors.gray[7]
                     }
@@ -104,7 +109,11 @@ const PageHeading: FC<IPageHeading> = ({
 
               <Menu.Dropdown>
                 {secondaryButtonMenuItems.map((item, index) => (
-                  <Menu.Item key={index} icon={item.icon} onClick={item.action}>
+                  <Menu.Item
+                    key={index}
+                    leftSection={item.icon}
+                    onClick={item.action}
+                  >
                     {item.title}
                   </Menu.Item>
                 ))}

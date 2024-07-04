@@ -29,29 +29,28 @@ export const TeamDropdown = () => {
     <Menu width={"90%"}>
       <Menu.Target>
         <UnstyledButton
-          sx={(theme) => ({
+          style={(theme) => ({
             display: "block",
             width: "100%",
             padding: `${theme.spacing.sm} ${theme.spacing.md}`,
             borderRadius: theme.radius.sm,
             border: `1px solid ${
-              theme.colorScheme === "dark"
+              colorScheme === "dark"
                 ? theme.colors.dark[3]
                 : theme.colors.gray[3]
             }`,
-            color:
-              theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
+            color: colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
 
             "&:hover": {
               backgroundColor:
-                theme.colorScheme === "dark"
+                colorScheme === "dark"
                   ? theme.colors.dark[8]
                   : theme.colors.gray[0],
             },
           })}
         >
-          <Group position="apart">
-            <Text size="sm" weight={700}>
+          <Group justify="space-between">
+            <Text size="sm" fw={700}>
               {currentTeam?.name || data?.user?.name || "Select team"}
             </Text>
 
@@ -91,7 +90,7 @@ export const TeamDropdown = () => {
             signOut({ callbackUrl: "/" });
           }}
           icon={<IconLogout size="1.1rem" />}
-          color={theme.colorScheme === "dark" ? theme.white : theme.black}
+          color={colorScheme === "dark" ? theme.white : theme.black}
         >
           Log out
         </Menu.Item>

@@ -27,7 +27,7 @@ const DeleteConfirmationModal: React.FunctionComponent<
         All projects and files will be deleted permenantly. Team members will be
         removed. <b>This action cannot be undone.</b>
       </Text>
-      <Group position="apart" mt={"lg"}>
+      <Group justify="space-between" mt={"lg"}>
         <Button variant="outline" radius="xs" onClick={close} color="dark">
           Cancel
         </Button>

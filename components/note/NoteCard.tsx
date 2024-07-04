@@ -87,13 +87,13 @@ export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
 
   return (
     <Box
-      sx={{
+      style={{
         position: "absolute",
         top: position.top,
         left: position.left,
       }}
     >
-      <Group align="center" spacing={"sm"}>
+      <Group align="center" gap={"sm"}>
         <HoverCard width={300} position="bottom" withArrow shadow="md">
           <HoverCard.Target>
             <ActionIcon radius="xl" variant="default">
@@ -102,17 +102,17 @@ export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
           </HoverCard.Target>
 
           <HoverCard.Dropdown>
-            <Stack align="flex-start" spacing={"xl"}>
-              <Stack spacing={"sm"} w={"100%"}>
+            <Stack align="flex-start" gap={"xl"}>
+              <Stack gap={"sm"} w={"100%"}>
                 <Stack justify="space-between" align="center" w={"100%"}>
-                  <Group position="apart" w={"100%"}>
+                  <Group justify="space-between" w={"100%"}>
                     <Group>
                       <Avatar
                         src={note.createdBy.image}
                         alt={note.createdBy.name || ""}
                         radius="xl"
                       />
-                      <Stack spacing={0}>
+                      <Stack gap={0}>
                         <Text fz="md">{note.createdBy.name}</Text>
                         <Text fz="xs" c="dimmed">
                           {new Date(note.createdAt).toDateString()}
@@ -142,12 +142,7 @@ export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
                   <Text fz={"sm"}>{note.text}</Text>
                 </Stack>
               </Stack>
-              <SimpleGrid
-                w={"100%"}
-                cols={2}
-                spacing={"xs"}
-                verticalSpacing={"xs"}
-              >
+              <SimpleGrid w={"100%"} cols={2} gap={"xs"} verticalSpacing={"xs"}>
                 {note.tags.map((tag) => {
                   return (
                     <Link

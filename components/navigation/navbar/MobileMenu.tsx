@@ -16,7 +16,6 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { FC } from "react";
-import { navbarStyles } from "./Navbar.styles";
 
 interface MobileMenuProps {
   user: any;
@@ -33,7 +32,6 @@ const MobileMenu: FC<MobileMenuProps> = ({
   signIn,
   signOut,
 }) => {
-  const { classes, theme } = navbarStyles();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   return (
@@ -43,15 +41,9 @@ const MobileMenu: FC<MobileMenuProps> = ({
           checked={colorScheme === "dark"}
           onChange={() => toggleColorScheme()}
           size="md"
-          onLabel={<IconSun color={theme.white} size="1.25rem" stroke={1.5} />}
-          offLabel={
-            <IconMoonStars
-              color={theme.colors.gray[6]}
-              size="1.25rem"
-              stroke={1.5}
-            />
-          }
-          className={classes.hiddenDesktop}
+          onLabel={<IconSun color="white" size="1.25rem" stroke={1.5} />}
+          offLabel={<IconMoonStars color="gray" size="1.25rem" stroke={1.5} />}
+          className="sm:hidden"
         />
       </Group>
 
@@ -59,11 +51,11 @@ const MobileMenu: FC<MobileMenuProps> = ({
         <>
           <Divider
             my="sm"
-            color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
+            color={colorScheme === "dark" ? "dark.5" : "gray.1"}
           />
           <Link
             href="/profile/"
-            style={{ textDecoration: "none", color: "black" }}
+            className="no-underline text-black"
             onClick={toggleDrawer}
           >
             <Group p={"sm"}>
@@ -74,7 +66,7 @@ const MobileMenu: FC<MobileMenuProps> = ({
                 size={32}
               />
               <div style={{ flex: 1 }}>
-                <Text size="sm" weight={500}>
+                <Text size="sm" fw={500}>
                   {user?.name}
                 </Text>
                 <Text color="dimmed" size="xs">
@@ -91,8 +83,8 @@ const MobileMenu: FC<MobileMenuProps> = ({
               className="no-underline"
             >
               <Menu.Item
-                className={classes.link}
-                icon={<IconUser size="0.9rem" stroke={1.5} />}
+                className="flex items-center h-full px-4 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                leftSection={<IconUser size="0.9rem" stroke={1.5} />}
               >
                 My profile
               </Menu.Item>
@@ -103,8 +95,8 @@ const MobileMenu: FC<MobileMenuProps> = ({
               className="no-underline"
             >
               <Menu.Item
-                className={classes.link}
-                icon={<IconSettings size="0.9rem" stroke={1.5} />}
+                className="flex items-center h-full px-4 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                leftSection={<IconSettings size="0.9rem" stroke={1.5} />}
               >
                 Account settings
               </Menu.Item>
@@ -113,26 +105,28 @@ const MobileMenu: FC<MobileMenuProps> = ({
         </>
       )}
 
-      <Divider
-        my="sm"
-        color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
-      />
+      <Divider my="sm" color={colorScheme === "dark" ? "dark.5" : "gray.1"} />
 
       <Menu>
         {status === "authenticated" && <Menu.Label>Navigate</Menu.Label>}
-        <Link href="/" className={classes.link} onClick={toggleDrawer}>
+        <Link
+          href="/"
+          className="block px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+          onClick={toggleDrawer}
+        >
           Home
         </Link>
-        <Link href="/teams" className={classes.link} onClick={toggleDrawer}>
+        <Link
+          href="/teams"
+          className="block px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+          onClick={toggleDrawer}
+        >
           Teams
         </Link>
       </Menu>
 
-      <Divider
-        my="sm"
-        color={theme.colorScheme === "dark" ? "dark.5" : "gray.1"}
-      />
-      <Group position="center" grow pb="xl" px="md">
+      <Divider my="sm" color={colorScheme === "dark" ? "dark.5" : "gray.1"} />
+      <Group justify="center" grow pb="xl" px="md">
         {status === "authenticated" ? (
           <Button
             variant="light"

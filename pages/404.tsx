@@ -1,78 +1,31 @@
 import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import SharedHead from "@/components/shared/SharedHead";
-import {
-  Button,
-  Container,
-  Group,
-  Text,
-  Title,
-  createStyles,
-  rem,
-} from "@mantine/core";
+import { Button, Container, Group, Text, Title } from "@mantine/core";
 import Link from "next/link";
 import { NextPageWithLayout } from "./page";
 
-const useStyles = createStyles((theme) => ({
-  root: {
-    paddingTop: rem(80),
-    paddingBottom: rem(80),
-  },
-
-  label: {
-    textAlign: "center",
-    fontWeight: 900,
-    fontSize: rem(220),
-    lineHeight: 1,
-    marginBottom: `calc(${theme.spacing.xl} * 1.5)`,
-    color:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[4]
-        : theme.colors.gray[2],
-
-    [theme.fn.smallerThan("sm")]: {
-      fontSize: rem(120),
-    },
-  },
-
-  title: {
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-    textAlign: "center",
-    fontWeight: 900,
-    fontSize: rem(38),
-
-    [theme.fn.smallerThan("sm")]: {
-      fontSize: rem(32),
-    },
-  },
-
-  description: {
-    maxWidth: rem(500),
-    margin: "auto",
-    marginTop: theme.spacing.xl,
-    marginBottom: `calc(${theme.spacing.xl} * 1.5)`,
-  },
-}));
-
 const NotFound: NextPageWithLayout = () => {
-  const { classes } = useStyles();
-
   return (
     <>
       <SharedHead title="404" description="404! This page does not exist." />
-      <Container className={classes.root}>
-        <div className={classes.label}>404</div>
-        <Title className={classes.title}>Error 404: Lost in Cyberspace</Title>
+      <Container className="py-20">
+        <div className="text-center font-black text-[220px] leading-none mb-[6rem] text-gray-200 dark:text-gray-700 sm:text-[120px]">
+          404
+        </div>
+        <Title className="font-black text-center text-[38px] sm:text-[32px]">
+          Error 404: Lost in Cyberspace
+        </Title>
         <Text
           color="dimmed"
           size="lg"
-          align="center"
-          className={classes.description}
+          ta="center"
+          className="max-w-[500px] mx-auto mt-6 mb-[6rem]"
         >
           We&apos;re sorry, but the page you&apos;re seeking seems to be lost in
           cyberspace. We invite you to return to the homepage and continue your
           journey through our website.
         </Text>
-        <Group position="center">
+        <Group align="center">
           <Link href="/">
             <Button variant="default" size="md">
               Take me home

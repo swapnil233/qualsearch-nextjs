@@ -26,7 +26,7 @@ export interface INewInvitationModal {
   >;
   handleCreateNewInvitation: (
     _values: { invitations: ICreateInvitationsPayload[] },
-    _event: React.FormEvent
+    _event?: React.FormEvent<HTMLFormElement>
   ) => void;
 }
 
@@ -73,10 +73,8 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
         />
       </Grid.Col>
       <Grid.Col span={1}>
-        <Group spacing={4} noWrap align="center">
+        <Group gap={4} wrap="nowrap" align="center">
           <Select
-            zIndex={1000}
-            withinPortal
             data={roleOptions}
             aria-label="Role"
             {...form.getInputProps(`invitations.${index}.role`)}
@@ -96,7 +94,7 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
       opened={opened}
       onClose={close}
       title={
-        <Text size={"lg"} weight={500}>
+        <Text size={"lg"} fw={500}>
           Invite people to collaborate
         </Text>
       }
@@ -104,19 +102,26 @@ const NewInvitationModal: FC<INewInvitationModal> = ({
       padding="lg"
       size={"lg"}
     >
-      <form onSubmit={form.onSubmit(handleCreateNewInvitation)}>
+      <form
+        onSubmit={form.onSubmit((values, event) =>
+          handleCreateNewInvitation(
+            values,
+            event as React.FormEvent<HTMLFormElement>
+          )
+        )}
+      >
         <Stack>{invitationInputs}</Stack>
         <Box mt={rem(20)}>
-          <Group position="apart" noWrap>
+          <Group justify="space-between" wrap="nowrap">
             <Button
               variant="white"
               radius="xs"
               onClick={addEmail}
-              leftIcon={<IconPlus size={"1rem"} />}
+              leftSection={<IconPlus size={"1rem"} />}
             >
               Add more
             </Button>
-            <Group noWrap>
+            <Group wrap="nowrap">
               <Button variant="default" radius="xs" onClick={close}>
                 Cancel
               </Button>

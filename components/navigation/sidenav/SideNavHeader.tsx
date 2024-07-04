@@ -16,7 +16,7 @@ export const SideNavHeader = () => {
 
   return (
     <Navbar.Section
-      sx={{
+      style={{
         borderBottom: `${theme.spacing.xs}px solid ${
           colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
         }`,
@@ -26,7 +26,7 @@ export const SideNavHeader = () => {
       py={0}
       mx={`calc(${theme.spacing.md} * -1)`}
     >
-      <Group position="apart">
+      <Group justify="space-between">
         <Link href="/">
           <Image
             src={colorScheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"}

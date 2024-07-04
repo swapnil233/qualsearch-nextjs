@@ -212,10 +212,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
   }, [notes]);
 
   const statsGridIconStyles = {
-    color:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[3]
-        : theme.colors.gray[4],
+    color: colorScheme === "dark" ? theme.colors.dark[3] : theme.colors.gray[4],
     size: "1.4rem",
     stroke: 1.5,
   };
@@ -415,11 +412,11 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
 
         <Group>
           <Box
-            sx={{
+            style={{
               marginTop: "1rem",
               width: useMediaQuery("(min-width: 60em)") ? "70%" : "90%",
               borderRight: `1px solid ${
-                theme.colorScheme === "light"
+                colorScheme === "light"
                   ? theme.colors.gray[1]
                   : theme.colors.dark[6]
               }`,

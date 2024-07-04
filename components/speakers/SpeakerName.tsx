@@ -72,15 +72,15 @@ export const SpeakerName: FC<ISpeakerName> = ({
     <Box>
       <Popover width={300} trapFocus position="bottom" withArrow shadow="lg">
         <Popover.Target>
-          <Group spacing={"xs"}>
+          <Group gap={"xs"}>
             <Avatar variant="filled" color="blue.9" radius="xl" size={"sm"}>
               {firstTwoLettersOfName}
             </Avatar>
             <Text
-              color={theme.colorScheme === "dark" ? "#eeeeee" : "#190041"}
+              color={colorScheme === "dark" ? "#eeeeee" : "#190041"}
               fs={"1.2rem"}
               fw={"bold"}
-              sx={{
+              style={{
                 cursor: "pointer",
                 ":hover": {
                   textDecoration: "underline",

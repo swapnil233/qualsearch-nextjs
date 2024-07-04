@@ -26,7 +26,7 @@ const EmptyState: FC<IEmptyState> = ({
         alt="Illustration of an empty state. This is a placeholder image for when there are no items."
         withPlaceholder
       />
-      <Stack spacing={"xs"} ta={"center"}>
+      <Stack gap={"xs"} ta={"center"}>
         <Title order={3}>{title}</Title>
         <Text maw={"25rem"}>{description}</Text>
       </Stack>

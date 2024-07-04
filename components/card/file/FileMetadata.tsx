@@ -9,10 +9,10 @@ interface IFileMetadataProps {
 
 const FileMetadata: React.FC<IFileMetadataProps> = ({ file }) => {
   return (
-    <Group position="apart" noWrap>
+    <Group justify="space-between" wrap="nowrap">
       <Group>
         {file.participantName && (
-          <Group spacing={4} noWrap>
+          <Group gap={4} wrap="nowrap">
             <IconUser size={"1.1rem"} color="gray" />
             <Text fz="sm" c={"dimmed"} truncate lineClamp={1} maw={"100%"}>
               {file.participantName.trim()}
@@ -21,7 +21,7 @@ const FileMetadata: React.FC<IFileMetadataProps> = ({ file }) => {
         )}
 
         {file.participantOrganization && (
-          <Group spacing={4} noWrap>
+          <Group gap={4} wrap="nowrap">
             <IconBuilding size={"1.1rem"} color="gray" />
             <Text fz="sm" c={"dimmed"} truncate lineClamp={1} maw={"100%"}>
               {file.participantOrganization.trim()}
@@ -30,7 +30,7 @@ const FileMetadata: React.FC<IFileMetadataProps> = ({ file }) => {
         )}
 
         {file.dateConducted && (
-          <Group spacing={4} noWrap>
+          <Group gap={4} wrap="nowrap">
             <IconCalendar size={"1.1rem"} color="gray" />
             <Text fz="sm" c={"dimmed"} truncate lineClamp={1} maw={"100%"}>
               {new Date(file.dateConducted).toLocaleDateString("en-US", {

@@ -25,8 +25,7 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
         padding="2rem"
         styles={{
           main: {
-            background:
-              theme.colorScheme === "dark" ? theme.colors.dark[8] : "white",
+            background: colorScheme === "dark" ? theme.colors.dark[8] : "white",
           },
         }}
         navbarOffsetBreakpoint="sm"
@@ -42,15 +41,13 @@ const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
                   height: "100%",
                 }}
               >
-                <Text
-                  color={theme.colorScheme === "dark" ? "white" : "black"}
-                ></Text>
+                <Text color={colorScheme === "dark" ? "white" : "black"}></Text>
                 <MediaQuery largerThan="sm" styles={{ display: "none" }}>
                   <Burger
                     opened={opened}
                     onClick={() => setOpened((o) => !o)}
                     size="sm"
-                    color={theme.colorScheme === "dark" ? "white" : "black"}
+                    color={colorScheme === "dark" ? "white" : "black"}
                     ml="auto"
                   />
                 </MediaQuery>

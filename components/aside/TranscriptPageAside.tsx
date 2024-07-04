@@ -2,7 +2,7 @@ import { useNotes } from "@/contexts/NotesContext";
 import { useTags } from "@/contexts/TagsContext";
 import { NoteWithTagsAndCreator } from "@/types";
 import {
-  Aside,
+  AppShellAside,
   Box,
   Button,
   Center,
@@ -13,6 +13,7 @@ import {
   Text,
   TextInput,
   rem,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import { User } from "@prisma/client";
@@ -56,6 +57,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   const { notes } = useNotes();
   const { tags, setTags } = useTags();
   const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const router = useRouter();
   const { projectId } = router.query;
@@ -81,15 +83,11 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   }, [search, notes]);
 
   return (
-    <Aside
+    <AppShellAside
       p="md"
-      hiddenBreakpoint="sm"
-      width={{ sm: 250, lg: 300 }}
-      bg={
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : "rgb(249, 249, 248)"
-      }
+      hiddenFrom="sm"
+      // width={{ sm: 250, lg: 300 }}
+      bg={colorScheme === "dark" ? theme.colors.dark[6] : "rgb(249, 249, 248)"}
     >
       <Stack>
         <SegmentedControl
@@ -137,7 +135,7 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
                   <Stack>
                     <TextInput
                       label="Filter by note"
-                      icon={<IconListSearch />}
+                      leftSection={<IconListSearch />}
                       placeholder="Start typing to filter notes..."
                       onChange={(e) =>
                         setSearch(e.target.value.toLocaleLowerCase())
@@ -156,25 +154,25 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
                       notes={filteredNotes}
                     />
                     {search.length > 0 && filteredNotes.length === 0 && (
-                      <Stack h={"100%"} spacing={"lg"} align="center" mt={"md"}>
+                      <Stack h={"100%"} gap={"lg"} align="center" mt={"md"}>
                         <Text color="dimmed">No matching notes found...</Text>
                       </Stack>
                     )}
                   </Stack>
                 </ScrollArea>
                 {filteredNotes.length > 0 && (
-                  <Group position="apart">
+                  <Group justify="space-between">
                     <Button
-                      compact
+                      size="compact-md"
                       variant="subtle"
-                      leftIcon={<IconUpload size={16} />}
+                      leftSection={<IconUpload size={16} />}
                     >
                       Import
                     </Button>
                     <Button
-                      compact
+                      size="compact-md"
                       variant="subtle"
-                      leftIcon={<IconDownload size={16} />}
+                      leftSection={<IconDownload size={16} />}
                     >
                       Export
                     </Button>
@@ -206,18 +204,18 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
                   />
                 </ScrollArea>
                 {tags.length > 0 && (
-                  <Group position="apart">
+                  <Group justify="space-between">
                     <Button
-                      compact
+                      size="compact-md"
                       variant="subtle"
-                      leftIcon={<IconUpload size={16} />}
+                      leftSection={<IconUpload size={16} />}
                     >
                       Import
                     </Button>
                     <Button
-                      compact
+                      size="compact-md"
                       variant="subtle"
-                      leftIcon={<IconDownload size={16} />}
+                      leftSection={<IconDownload size={16} />}
                     >
                       Export
                     </Button>
@@ -244,6 +242,6 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
           </>
         )}
       </Stack>
-    </Aside>
+    </AppShellAside>
   );
 };

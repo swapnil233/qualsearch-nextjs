@@ -163,7 +163,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       <Group
         mb="md"
         w={"100%"}
-        position="apart"
+        justify="space-between"
         align="end"
         noWrap={largeScreen}
       >
@@ -286,7 +286,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                       : "-"}
                   </td>
                   <td>
-                    <Stack spacing={"xs"}>
+                    <Stack gap={"xs"}>
                       {note.tags.map((tag) => (
                         <Link
                           key={tag.id}
@@ -312,7 +312,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                           radius="xl"
                           size={30}
                         />
-                        <Stack spacing={0}>
+                        <Stack gap={0}>
                           <Text truncate>{note.createdBy.name}</Text>
                         </Stack>
                       </Group>
@@ -356,9 +356,9 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                 <td colSpan={9} align="center">
                   <Box
                     p={"1rem"}
-                    sx={(theme) => ({
+                    style={(theme) => ({
                       color:
-                        theme.colorScheme === "dark"
+                        colorScheme === "dark"
                           ? theme.colors.dark[3]
                           : theme.colors.gray[5],
                     })}

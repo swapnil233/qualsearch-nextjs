@@ -26,7 +26,7 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
   const rows = teamMembers.map((member) => (
     <tr key={member.id}>
       <td>
-        <Group spacing="sm">
+        <Group gap="sm">
           <Avatar size={40} src={member.image} radius={40} />
           <div>
             <Text fz="sm" fw={500}>
@@ -42,7 +42,7 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
       <td>2 days ago</td>
 
       <td>
-        <Group spacing={0} position="right">
+        <Group gap={0} position="right">
           <Menu
             transitionProps={{ transition: "pop" }}
             withArrow

@@ -122,7 +122,7 @@ const TeamsPage: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
       ) : (
         <SimpleGrid
           cols={1}
-          spacing={"md"}
+          gap={"md"}
           verticalSpacing={"md"}
           breakpoints={[
             { minWidth: rem(1900), cols: 4, spacing: "md" },
@@ -150,7 +150,7 @@ const TeamsPage: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
                   <Badge
                     w={16}
                     h={16}
-                    sx={{ pointerEvents: "none" }}
+                    style={{ pointerEvents: "none" }}
                     variant="filled"
                     size="sm"
                     p={0}

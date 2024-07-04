@@ -140,14 +140,14 @@ const ProjectNotesChat: React.FC<ProjectNotesChatProps> = ({ projectId }) => {
   return (
     <Stack justify="space-between">
       <Stack>
-        <Text weight={500}>Chat with QualSearch AI about your notes...</Text>
+        <Text fw={500}>Chat with QualSearch AI about your notes...</Text>
         <ScrollArea h={"24rem"} ref={messageListRef}>
-          <Stack spacing={"lg"}>
+          <Stack gap={"lg"}>
             {messageState.messages.map((message, index) => (
               <Group
-                noWrap
+                wrap="nowrap"
                 key={`chatMessage-${index}`}
-                spacing={"xs"}
+                gap={"xs"}
                 align="start"
               >
                 <Image
@@ -165,8 +165,8 @@ const ProjectNotesChat: React.FC<ProjectNotesChatProps> = ({ projectId }) => {
                   height="30"
                   priority
                 />
-                <Stack spacing={4}>
-                  <Text weight={500}>
+                <Stack gap={4}>
+                  <Text fw={500}>
                     {message.type === "apiMessage"
                       ? "QualSearch AI"
                       : `${session?.user?.name || "You"}`}
@@ -182,7 +182,7 @@ const ProjectNotesChat: React.FC<ProjectNotesChatProps> = ({ projectId }) => {
       </Stack>
       <Stack>
         {messageState.messages.length === 1 && (
-          <Stack spacing={"xs"}>
+          <Stack gap={"xs"}>
             <ChatSuggestionButton
               suggestion={"What were the major pain points?"}
               handleSubmit={handleSuggestionSubmit(
@@ -198,7 +198,7 @@ const ProjectNotesChat: React.FC<ProjectNotesChatProps> = ({ projectId }) => {
           </Stack>
         )}
         <form onSubmit={handleMessageSubmit}>
-          <Stack spacing={"xs"}>
+          <Stack gap={"xs"}>
             <Textarea
               disabled={loading}
               onKeyDown={handleEnterPress}

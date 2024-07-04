@@ -1,32 +1,39 @@
 import Dots from "@/components/landing/Dots";
 import { Hero } from "@/components/landing/Hero";
-import { useStyles } from "@/components/landing/HomePageStyles";
 import HomePageLayout from "@/components/layout/home/HomePageLayout";
 import { NextPageWithLayout } from "@/pages/page";
-import { Container, Image, useMantineTheme } from "@mantine/core";
+import { Image, useMantineColorScheme } from "@mantine/core";
 
 const QualSearch: NextPageWithLayout = () => {
-  const { classes } = useStyles();
-  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const demoImage =
-    theme.colorScheme === "dark"
+    colorScheme === "dark"
       ? "/demo-dark-no-border.png"
       : "/demo-light-no-border.png";
 
   return (
     <>
-      <Container className={classes.wrapper} size={1400}>
-        <Dots className={classes.dots} style={{ left: 60, top: 0 }} />
-        <Dots className={classes.dots} style={{ left: 0, top: 140 }} />
-        <Dots className={classes.dots} style={{ right: 0, top: 60 }} />
+      <div className="relative pt-32 pb-20 lg:pt-28 lg:pb-16">
+        <Dots
+          className="absolute text-gray-100 dark:text-gray-700"
+          style={{ left: 60, top: 0 }}
+        />
+        <Dots
+          className="absolute text-gray-100 dark:text-gray-700"
+          style={{ left: 0, top: 140 }}
+        />
+        <Dots
+          className="absolute text-gray-100 dark:text-gray-700"
+          style={{ right: 0, top: 60 }}
+        />
 
         <Hero />
 
-        <div className={classes.demoImage}>
+        <div className="flex justify-center mt-16 w-full lg:w-3/4 mx-auto lg:mt-12">
           <Image src={demoImage} alt="Demo image" />
         </div>
-      </Container>
+      </div>
     </>
   );
 };

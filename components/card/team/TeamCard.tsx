@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Tooltip,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
@@ -18,6 +19,7 @@ export interface ITeamCard {
 }
 
 const TeamCard: FC<ITeamCard> = ({ team }) => {
+  const { colorScheme } = useMantineColorScheme();
   const menuOptions = useMemo(
     () => [
       {
@@ -39,14 +41,14 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
     <Card
       withBorder
       radius="sm"
-      sx={(theme) => ({
+      style={(theme) => ({
         backgroundColor:
-          theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+          colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
       })}
     >
       <Stack justify="space-between" align="stretch" h="100%">
-        <Stack spacing={"xs"} justify="space-between" align="stretch">
-          <Group noWrap position="apart">
+        <Stack gap={"xs"} justify="space-between" align="stretch">
+          <Group wrap="nowrap" justify="space-between">
             <Text fz="lg" fw={500}>
               {team.name}
             </Text>
@@ -57,7 +59,7 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
           </Text>
         </Stack>
 
-        <Group position="apart">
+        <Group justify="space-between">
           <Avatar.Group spacing="sm">
             {team.users.slice(0, 3).map((user) => (
               <Tooltip

@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   rem,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import { IconExternalLink, IconPin, IconShare } from "@tabler/icons-react";
@@ -29,6 +30,7 @@ export const TagDetails: FC<ITagDetails> = ({
   showQuote,
 }) => {
   const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
   const [presignedUrls, setPresignedUrls] = useState<{ [key: string]: string }>(
     {}
   );
@@ -50,14 +52,9 @@ export const TagDetails: FC<ITagDetails> = ({
   return (
     <Stack w={"100%"}>
       <SimpleGrid
-        cols={6}
-        spacing={"md"}
         verticalSpacing={"md"}
-        breakpoints={[
-          { maxWidth: "120rem", cols: 3, spacing: "md" },
-          { maxWidth: "90rem", cols: 2, spacing: "md" },
-          { maxWidth: "48rem", cols: 1, spacing: "sm" },
-        ]}
+        cols={{ base: 1, sm: 2, lg: 3 }}
+        spacing={{ base: "sm", sm: "md" }}
       >
         {tagWithNotes.notes.map((note) => (
           <Card key={note.id} withBorder radius="sm" p={0}>
@@ -115,10 +112,10 @@ export const TagDetails: FC<ITagDetails> = ({
                         color="dimmed"
                         mt={"md"}
                         pl={rem(8)}
-                        italic
-                        sx={{
+                        fs="italic"
+                        style={{
                           borderLeft: `3px solid ${
-                            theme.colorScheme === "light"
+                            colorScheme === "light"
                               ? theme.colors.gray[3]
                               : theme.colors.dark[4]
                           }`,
@@ -134,7 +131,7 @@ export const TagDetails: FC<ITagDetails> = ({
                 <Button
                   radius="md"
                   style={{ flex: 1 }}
-                  leftIcon={<IconShare size={"1rem"} />}
+                  leftSection={<IconShare size={"1rem"} />}
                 >
                   Share clip
                 </Button>
@@ -142,7 +139,7 @@ export const TagDetails: FC<ITagDetails> = ({
                   radius="md"
                   variant="light"
                   style={{ flex: 1 }}
-                  leftIcon={<IconExternalLink size={"1rem"} />}
+                  leftSection={<IconExternalLink size={"1rem"} />}
                   component="a"
                   href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}?noteId=${note.id}`}
                   target="_blank"

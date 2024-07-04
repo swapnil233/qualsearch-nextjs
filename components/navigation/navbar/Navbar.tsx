@@ -3,7 +3,6 @@ import {
   Burger,
   Drawer,
   Group,
-  Header,
   Loader,
   ScrollArea,
   rem,
@@ -15,13 +14,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { FC, useMemo } from "react";
 import MobileMenu from "./MobileMenu";
-import { navbarStyles } from "./Navbar.styles";
 import UserMenu from "./UserMenu";
 
 const Navbar: FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
-  const { classes, theme } = navbarStyles();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const { data, status } = useSession();
   const user = data?.user;
@@ -42,18 +39,12 @@ const Navbar: FC = () => {
 
   return (
     <Box>
-      <Header height={70}>
-        <Group
-          className="max-w-7xl w-full mx-auto sm:px-4 px-6"
-          position="apart"
-          h={"100%"}
-        >
+      <div className="h-[80px]">
+        <Group className="max-w-7xl w-full mx-auto sm:px-4 px-6 justify-between h-full">
           <Link href="/">
             <Image
               src={
-                theme.colorScheme === "dark"
-                  ? "/logo-dark.svg"
-                  : "/logo-light.svg"
+                colorScheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"
               }
               height={40}
               width={139}
@@ -61,15 +52,15 @@ const Navbar: FC = () => {
             />
           </Link>
 
-          <Group className={classes.hiddenMobile}>{userMenu}</Group>
+          <Group className="hidden sm:flex">{userMenu}</Group>
 
           <Burger
             opened={drawerOpened}
             onClick={toggleDrawer}
-            className={classes.hiddenDesktop}
+            className="sm:hidden"
           />
         </Group>
-      </Header>
+      </div>
 
       <Drawer
         opened={drawerOpened}
@@ -77,10 +68,10 @@ const Navbar: FC = () => {
         size="100%"
         padding="md"
         title="Navigation"
-        className={classes.hiddenDesktop}
+        className="sm:hidden"
         zIndex={1000000}
       >
-        <ScrollArea h={`calc(100vh - ${rem(60)})`} mx="-md">
+        <ScrollArea style={{ height: `calc(100vh - ${rem(60)})` }} mx="-md">
           <MobileMenu
             user={user}
             status={status}

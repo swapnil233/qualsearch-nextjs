@@ -26,7 +26,7 @@ export function RouterTransition() {
 
   return (
     <NavigationProgress
-      color={theme.colorScheme === "dark" ? "green" : theme.primaryColor}
+      color={colorScheme === "dark" ? "green" : theme.primaryColor}
       autoReset={true}
       progressLabel="Loading Page"
       size={5}

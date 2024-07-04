@@ -3,7 +3,12 @@ import {
   projectLinks,
   teamLinks,
 } from "@/lib/constants/sideNavLinks";
-import { Box, Navbar, ScrollArea, useMantineTheme } from "@mantine/core";
+import {
+  Box,
+  ScrollArea,
+  useMantineColorScheme,
+  useMantineTheme,
+} from "@mantine/core";
 import { useRouter } from "next/router";
 import { FC, useMemo } from "react";
 import { SideNavHeader } from "./SideNavHeader";
@@ -15,6 +20,7 @@ interface ISideNavProps {
 
 export const SideNav: FC<ISideNavProps> = ({ opened }) => {
   const { pathname, query } = useRouter();
+  const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
 
   const linksData: SideNavLinkProps[] = useMemo(() => {
@@ -38,11 +44,7 @@ export const SideNav: FC<ISideNavProps> = ({ opened }) => {
       hiddenBreakpoint="sm"
       hidden={!opened}
       width={{ sm: 250, lg: 220 }}
-      bg={
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : "rgb(249, 249, 248)"
-      }
+      bg={colorScheme === "dark" ? theme.colors.dark[6] : "rgb(249, 249, 248)"}
       pb={0}
     >
       <SideNavHeader />

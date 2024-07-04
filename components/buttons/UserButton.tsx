@@ -6,7 +6,7 @@ import {
   Text,
   UnstyledButton,
   UnstyledButtonProps,
-  createStyles,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import {
@@ -17,22 +17,6 @@ import {
 } from "@tabler/icons-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-
-const useStyles = createStyles((theme) => ({
-  user: {
-    display: "block",
-    width: "100%",
-    padding: theme.spacing.md,
-    color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
-
-    "&:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[8]
-          : theme.colors.gray[2],
-    },
-  },
-}));
 
 interface UserButtonProps extends UnstyledButtonProps {
   image: string | undefined | null;
@@ -48,13 +32,19 @@ export function UserButton({
   icon,
   ...others
 }: UserButtonProps) {
-  const { classes } = useStyles();
+  const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const textColor = colorScheme === "dark" ? "text-white" : "text-black";
+  const hoverBgColor =
+    colorScheme === "dark" ? "hover:bg-gray-800" : "hover:bg-gray-200";
 
   return (
     <Menu shadow="md" width={200} position="right-end">
       <Menu.Target>
-        <UnstyledButton className={classes.user} {...others}>
+        <UnstyledButton
+          className={`block w-full p-md ${textColor} ${hoverBgColor}`}
+          {...others}
+        >
           <Group>
             {image !== undefined && image !== null ? (
               <Avatar src={image} radius="xl" />
@@ -64,7 +54,7 @@ export function UserButton({
 
             <div style={{ flex: 1 }}>
               {name !== undefined ? (
-                <Text size="sm" weight={500}>
+                <Text size="sm" fw={500}>
                   {name}
                 </Text>
               ) : (
@@ -94,16 +84,16 @@ export function UserButton({
       <Menu.Dropdown>
         <Link href="/profile/" className="no-underline">
           <Menu.Item
-            icon={<IconUser size="1.1rem" />}
-            color={theme.colorScheme === "dark" ? theme.white : theme.black}
+            leftSection={<IconUser size="1.1rem" />}
+            className={textColor}
           >
             My profile
           </Menu.Item>
         </Link>
         <Link href="/profile/settings" className="no-underline">
           <Menu.Item
-            icon={<IconSettings size="1.1rem" />}
-            color={theme.colorScheme === "dark" ? theme.white : theme.black}
+            leftSection={<IconSettings size="1.1rem" />}
+            className={textColor}
           >
             Account settings
           </Menu.Item>
@@ -113,8 +103,8 @@ export function UserButton({
           onClick={() => {
             signOut({ callbackUrl: "/" });
           }}
-          icon={<IconLogout size="1.1rem" />}
-          color={theme.colorScheme === "dark" ? theme.white : theme.black}
+          leftSection={<IconLogout size="1.1rem" />}
+          className={textColor}
         >
           Log out
         </Menu.Item>

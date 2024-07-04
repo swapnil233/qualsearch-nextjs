@@ -13,7 +13,7 @@ const ScrollToTop: FC<IScrollToTopProps> = () => {
       <Transition transition="slide-up" mounted={scroll.y > 0}>
         {(transitionStyles) => (
           <Button
-            leftIcon={<IconArrowUp size="1rem" />}
+            leftSection={<IconArrowUp size="1rem" />}
             style={transitionStyles}
             onClick={() => scrollTo({ y: 0 })}
           >

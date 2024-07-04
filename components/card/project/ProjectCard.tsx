@@ -1,5 +1,13 @@
 import OptionsMenu from "@/components/menu/OptionsMenu";
-import { Button, Card, Group, Stack, Text, Tooltip } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Group,
+  Stack,
+  Text,
+  Tooltip,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { Project } from "@prisma/client";
 import {
   IconEdit,
@@ -24,6 +32,7 @@ const ProjectCard: FC<IProjectCard> = ({
   noteCount,
   tagCount,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
   const menuOptions = useMemo(
     () => [
       {
@@ -45,14 +54,14 @@ const ProjectCard: FC<IProjectCard> = ({
     <Card
       withBorder
       radius="sm"
-      sx={(theme) => ({
+      style={(theme) => ({
         backgroundColor:
-          theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+          colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
       })}
     >
-      <Stack justify="space-between" align="stretch" h="100%" spacing={"xl"}>
-        <Stack spacing={"xs"} justify="space-between" align="stretch">
-          <Group noWrap position="apart">
+      <Stack justify="space-between" align="stretch" h="100%" gap={"xl"}>
+        <Stack gap={"xs"} justify="space-between" align="stretch">
+          <Group wrap="nowrap" justify="space-between">
             <Text fz="lg" fw={500}>
               {project.name}
             </Text>
@@ -62,15 +71,15 @@ const ProjectCard: FC<IProjectCard> = ({
             {project.description}
           </Text>
         </Stack>
-        <Group position="apart">
-          <Group spacing={"sm"}>
+        <Group justify="space-between">
+          <Group gap={"sm"}>
             <Tooltip
               withinPortal
               label={`This project has ${fileCount || "no"} ${
                 fileCount !== 0 && fileCount <= 1 ? "file" : "files"
               }`}
             >
-              <Group spacing={"0.25rem"} position="left">
+              <Group gap={"0.25rem"} justify="left">
                 <IconVideo size={"1rem"} />
                 <Text>{fileCount || 0}</Text>
               </Group>
@@ -82,7 +91,7 @@ const ProjectCard: FC<IProjectCard> = ({
                 noteCount !== 0 && noteCount <= 1 ? "note" : "notes"
               }`}
             >
-              <Group spacing={"0.25rem"} position="left">
+              <Group gap={"0.25rem"} justify="left">
                 <IconNote size={"1rem"} />
                 <Text>{noteCount || 0}</Text>
               </Group>
@@ -94,7 +103,7 @@ const ProjectCard: FC<IProjectCard> = ({
                 tagCount !== 0 && tagCount <= 1 ? "tag" : "tags"
               }`}
             >
-              <Group spacing={"0.25rem"} position="left">
+              <Group gap={"0.25rem"} justify="left">
                 <IconTags size={"1rem"} />
                 <Text>{tagCount || 0}</Text>
               </Group>

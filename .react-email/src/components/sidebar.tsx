@@ -62,7 +62,7 @@ export const Sidebar = React.forwardRef<SidebarElement, Readonly<SidebarProps>>(
                   as="h3"
                   color="gray"
                   size="2"
-                  weight="medium"
+                  fw="medium"
                   className="transition ease-in-out duration-200 hover:text-slate-12"
                 >
                   All emails

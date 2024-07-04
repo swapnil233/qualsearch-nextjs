@@ -32,7 +32,7 @@ export const Topbar = React.forwardRef<TopbarElement, Readonly<TopbarProps>>(
         {...props}
       >
         <div className={`flex items-center overflow-hidden ${columnWidth}`}>
-          <Heading as="h2" size="2" weight="medium" className="truncate">
+          <Heading as="h2" size="2" fw="medium" className="truncate">
             {title}
           </Heading>
         </div>

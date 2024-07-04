@@ -57,7 +57,7 @@ export interface ICreateFileModal {
       redactions: string[];
       transcriptionQuality: "nova-2" | "whisper" | "whisper-large";
     },
-    _event: React.FormEvent
+    _event?: React.FormEvent<HTMLFormElement>
   ) => void;
 }
 
@@ -87,7 +87,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
       // TS says the "await" is redundant, but removing it stops the step-by-step spinner from working
       await handleCreateNewFile(
         form.values,
-        syntheticEvent as unknown as React.FormEvent
+        syntheticEvent as unknown as React.FormEvent<HTMLFormElement>
       );
 
       setLoading(false);
@@ -113,12 +113,16 @@ const CreateFileModal: FC<ICreateFileModal> = ({
       padding={"lg"}
       size={"lg"}
     >
-      <form onSubmit={form.onSubmit(handleCreateNewFile)}>
+      <form
+        onSubmit={form.onSubmit((values, event) =>
+          handleCreateNewFile(values, event as React.FormEvent<HTMLFormElement>)
+        )}
+      >
         <Stepper
           size="sm"
           active={active}
           onStepClick={setActive}
-          breakpoint="sm"
+          // breakpoint="sm"
         >
           <Stepper.Step
             icon={<IconInfoHexagon size="1.1rem" />}
@@ -201,7 +205,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               {...form.getInputProps("transcriptionQuality")}
             >
               <Group mt="xs">
-                <Stack spacing={"sm"}>
+                <Stack gap={"sm"}>
                   <Radio value="nova-2" label="Good (recommended)" />
                   <Radio value="whisper" label="Better" />
                   <Radio
@@ -234,7 +238,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               {...form.getInputProps("audioType")}
             >
               <Group mt="xs">
-                <Stack spacing={"sm"}>
+                <Stack gap={"sm"}>
                   <Radio
                     disabled={disableAudioType}
                     value="general"
@@ -260,7 +264,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
               {...form.getInputProps("redactions")}
               mb={"lg"}
             >
-              <Stack mt={"xs"} spacing={"sm"}>
+              <Stack mt={"xs"} gap={"sm"}>
                 <Checkbox
                   label="PCI - sensative information, such as credit card numbers"
                   value="pci"
@@ -297,14 +301,14 @@ const CreateFileModal: FC<ICreateFileModal> = ({
           )}
         </Stepper>
 
-        <Group position="apart" mt={"xl"}>
-          <Group spacing={"xs"}>
+        <Group justify="space-between" mt={"xl"}>
+          <Group gap={"xs"}>
             {active !== 0 && (
               <Button
                 radius="xs"
                 variant="default"
                 onClick={prevStep}
-                leftIcon={<IconArrowLeft size={"1.2rem"} />}
+                leftSection={<IconArrowLeft size={"1.2rem"} />}
                 type="button"
               >
                 Back
@@ -326,7 +330,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
           {active !== 2 ? (
             <Button
               radius="xs"
-              rightIcon={<IconArrowRight size={"1.2rem"} />}
+              rightSection={<IconArrowRight size={"1.2rem"} />}
               onClick={goToNextStep}
             >
               {active === 0
@@ -336,7 +340,7 @@ const CreateFileModal: FC<ICreateFileModal> = ({
           ) : (
             <Button
               radius="xs"
-              leftIcon={!creating && <IconCheck size={"1.2rem"} />}
+              leftSection={!creating && <IconCheck size={"1.2rem"} />}
               onClick={goToNextStep}
               loading={creating}
             >

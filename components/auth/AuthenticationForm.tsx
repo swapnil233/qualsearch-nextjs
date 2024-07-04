@@ -10,7 +10,6 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { TwitterIcon } from "@mantine/ds";
 import { useForm } from "@mantine/form";
 import { upperFirst } from "@mantine/hooks";
 import { IconBrandSlack, IconCircleCheck, IconX } from "@tabler/icons-react";
@@ -137,11 +136,11 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({
             provider.name !== "Credentials" && (
               <Button
                 key={provider.name}
-                leftIcon={
+                leftSection={
                   provider.name === "Google" ? (
                     <GoogleIcon />
                   ) : provider.name === "Twitter" ? (
-                    <TwitterIcon />
+                    <GoogleIcon />
                   ) : provider.name === "Slack" ? (
                     <IconBrandSlack />
                   ) : null
@@ -215,9 +214,9 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({
           )}
 
           {type === "register" && (
-            <Stack spacing={"xs"}>
+            <Stack gap={"xs"}>
               {passwordValidation.map((req, index) => (
-                <Group key={index} spacing="xs">
+                <Group key={index} gap="xs">
                   {req.meets ? (
                     <IconCircleCheck size={16} color="teal" />
                   ) : (
@@ -226,7 +225,7 @@ const AuthenticationForm: FC<IAuthenticationFormProps> = ({
                   <Text size="sm">{req.label}</Text>
                 </Group>
               ))}
-              <Group spacing="xs">
+              <Group gap="xs">
                 {confirmPassword === password && confirmPassword !== "" ? (
                   <IconCircleCheck size={16} color="teal" />
                 ) : (

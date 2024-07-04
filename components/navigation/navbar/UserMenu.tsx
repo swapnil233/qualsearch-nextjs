@@ -1,4 +1,3 @@
-// UserMenu.tsx
 import {
   Avatar,
   Button,
@@ -21,7 +20,6 @@ import {
 import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import { FC, useState } from "react";
-import { navbarStyles } from "./Navbar.styles";
 
 interface IUserMenuProps {
   user: any;
@@ -36,7 +34,6 @@ const UserMenu: FC<IUserMenuProps> = ({
   toggleColorScheme,
   status,
 }) => {
-  const { classes, cx } = navbarStyles();
   const [userMenuOpened, setUserMenuOpened] = useState(false);
   const theme = useMantineTheme();
 
@@ -56,11 +53,15 @@ const UserMenu: FC<IUserMenuProps> = ({
         <Menu.Target>
           {/* User button */}
           <UnstyledButton
-            className={cx(classes.user, {
-              [classes.userActive]: userMenuOpened,
-            })}
+            className={`flex items-center p-2 rounded-sm transition-colors ${
+              userMenuOpened
+                ? colorScheme === "dark"
+                  ? "bg-gray-800"
+                  : "bg-white"
+                : ""
+            }`}
           >
-            <Group spacing={7}>
+            <Group gap={7}>
               <Avatar
                 src={user?.image || ""}
                 alt={
@@ -71,7 +72,7 @@ const UserMenu: FC<IUserMenuProps> = ({
                 size={32}
               />
 
-              <Text weight={500} size="sm">
+              <Text fw={500} size="sm">
                 {user?.name}
               </Text>
               <IconChevronDown size="1.2rem" />
@@ -79,18 +80,18 @@ const UserMenu: FC<IUserMenuProps> = ({
           </UnstyledButton>
         </Menu.Target>
         <Menu.Dropdown>
-          <Link href="teams" className="no-underline">
+          <Link href="/teams" className="no-underline">
             <Menu.Item
-              icon={<IconUsersGroup size="1.1rem" />}
-              color={theme.colorScheme === "dark" ? theme.white : theme.black}
+              leftSection={<IconUsersGroup size="1.1rem" />}
+              color={colorScheme === "dark" ? theme.white : theme.black}
             >
               Teams
             </Menu.Item>
           </Link>
           <Link href="/account/" className="no-underline">
             <Menu.Item
-              icon={<IconUser size="1.1rem" />}
-              color={theme.colorScheme === "dark" ? theme.white : theme.black}
+              leftSection={<IconUser size="1.1rem" />}
+              color={colorScheme === "dark" ? theme.white : theme.black}
             >
               Account
             </Menu.Item>
@@ -100,8 +101,8 @@ const UserMenu: FC<IUserMenuProps> = ({
             onClick={() => {
               signOut({ callbackUrl: "/" });
             }}
-            icon={<IconLogout size="1.1rem" />}
-            color={theme.colorScheme === "dark" ? theme.white : theme.black}
+            leftSection={<IconLogout size="1.1rem" />}
+            color={colorScheme === "dark" ? theme.white : theme.black}
           >
             Log out
           </Menu.Item>

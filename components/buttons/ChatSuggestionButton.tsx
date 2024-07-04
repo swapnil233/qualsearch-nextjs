@@ -19,7 +19,7 @@ const ChatSuggestionButton: FC<IChatSuggestionButtonProps> = ({
   return (
     <UnstyledButton onClick={handleClick}>
       <Card padding="xs" style={{ cursor: "pointer" }} withBorder>
-        <Group noWrap position="apart">
+        <Group wrap="nowrap" justify="space-between">
           <Text size="sm">{suggestion}</Text>
           <IconSend size={"1rem"} />
         </Group>

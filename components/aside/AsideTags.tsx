@@ -93,8 +93,8 @@ export const AsideTags: React.FC<IAsideTags> = ({
     <Stack>
       <Card withBorder title="d">
         <Stack>
-          <Text weight={500}>Create new tag</Text>
-          <Group spacing={"xs"} noWrap>
+          <Text fw={500}>Create new tag</Text>
+          <Group gap={"xs"} wrap="nowrap">
             <TextInput
               size="sm"
               placeholder="Tag name"
@@ -113,8 +113,8 @@ export const AsideTags: React.FC<IAsideTags> = ({
       </Card>
       <Card withBorder>
         <Stack>
-          <Text weight={500}>Tags repository ({tags.length} tags)</Text>
-          <Group spacing={"xs"}>
+          <Text fw={500}>Tags repository ({tags.length} tags)</Text>
+          <Group gap={"xs"}>
             {tags.map((tag) => (
               <Link
                 href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}

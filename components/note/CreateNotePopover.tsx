@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Textarea,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -46,6 +47,7 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
   position,
 }) => {
   const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const [multiSelectDataset, setMultiSelectDataset] = useState<
     MultiSelectData[]
@@ -82,9 +84,9 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
   return (
     <Box
       p={"md"}
-      bg={theme.colorScheme === "light" ? theme.white : "dark.9"}
+      bg={colorScheme === "light" ? theme.white : "dark.9"}
       w={350}
-      sx={{
+      style={{
         position: "absolute",
         top: position.top,
         left: position.left,
@@ -93,7 +95,7 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
       }}
     >
       <Stack>
-        <Group spacing={"sm"}>
+        <Group gap={"sm"}>
           <Avatar src={user.image || ""} alt={user.name || ""} radius="xl" />
           <Text fz="md">{user.name}</Text>
         </Group>
@@ -113,13 +115,13 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
               {...form.getInputProps("tags")}
               label="Select tags"
               data={multiSelectDataset}
-              clearSearchOnBlur
+              // clearSearchOnBlur
               searchable
               clearable
-              icon={<IconTag size={"1.1rem"} />}
+              leftSection={<IconTag size={"1.1rem"} />}
               creatable
-              getCreateLabel={(query) => `+ Create ${query}`}
-              onCreate={(query) => {
+              getCreateLabel={(query: any) => `+ Create ${query}`}
+              onCreate={(query: any) => {
                 const item = { value: query, label: query };
                 setNewTags((prevTags) => [...prevTags, query]);
                 setMultiSelectDataset((current) => [...current, item]);
@@ -129,7 +131,7 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
             />
           </Stack>
 
-          <Group position="apart">
+          <Group justify="space-between">
             <Button
               disabled={noteIsCreating}
               radius={"xs"}

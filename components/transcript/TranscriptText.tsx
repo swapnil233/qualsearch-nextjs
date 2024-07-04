@@ -34,7 +34,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   const theme = useMantineTheme();
 
   const styles = useMemo(() => {
-    const lightScheme = theme.colorScheme === "light";
+    const lightScheme = colorScheme === "light";
     return {
       noteUnderline: lightScheme
         ? "rgb(255 149 62 / 60%) 0px 3px 0px 0px"
@@ -48,9 +48,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
     ? {
         // boxShadow: styles.noteUnderline,
         background:
-          theme.colorScheme === "light"
-            ? "rgb(255 149 62 / 60%)"
-            : "rgb(122 48 0)",
+          colorScheme === "light" ? "rgb(255 149 62 / 60%)" : "rgb(122 48 0)",
       }
     : {};
 

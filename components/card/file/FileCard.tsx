@@ -1,6 +1,6 @@
 import OptionsMenu from "@/components/menu/OptionsMenu";
 import { FileWithoutTranscriptAndUri } from "@/types";
-import { Card, Group, Stack, Text } from "@mantine/core";
+import { Card, Group, Stack, Text, useMantineColorScheme } from "@mantine/core";
 import { useHover } from "@mantine/hooks";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { FC, memo, useMemo } from "react";
@@ -12,6 +12,7 @@ export interface IFileCard {
 }
 
 const FileCard: FC<IFileCard> = ({ file }) => {
+  const { colorScheme } = useMantineColorScheme();
   const { hovered, ref } = useHover();
   const { name, description, status } = file;
 
@@ -38,15 +39,15 @@ const FileCard: FC<IFileCard> = ({ file }) => {
       withBorder
       {...(hovered && { shadow: "xs" })}
       radius="sm"
-      sx={(theme) => ({
+      style={(theme) => ({
         backgroundColor:
-          theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
+          colorScheme === "dark" ? theme.colors.dark[6] : theme.white,
         transition: "all 0.1s ease",
       })}
     >
-      <Stack justify="space-between" align="stretch" h="100%" spacing={"xl"}>
-        <Stack spacing={"xs"} justify="space-between" align="stretch">
-          <Group noWrap position="apart">
+      <Stack justify="space-between" align="stretch" h="100%" gap={"xl"}>
+        <Stack gap={"xs"} justify="space-between" align="stretch">
+          <Group wrap="nowrap" justify="space-between">
             <FileTitle title={name} status={status} />
             <OptionsMenu options={menuOptions} />
           </Group>

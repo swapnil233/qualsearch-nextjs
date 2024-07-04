@@ -8,7 +8,7 @@ export interface IFileTitleProps {
 
 const FileTitle: React.FC<IFileTitleProps> = ({ title, status }) => {
   return (
-    <Group spacing={"xs"}>
+    <Group gap={"xs"}>
       {status === "PROCESSING" && <Loader size={"xs"} />}
       <Text fz="lg" fw={500}>
         {title}

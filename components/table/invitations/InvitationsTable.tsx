@@ -58,7 +58,7 @@ const InvitationsTable: FC<IInvitationsTable> = ({
 
       {/* Actions */}
       <td>
-        <Group spacing={"xs"}>
+        <Group gap={"xs"}>
           <Button
             leftIcon={<IconCheck size={"1.2rem"} />}
             variant="light"

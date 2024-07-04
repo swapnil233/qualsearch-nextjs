@@ -11,7 +11,7 @@ export interface ICreateProjectModal {
   >;
   handleCreateNewProject: (
     _values: { projectName: string; projectDescription: string },
-    _event: React.FormEvent
+    _event?: React.FormEvent<HTMLFormElement>
   ) => void;
 }
 
@@ -30,7 +30,14 @@ const CreateProjectModal: FC<ICreateProjectModal> = ({
       centered
       padding={"lg"}
     >
-      <form onSubmit={form.onSubmit(handleCreateNewProject)}>
+      <form
+        onSubmit={form.onSubmit((values, event) =>
+          handleCreateNewProject(
+            values,
+            event as React.FormEvent<HTMLFormElement>
+          )
+        )}
+      >
         <TextInput
           label="Project name"
           placeholder="ABC App Modernization"
@@ -51,7 +58,7 @@ const CreateProjectModal: FC<ICreateProjectModal> = ({
           {...form.getInputProps("projectDescription")}
         />
 
-        <Group position="apart">
+        <Group justify="space-between">
           <Button variant="default" color="gray" radius="xs" onClick={close}>
             Cancel
           </Button>

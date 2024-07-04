@@ -11,7 +11,7 @@ export interface ICreateTeamModal {
   >;
   handleCreateNewTeam: (
     _values: { teamName: string; teamDescription: string },
-    _event: React.FormEvent
+    _event?: React.FormEvent<HTMLFormElement>
   ) => void;
 }
 
@@ -30,7 +30,11 @@ const CreateTeamModal: FC<ICreateTeamModal> = ({
       centered
       padding={"lg"}
     >
-      <form onSubmit={form.onSubmit(handleCreateNewTeam)}>
+      <form
+        onSubmit={form.onSubmit((values, event) =>
+          handleCreateNewTeam(values, event as React.FormEvent<HTMLFormElement>)
+        )}
+      >
         <TextInput
           placeholder="Acme UX team..."
           label="Team name"
@@ -51,7 +55,7 @@ const CreateTeamModal: FC<ICreateTeamModal> = ({
           {...form.getInputProps("teamDescription")}
         />
 
-        <Group position="apart">
+        <Group justify="space-between">
           <Button variant="default" color="gray" radius="xs" onClick={close}>
             Cancel
           </Button>

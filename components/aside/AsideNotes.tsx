@@ -15,6 +15,7 @@ import {
   Text,
   Tooltip,
   rem,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import {
@@ -40,6 +41,7 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
   mediaRef,
   transcriptContainerDivRef,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const router = useRouter();
   const { teamId, projectId } = router.query;
@@ -88,13 +90,13 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
   };
 
   return (
-    <Stack spacing={"lg"}>
+    <Stack gap={"lg"}>
       {notes.map((note) => (
         <Card key={note.id} withBorder>
-          <Stack align="flex-start" spacing={"xl"}>
-            <Stack spacing={"sm"} w={"100%"}>
+          <Stack align="flex-start" gap={"xl"}>
+            <Stack gap={"sm"} w={"100%"}>
               <Stack justify="space-between" align="center" w={"100%"}>
-                <Group position="apart" w={"100%"}>
+                <Group align="apart" w={"100%"}>
                   <Link
                     href={`/teams/${teamId}/people/${note.createdByUserId}`}
                     style={{
@@ -107,12 +109,12 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                         alt={note.createdBy.name || ""}
                         radius="xl"
                       />
-                      <Stack spacing={0}>
+                      <Stack gap={0}>
                         <Text
                           fz="md"
                           truncate
                           color={
-                            theme.colorScheme === "dark"
+                            colorScheme === "dark"
                               ? "white"
                               : theme.colors.dark[9]
                           }
@@ -134,8 +136,13 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                     </Menu.Target>
 
                     <Menu.Dropdown>
-                      <Menu.Item icon={<IconEdit size={14} />}>Edit</Menu.Item>
-                      <Menu.Item color="red" icon={<IconTrash size={14} />}>
+                      <Menu.Item leftSection={<IconEdit size={14} />}>
+                        Edit
+                      </Menu.Item>
+                      <Menu.Item
+                        color="red"
+                        leftSection={<IconTrash size={14} />}
+                      >
                         Delete
                       </Menu.Item>
                     </Menu.Dropdown>
@@ -143,19 +150,19 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                 </Group>
               </Stack>
               <Stack>
-                <Stack spacing={"md"}>
-                  <Stack spacing={"xs"}>
+                <Stack gap={"md"}>
+                  <Stack gap={"xs"}>
                     <Spoiler
                       maxHeight={48}
                       showLabel="Show more"
                       hideLabel="Hide"
                       pl={rem(8)}
                       fz={"sm"}
-                      sx={{
+                      style={{
                         fontStyle: "italic",
                         color: "gray",
                         borderLeft: `3px solid ${
-                          theme.colorScheme === "light"
+                          colorScheme === "light"
                             ? theme.colors.gray[3]
                             : theme.colors.dark[4]
                         }`,
@@ -206,17 +213,17 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                 </Stack>
                 <Group grow>
                   <Button
-                    compact
+                    size="compact-md"
                     variant="default"
-                    leftIcon={<IconPlayerPlay size={"1rem"} />}
+                    leftSection={<IconPlayerPlay size={"1rem"} />}
                     onClick={() => handlePlayClicked(note)}
                   >
                     Play
                   </Button>
                   <Button
-                    compact
+                    size="compact-md"
                     variant="default"
-                    leftIcon={<IconListSearch size={"1rem"} />}
+                    leftSection={<IconListSearch size={"1rem"} />}
                     onClick={() => handleFindClicked(note)}
                   >
                     Find

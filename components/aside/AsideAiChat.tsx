@@ -149,14 +149,14 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
     <Card padding={"xs"} withBorder>
       <Stack justify="space-between">
         <Stack h={"100%"}>
-          <Text weight={500}>Ask a question about this interview</Text>
+          <Text fw={500}>Ask a question about this interview</Text>
           <ScrollArea mih={"calc(100vh - 500px)"} ref={messageListRef}>
-            <Stack spacing={"lg"}>
+            <Stack gap={"lg"}>
               {messageState.messages.map((message, index) => (
                 <Group
-                  noWrap
+                  wrap="nowrap"
                   key={`chatMessage-${index}`}
-                  spacing={"xs"}
+                  gap={"xs"}
                   align="start"
                 >
                   <Image
@@ -174,9 +174,9 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
                     height="30"
                     priority
                   />
-                  <Stack spacing={4}>
-                    <Stack spacing={2}>
-                      <Text weight={500}>
+                  <Stack gap={4}>
+                    <Stack gap={2}>
+                      <Text fw={500}>
                         {message.type === "apiMessage"
                           ? "QualSearch AI"
                           : `${session?.user?.name || "You"}`}
@@ -196,7 +196,7 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
         </Stack>
         <Stack>
           {messageState.messages.length === 1 && (
-            <Stack spacing={"xs"}>
+            <Stack gap={"xs"}>
               <ChatSuggestionButton
                 suggestion={"What were the major pain points?"}
                 handleSubmit={handleSuggestionSubmit(
@@ -212,7 +212,7 @@ export const AsideAiChat: React.FC<IAsideAiChatProps> = ({
             </Stack>
           )}
           <form onSubmit={handleMessageSubmit}>
-            <Stack spacing={"xs"}>
+            <Stack gap={"xs"}>
               <Textarea
                 disabled={loading}
                 onKeyDown={handleEnterPress}

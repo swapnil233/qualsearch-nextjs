@@ -1,15 +1,9 @@
-import { FC } from "react";
-
-export interface IFooter {}
-
 import {
   ActionIcon,
   Container,
   Group,
   Text,
-  createStyles,
-  rem,
-  useMantineTheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconBrandInstagram,
@@ -18,6 +12,9 @@ import {
 } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FC } from "react";
+
+export interface IFooter {}
 
 export const footerData = [
   {
@@ -77,119 +74,14 @@ export const footerData = [
   },
 ];
 
-export const footerStyles = createStyles((theme) => ({
-  footer: {
-    marginTop: rem(120),
-    paddingTop: `calc(${theme.spacing.xl} * 2)`,
-    paddingBottom: `calc(${theme.spacing.xl} * 2)`,
-    backgroundColor:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[6]
-        : theme.colors.gray[0],
-    borderTop: `${rem(1)} solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[5] : theme.colors.gray[2]
-    }`,
-  },
-
-  logo: {
-    [theme.fn.smallerThan("sm")]: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-    },
-  },
-
-  description: {
-    marginTop: rem(5),
-
-    [theme.fn.smallerThan("sm")]: {
-      marginTop: theme.spacing.xs,
-      textAlign: "center",
-    },
-  },
-
-  inner: {
-    display: "flex",
-    justifyContent: "space-between",
-    width: "100%",
-    maxWidth: "100%",
-
-    [theme.fn.smallerThan("sm")]: {
-      flexDirection: "column",
-      alignItems: "center",
-    },
-  },
-
-  groups: {
-    display: "flex",
-    flexWrap: "wrap",
-
-    [theme.fn.smallerThan("sm")]: {
-      display: "none",
-    },
-  },
-
-  wrapper: {
-    width: rem(160),
-  },
-
-  link: {
-    display: "block",
-    color:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[1]
-        : theme.colors.gray[6],
-    fontSize: theme.fontSizes.sm,
-    paddingTop: rem(3),
-    paddingBottom: rem(3),
-
-    "&:hover": {
-      textDecoration: "underline",
-    },
-  },
-
-  title: {
-    fontSize: theme.fontSizes.lg,
-    fontWeight: 700,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-    marginBottom: `calc(${theme.spacing.xs} / 2)`,
-    color: theme.colorScheme === "dark" ? theme.white : theme.black,
-  },
-
-  afterFooter: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: theme.spacing.xl,
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.xl,
-    borderTop: `${rem(1)} solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[2]
-    }`,
-    width: "100%",
-    maxWidth: "100%",
-
-    [theme.fn.smallerThan("sm")]: {
-      flexDirection: "column",
-    },
-  },
-
-  social: {
-    [theme.fn.smallerThan("sm")]: {
-      marginTop: theme.spacing.xs,
-    },
-  },
-}));
-
 const Footer: FC<IFooter> = () => {
-  const { classes } = footerStyles();
-  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const groups = footerData.map((group) => {
     const links = group.links.map((link, index) => (
       <Text<"a">
         key={index}
-        className={classes.link}
+        className="block text-gray-600 hover:underline dark:text-gray-400"
         component="a"
         href={link.link}
         onClick={(event) => event.preventDefault()}
@@ -199,41 +91,49 @@ const Footer: FC<IFooter> = () => {
     ));
 
     return (
-      <div className={classes.wrapper} key={group.title}>
-        <Text className={classes.title}>{group.title}</Text>
+      <div className="w-40" key={group.title}>
+        <Text className="text-lg font-bold mb-2.5 text-black dark:text-white">
+          {group.title}
+        </Text>
         {links}
       </div>
     );
   });
 
   return (
-    <footer className={classes.footer}>
-      <div className="max-w-6xl mx-auto pt-14 sm:px-4 px-6">
-        <Container className={classes.inner}>
-          <div className={classes.logo}>
-            <Link href={"/"}>
+    <footer className="mt-30 pt-14 pb-14 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-600">
+      <div className="max-w-6xl mx-auto px-6 sm:px-4">
+        <Container className="flex justify-between flex-wrap sm:flex-nowrap">
+          <div className="flex flex-col sm:items-center">
+            <Link href="/">
               <Image
                 src={
-                  theme.colorScheme === "dark"
-                    ? "/logo-dark.svg"
-                    : "/logo-light.svg"
+                  colorScheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"
                 }
                 height={30}
                 width={109}
                 alt="Logo"
               />
             </Link>
-            <Text size="xs" color="dimmed" className={classes.description}>
+            <Text
+              size="xs"
+              color="dimmed"
+              className="mt-1 text-center text-gray-500 dark:text-gray-400"
+            >
               Transcription, summarization and diarization with AI
             </Text>
           </div>
-          <div className={classes.groups}>{groups}</div>
+          <div className="flex flex-wrap">{groups}</div>
         </Container>
-        <Container className={classes.afterFooter}>
-          <Text color="dimmed" size="sm">
+        <Container className="flex justify-between items-center mt-6 pt-6 pb-6 border-t border-gray-200 dark:border-gray-600">
+          <Text
+            color="dimmed"
+            size="sm"
+            className="text-gray-500 dark:text-gray-400"
+          >
             © 2023 Transcribe. All rights reserved.
           </Text>
-          <Group spacing={0} className={classes.social} position="right" noWrap>
+          <Group gap={0} className="flex space-x-2 mt-1 sm:mt-0">
             <ActionIcon size="lg">
               <IconBrandTwitter size="1.05rem" stroke={1.5} />
             </ActionIcon>

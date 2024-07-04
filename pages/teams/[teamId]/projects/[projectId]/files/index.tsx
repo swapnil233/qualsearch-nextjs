@@ -229,7 +229,7 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
             </Group>
             <SimpleGrid
               cols={1}
-              spacing={"md"}
+              gap={"md"}
               verticalSpacing={"md"}
               breakpoints={[
                 { minWidth: rem(1900), cols: 4, spacing: "md" },
