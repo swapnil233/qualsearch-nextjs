@@ -225,7 +225,7 @@ model SpeakerName {
   id           String     @id @default(cuid())
   speakerIndex Int
   name         String
-  transcript   Transcript @relation(fields: [transcriptId], references: [id])
+  transcript   Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
   transcriptId String
 
   @@unique([transcriptId, speakerIndex])
