@@ -128,10 +128,13 @@ export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
                       </Menu.Target>
 
                       <Menu.Dropdown>
-                        <Menu.Item icon={<IconEdit size={14} />}>
+                        <Menu.Item leftSection={<IconEdit size={14} />}>
                           Edit
                         </Menu.Item>
-                        <Menu.Item color="red" icon={<IconTrash size={14} />}>
+                        <Menu.Item
+                          color="red"
+                          leftSection={<IconTrash size={14} />}
+                        >
                           Delete
                         </Menu.Item>
                       </Menu.Dropdown>
@@ -142,7 +145,12 @@ export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
                   <Text fz={"sm"}>{note.text}</Text>
                 </Stack>
               </Stack>
-              <SimpleGrid w={"100%"} cols={2} gap={"xs"} verticalSpacing={"xs"}>
+              <SimpleGrid
+                w={"100%"}
+                cols={2}
+                spacing={"xs"}
+                verticalSpacing={"xs"}
+              >
                 {note.tags.map((tag) => {
                   return (
                     <Link

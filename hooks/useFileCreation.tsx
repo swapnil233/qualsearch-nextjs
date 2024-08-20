@@ -56,10 +56,10 @@ export const useFileCreation = (
       dateConducted: Date;
       file: File | null;
     },
-    event: React.FormEvent
+    event?: React.FormEvent
   ) => {
-    // Prevent the default form submission
-    event.preventDefault();
+    // Prevent the default form submission if the event is provided
+    event?.preventDefault();
 
     try {
       setCreating(true);

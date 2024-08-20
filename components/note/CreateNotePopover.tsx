@@ -119,15 +119,15 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
               searchable
               clearable
               leftSection={<IconTag size={"1.1rem"} />}
-              creatable
-              getCreateLabel={(query: any) => `+ Create ${query}`}
-              onCreate={(query: any) => {
-                const item = { value: query, label: query };
-                setNewTags((prevTags) => [...prevTags, query]);
-                setMultiSelectDataset((current) => [...current, item]);
+              // creatable
+              // getCreateLabel={(query: any) => `+ Create ${query}`}
+              // onCreate={(query: any) => {
+              //   const item = { value: query, label: query };
+              //   setNewTags((prevTags) => [...prevTags, query]);
+              //   setMultiSelectDataset((current) => [...current, item]);
 
-                return item;
-              }}
+              //   return item;
+              // }}
             />
           </Stack>
 

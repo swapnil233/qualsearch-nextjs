@@ -24,14 +24,13 @@ const EmptyState: FC<IEmptyState> = ({
         src={imageUrl}
         maw={225}
         alt="Illustration of an empty state. This is a placeholder image for when there are no items."
-        withPlaceholder
       />
       <Stack gap={"xs"} ta={"center"}>
         <Title order={3}>{title}</Title>
         <Text maw={"25rem"}>{description}</Text>
       </Stack>
       {primaryButtonAction && (
-        <Button leftIcon={primaryButtonIcon} onClick={primaryButtonAction}>
+        <Button leftSection={primaryButtonIcon} onClick={primaryButtonAction}>
           {primaryButtonText}
         </Button>
       )}

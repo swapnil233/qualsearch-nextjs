@@ -42,7 +42,7 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
       <td>2 days ago</td>
 
       <td>
-        <Group gap={0} position="right">
+        <Group gap={0} align="right">
           <Menu
             transitionProps={{ transition: "pop" }}
             withArrow
@@ -57,21 +57,27 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
             <Menu.Dropdown>
               {currentUser.id !== member.id ? (
                 <>
-                  <Menu.Item icon={<IconMessages size="1rem" stroke={1.5} />}>
+                  <Menu.Item
+                    leftSection={<IconMessages size="1rem" stroke={1.5} />}
+                  >
                     Send message
                   </Menu.Item>
-                  <Menu.Item icon={<IconNote size="1rem" stroke={1.5} />}>
+                  <Menu.Item
+                    leftSection={<IconNote size="1rem" stroke={1.5} />}
+                  >
                     Add note
                   </Menu.Item>
                   <Menu.Item
-                    icon={<IconReportAnalytics size="1rem" stroke={1.5} />}
+                    leftSection={
+                      <IconReportAnalytics size="1rem" stroke={1.5} />
+                    }
                   >
                     Analytics
                   </Menu.Item>
                 </>
               ) : (
                 <Menu.Item
-                  icon={<IconTrash size="1rem" stroke={1.5} />}
+                  leftSection={<IconTrash size="1rem" stroke={1.5} />}
                   color="red"
                 >
                   Leave team

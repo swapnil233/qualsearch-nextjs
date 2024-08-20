@@ -15,7 +15,7 @@ import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
-import { SimpleGrid, Stack, Text, Title, rem } from "@mantine/core";
+import { SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -141,10 +141,10 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
   // POST /api/invitation/create
   const handleCreateNewInvitation = async (
     values: { invitations: ICreateInvitationsPayload[] },
-    event: React.FormEvent
+    event?: React.FormEvent
   ) => {
     // Prevent the default form submission
-    event.preventDefault();
+    event?.preventDefault();
 
     try {
       setInviting(true);
@@ -216,10 +216,10 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
   // POST /api/projects
   const handleCreateNewProject = async (
     values: { projectName: string; projectDescription: string },
-    event: React.FormEvent
+    event?: React.FormEvent
   ) => {
     // Prevent the default form submission
-    event.preventDefault();
+    event?.preventDefault();
 
     try {
       setCreating(true);
@@ -358,15 +358,15 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
               Projects
             </Title>
             <SimpleGrid
-              cols={1}
-              gap={"md"}
+              type="container"
+              spacing={"md"}
               verticalSpacing={"md"}
-              breakpoints={[
-                { minWidth: rem(1900), cols: 4, spacing: "md" },
-                { minWidth: rem(1300), cols: 3, spacing: "md" },
-                { minWidth: rem(966), cols: 2, spacing: "sm" },
-                { minWidth: rem(320), cols: 1, spacing: "sm" },
-              ]}
+              cols={{
+                "1900px": 4,
+                "1300px": 3,
+                "966px": 2,
+                "320px": 1,
+              }}
             >
               {projects.map((project) => (
                 <ProjectCard

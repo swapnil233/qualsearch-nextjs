@@ -12,7 +12,7 @@ import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri } from "@/types";
-import { Box, Group, Select, SimpleGrid, Stack, rem } from "@mantine/core";
+import { Box, Group, Select, SimpleGrid, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Project } from "@prisma/client";
 import {
@@ -224,19 +224,25 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
                 data={selectOptions}
                 rightSection={<IconChevronDown size="1rem" />}
                 rightSectionWidth={30}
-                styles={{ rightSection: { pointerEvents: "none" } }}
+                // styles={{ rightSection: { pointerEvents: "none" } }}
               />
             </Group>
             <SimpleGrid
-              cols={1}
-              gap={"md"}
+              type="container"
+              cols={{
+                "1900px": 4,
+                "1300px": 3,
+                "966px": 2,
+                "320px": 1,
+              }}
+              spacing={"md"}
               verticalSpacing={"md"}
-              breakpoints={[
-                { minWidth: rem(1900), cols: 4, spacing: "md" },
-                { minWidth: rem(1300), cols: 3, spacing: "md" },
-                { minWidth: rem(966), cols: 2, spacing: "sm" },
-                { minWidth: rem(320), cols: 1, spacing: "sm" },
-              ]}
+              // breakpoints={[
+              //   { minWidth: rem(1900), cols: 4, spacing: "md" },
+              //   { minWidth: rem(1300), cols: 3, spacing: "md" },
+              //   { minWidth: rem(966), cols: 2, spacing: "sm" },
+              //   { minWidth: rem(320), cols: 1, spacing: "sm" },
+              // ]}
             >
               {files.map((file) => (
                 <FileCard key={file.id} file={file} />

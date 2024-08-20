@@ -4,6 +4,7 @@ import {
   Menu,
   Text,
   UnstyledButton,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
 import {
@@ -24,6 +25,7 @@ export const TeamDropdown = () => {
   const currentTeam = (teams || []).find(
     (team) => team.id === router.query.teamId
   );
+  const { colorScheme } = useMantineColorScheme();
 
   return (
     <Menu width={"90%"}>
@@ -64,14 +66,14 @@ export const TeamDropdown = () => {
           (teams || []).map((team) => (
             <Menu.Item
               key={team.id}
-              icon={<IconFolder size="1.1rem" />}
+              leftSection={<IconFolder size="1.1rem" />}
               onClick={() => router.push(`/teams/${team.id}/projects`)}
             >
               {team.name}
             </Menu.Item>
           ))
         ) : (
-          <Menu.Item disabled icon={<IconFolder size="1.1rem" />}>
+          <Menu.Item disabled leftSection={<IconFolder size="1.1rem" />}>
             No teams
           </Menu.Item>
         )}
@@ -80,7 +82,7 @@ export const TeamDropdown = () => {
 
         <Menu.Label>Profile</Menu.Label>
         <Menu.Item
-          icon={<IconUserCircle size="1.1rem" />}
+          leftSection={<IconUserCircle size="1.1rem" />}
           onClick={() => router.push("/profile")}
         >
           {data?.user?.name}
@@ -89,7 +91,7 @@ export const TeamDropdown = () => {
           onClick={() => {
             signOut({ callbackUrl: "/" });
           }}
-          icon={<IconLogout size="1.1rem" />}
+          leftSection={<IconLogout size="1.1rem" />}
           color={colorScheme === "dark" ? theme.white : theme.black}
         >
           Log out

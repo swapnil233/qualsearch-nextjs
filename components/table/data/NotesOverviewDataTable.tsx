@@ -19,6 +19,7 @@ import {
   Table,
   Text,
   Tooltip,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { Tag } from "@prisma/client";
@@ -47,6 +48,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   projectId,
   openNoteDeletionModal,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
   const { notes } = useNotes();
   // Search and filter states
   const [search, setSearch] = useState("");
@@ -165,7 +167,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         w={"100%"}
         justify="space-between"
         align="end"
-        noWrap={largeScreen}
+        wrap={largeScreen ? "nowrap" : "wrap"}
       >
         <Box
           style={{
@@ -186,7 +188,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               placeholder="Start typing to filter notes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              icon={<IconListSearch />}
+              leftSection={<IconListSearch />}
             />
           </Input.Wrapper>
 
@@ -196,22 +198,21 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             value={filteredTags}
             onChange={setFilteredTags}
             data={tagsUsed}
-            clearSearchOnBlur
             searchable
             clearable
-            icon={<IconTag size={"1.1rem"} />}
+            leftSection={<IconTag size={"1.1rem"} />}
             w={"100%"}
             maw={largeScreen ? 400 : "100%"}
           />
 
           {participants.length > 0 && (
             <Select
-              icon={<IconUser size={"1.1rem"} />}
+              leftSection={<IconUser size={"1.1rem"} />}
               label="Filter by participant"
               value={filteredParticipants}
               onChange={(value) => setFilteredParticipants(value!)}
               data={participants}
-              styles={{ rightSection: { pointerEvents: "none" } }}
+              // styles={{ rightSection: { pointerEvents: "none" } }}
               w={"100%"}
               maw={largeScreen ? 400 : "100%"}
               clearable
@@ -228,13 +229,13 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             data={selectOptions}
             rightSection={<IconChevronDown size="1rem" />}
             rightSectionWidth={30}
-            styles={{ rightSection: { pointerEvents: "none" } }}
+            // styles={{ rightSection: { pointerEvents: "none" } }}
             w={"100%"}
             maw={largeScreen ? 400 : "100%"}
           />
         </Box>
         <Button
-          leftIcon={<IconDownload size={"1rem"} />}
+          leftSection={<IconDownload size={"1rem"} />}
           disabled={filteredNotes.length === 0}
           onClick={() =>
             exportToExcel({ data: exportData, filename: "export.xlsx" })
@@ -249,7 +250,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       </Text>
 
       <ScrollArea>
-        <Table striped highlightOnHover withBorder>
+        <Table striped highlightOnHover withColumnBorders withRowBorders>
           <thead>
             <tr>
               <th>Note</th>
@@ -305,7 +306,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                       href={`/teams/${teamId}/people/${note.createdByUserId}`}
                       style={{ textDecoration: "none" }}
                     >
-                      <Group noWrap align="center">
+                      <Group wrap="nowrap" align="center">
                         <Avatar
                           src={note.createdBy.image}
                           alt={note.createdBy.name || ""}
@@ -373,7 +374,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         </Table>
       </ScrollArea>
 
-      <Group mt={"md"} w={"100%"} position="right">
+      <Group mt={"md"} w={"100%"} align="right">
         <Pagination
           value={currentPage}
           onChange={setCurrentPage}

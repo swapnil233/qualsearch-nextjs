@@ -2,65 +2,59 @@ import { SideNav } from "@/components/navigation/sidenav/SideNav";
 import {
   AppShell,
   Burger,
-  Header,
-  MediaQuery,
   Text,
+  useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
-import { FC, ReactNode, useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { FC, ReactNode } from "react";
 
 export interface IPrimaryLayout {
   children: ReactNode;
 }
 
 const PrimaryLayout: FC<IPrimaryLayout> = ({ children }) => {
-  const [opened, setOpened] = useState<boolean>(false);
+  const [opened, { toggle }] = useDisclosure(false);
   const theme = useMantineTheme();
-  const largeScreen = useMediaQuery("(min-width: 48em)");
+  const { colorScheme } = useMantineColorScheme();
 
   return (
-    <>
-      <AppShell
-        padding="2rem"
-        styles={{
-          main: {
-            background: colorScheme === "dark" ? theme.colors.dark[8] : "white",
-          },
-        }}
-        navbarOffsetBreakpoint="sm"
-        asideOffsetBreakpoint="sm"
-        navbar={<SideNav opened={opened} />}
-        header={
-          !largeScreen ? (
-            <Header height={{ base: 50, md: 70 }} p="1rem 2rem">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-              >
-                <Text color={colorScheme === "dark" ? "white" : "black"}></Text>
-                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-                  <Burger
-                    opened={opened}
-                    onClick={() => setOpened((o) => !o)}
-                    size="sm"
-                    color={colorScheme === "dark" ? "white" : "black"}
-                    ml="auto"
-                  />
-                </MediaQuery>
-              </div>
-            </Header>
-          ) : (
-            <></>
-          )
-        }
-      >
-        <main>{children}</main>
-      </AppShell>
-    </>
+    <AppShell
+      padding="md"
+      header={{
+        height: 70,
+      }}
+      navbar={{
+        width: { base: 300, sm: 250 },
+        breakpoint: "sm",
+        collapsed: { mobile: !opened },
+      }}
+      styles={{
+        main: {
+          background: colorScheme === "dark" ? theme.colors.dark[8] : "white",
+        },
+      }}
+    >
+      <AppShell.Header>
+        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+          <Text c={colorScheme === "dark" ? "white" : "black"}>Header</Text>
+          <Burger
+            opened={opened}
+            onClick={toggle}
+            hiddenFrom="sm"
+            size="sm"
+            color={colorScheme === "dark" ? "white" : "black"}
+            ml="auto"
+          />
+        </div>
+      </AppShell.Header>
+
+      <AppShell.Navbar>
+        <SideNav opened={opened} />
+      </AppShell.Navbar>
+
+      <AppShell.Main>{children}</AppShell.Main>
+    </AppShell>
   );
 };
 

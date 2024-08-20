@@ -75,9 +75,9 @@ const PageHeading: FC<IPageHeading> = ({
           </>
         ) : (
           <>
-            <Text className="text-3xl mb-4 md:mb-0" fw={500}>
+            <Title order={1} size={"1.875rem"} fw={500} mb={"1rem"}>
               {title}
-            </Text>
+            </Title>
           </>
         )}
         <div className="flex">

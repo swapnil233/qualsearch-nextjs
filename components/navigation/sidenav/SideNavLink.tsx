@@ -1,50 +1,6 @@
-import { Box, Group, ThemeIcon, createStyles, rem } from "@mantine/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
-
-const useStyles = createStyles((theme) => ({
-  control: {
-    fontWeight: 500,
-    display: "block",
-    width: "100%",
-    textDecoration: "none",
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-    color: colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
-    fontSize: theme.fontSizes.sm,
-    "&:hover": {
-      backgroundColor:
-        colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[2],
-      color: colorScheme === "dark" ? theme.white : theme.black,
-    },
-  },
-  active: {
-    backgroundColor: colorScheme === "dark" ? theme.colors.dark[7] : "#e0f1ff",
-    color: colorScheme === "dark" ? theme.white : theme.black,
-  },
-  link: {
-    fontWeight: 500,
-    display: "block",
-    textDecoration: "none",
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-    paddingLeft: rem(31),
-    marginLeft: rem(30),
-    fontSize: theme.fontSizes.sm,
-    color: colorScheme === "dark" ? theme.colors.dark[0] : theme.colors.gray[7],
-    borderLeft: `${rem(1)} solid ${
-      colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
-    }`,
-    "&:hover": {
-      backgroundColor:
-        colorScheme === "dark" ? theme.colors.dark[7] : theme.colors.gray[0],
-      color: colorScheme === "dark" ? theme.white : theme.black,
-    },
-  },
-  chevron: {
-    transition: "transform 200ms ease",
-  },
-}));
-
 export interface SideNavLinkProps {
   icon: FC<any>;
   label: string;
@@ -61,21 +17,12 @@ export const SideNavLink: FC<SideNavLinkProps> = ({
   label,
   href,
 }) => {
-  const { classes, cx } = useStyles();
   const { pathname } = useRouter();
   const isActive = isActiveLink(pathname, href);
 
   return (
-    <Link
-      className={cx(classes.control, { [classes.active]: isActive })}
-      href={href}
-    >
-      <Group gap={0}>
-        <ThemeIcon variant="light" size={30}>
-          <Icon size="1.1rem" />
-        </ThemeIcon>
-        <Box ml="md">{label}</Box>
-      </Group>
+    <Link className={isActive ? "active" : ""} href={href}>
+      {label}
     </Link>
   );
 };

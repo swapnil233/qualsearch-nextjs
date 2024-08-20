@@ -6,7 +6,7 @@ import {
   Popover,
   Text,
   TextInput,
-  useMantineTheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { Dispatch, FC, SetStateAction, useMemo } from "react";
 
@@ -27,7 +27,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
   setNewSpeakerName,
   transcriptId,
 }) => {
-  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const handleSpeakerNameChange = async (speaker: number, name: string) => {
     try {
@@ -77,7 +77,7 @@ export const SpeakerName: FC<ISpeakerName> = ({
               {firstTwoLettersOfName}
             </Avatar>
             <Text
-              color={colorScheme === "dark" ? "#eeeeee" : "#190041"}
+              c={colorScheme === "dark" ? "#eeeeee" : "#190041"}
               fs={"1.2rem"}
               fw={"bold"}
               style={{

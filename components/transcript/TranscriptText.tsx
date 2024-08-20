@@ -3,7 +3,7 @@ import {
   NoteWithTagsAndCreator,
   TranscriptWordsGroupedBySpeaker,
 } from "@/types";
-import { Text, useMantineTheme } from "@mantine/core";
+import { Text, useMantineColorScheme } from "@mantine/core";
 import React, { useMemo } from "react";
 
 interface ITranscriptTextProps {
@@ -31,7 +31,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
   onWordClick,
 }) => {
   const getSelectedTextDetails = useSelectedTextDetails();
-  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const styles = useMemo(() => {
     const lightScheme = colorScheme === "light";
@@ -42,7 +42,7 @@ const TranscriptText: React.FC<ITranscriptTextProps> = ({
       noteBackground: lightScheme ? "rgb(255 245 239)" : "rgb(62 23 0)",
       currentWordDecoration: "rgba(160, 0, 100, 0.2)",
     };
-  }, [theme]);
+  }, [colorScheme]);
 
   const selectedTextStyle = isTextSelected
     ? {

@@ -43,7 +43,7 @@ const InvitationsTable: FC<IInvitationsTable> = ({
             <>{invitation.teamDescription}</>
           ) : (
             <>
-              <Text italic size="sm">
+              <Text fs="italic" size="sm">
                 -
               </Text>
             </>
@@ -60,7 +60,7 @@ const InvitationsTable: FC<IInvitationsTable> = ({
       <td>
         <Group gap={"xs"}>
           <Button
-            leftIcon={<IconCheck size={"1.2rem"} />}
+            leftSection={<IconCheck size={"1.2rem"} />}
             variant="light"
             color="green"
             onClick={() => handleAcceptInvitation(invitation.id)}

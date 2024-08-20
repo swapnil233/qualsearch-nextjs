@@ -1,7 +1,7 @@
 import { TeamDropdown } from "@/components/shared/TeamDropdown";
 import {
+  Box,
   Group,
-  Navbar,
   Switch,
   useMantineColorScheme,
   useMantineTheme,
@@ -15,7 +15,7 @@ export const SideNavHeader = () => {
   const theme = useMantineTheme();
 
   return (
-    <Navbar.Section
+    <Box
       style={{
         borderBottom: `${theme.spacing.xs}px solid ${
           colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
@@ -46,6 +46,6 @@ export const SideNavHeader = () => {
       <Group mt="md" grow>
         <TeamDropdown />
       </Group>
-    </Navbar.Section>
+    </Box>
   );
 };

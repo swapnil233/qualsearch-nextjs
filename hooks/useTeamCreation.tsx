@@ -26,10 +26,10 @@ const useTeamCreation = (
   // POST /api/teams - Create a new team
   const handleCreateNewTeam = async (
     values: { teamName: string; teamDescription: string },
-    event: React.FormEvent
+    event?: React.FormEvent
   ) => {
     // Prevent the default form submission
-    event.preventDefault();
+    event?.preventDefault();
 
     try {
       setCreating(true);

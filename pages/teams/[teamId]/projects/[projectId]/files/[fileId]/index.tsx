@@ -20,7 +20,12 @@ import {
   TagWithNoteIds,
   TranscriptWord,
 } from "@/types";
-import { Box, Group, useMantineTheme } from "@mantine/core";
+import {
+  Box,
+  Group,
+  useMantineColorScheme,
+  useMantineTheme,
+} from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
@@ -175,6 +180,7 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
   mediaUrl,
   user,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
   const router = useRouter();
   const { noteId: rawNoteId } = router.query;
 

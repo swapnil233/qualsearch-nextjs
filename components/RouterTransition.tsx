@@ -1,5 +1,5 @@
 // components/RouterTransition.tsx
-import { useMantineTheme } from "@mantine/core";
+import { useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { NavigationProgress, nprogress } from "@mantine/nprogress";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -7,6 +7,7 @@ import { useEffect } from "react";
 export function RouterTransition() {
   const router = useRouter();
   const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   useEffect(() => {
     const handleStart = (url: string) =>
@@ -27,8 +28,6 @@ export function RouterTransition() {
   return (
     <NavigationProgress
       color={colorScheme === "dark" ? "green" : theme.primaryColor}
-      autoReset={true}
-      progressLabel="Loading Page"
       size={5}
     />
   );
