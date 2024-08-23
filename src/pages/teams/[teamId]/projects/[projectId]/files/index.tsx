@@ -224,7 +224,6 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
                 data={selectOptions}
                 rightSection={<IconChevronDown size="1rem" />}
                 rightSectionWidth={30}
-                // styles={{ rightSection: { pointerEvents: "none" } }}
               />
             </Group>
             <SimpleGrid
@@ -237,12 +236,6 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
               }}
               spacing={"md"}
               verticalSpacing={"md"}
-              // breakpoints={[
-              //   { minWidth: rem(1900), cols: 4, spacing: "md" },
-              //   { minWidth: rem(1300), cols: 3, spacing: "md" },
-              //   { minWidth: rem(966), cols: 2, spacing: "sm" },
-              //   { minWidth: rem(320), cols: 1, spacing: "sm" },
-              // ]}
             >
               {files.map((file) => (
                 <FileCard key={file.id} file={file} />
