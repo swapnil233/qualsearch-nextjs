@@ -1,7 +1,7 @@
 import ProjectNotesChat from "@/components/chat/ProjectNotesChat";
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import DeleteNoteModal from "@/components/modal/delete/DeleteNoteModal";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import NotesOverviewDataTable from "@/components/table/data/NotesOverviewDataTable";
@@ -171,5 +171,5 @@ const NotesPage: NextPageWithLayout<INotesPage> = (props) => {
 export default NotesPage;
 
 NotesPage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

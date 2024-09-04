@@ -1,5 +1,5 @@
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import { NextPageWithLayout } from "@/pages/page";
 import { GetServerSidePropsContext } from "next";
@@ -45,5 +45,5 @@ const DashboardPage: NextPageWithLayout<IDashboardPage> = () => {
 export default DashboardPage;
 
 DashboardPage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

@@ -2,7 +2,7 @@ import { TranscriptPageAside } from "@/components/aside/TranscriptPageAside";
 import SummaryCard from "@/components/card/summary/SummaryCard";
 import StatsGrid from "@/components/grids/StatsGrid";
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import Transcript from "@/components/transcript/Transcript";
 import { NotesProvider, useNotes } from "@/contexts/NotesContext";
@@ -470,5 +470,5 @@ const FilePage: NextPageWithLayout<IFilePage> = (props) => {
 export default FilePage;
 
 FilePage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

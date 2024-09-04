@@ -1,4 +1,4 @@
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import { Button, Container, Group, Text, Title } from "@mantine/core";
 import Link from "next/link";
@@ -40,5 +40,5 @@ const NotFound: NextPageWithLayout = () => {
 export default NotFound;
 
 NotFound.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

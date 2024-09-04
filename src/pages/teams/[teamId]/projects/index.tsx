@@ -1,9 +1,9 @@
 import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import TeamDeletionConfirmationModal from "@/components/modal/delete/TeamDeletionConfirmationModal";
 import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
@@ -424,5 +424,5 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
 export default ProjectsPage;
 
 ProjectsPage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

@@ -1,7 +1,7 @@
 import TeamCard from "@/components/card/team/TeamCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import CreateTeamModal from "@/components/modal/team/CreateTeamModal";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import InvitationsTable, {
@@ -192,5 +192,6 @@ const TeamsPage: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
 
 export default TeamsPage;
 TeamsPage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  // return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

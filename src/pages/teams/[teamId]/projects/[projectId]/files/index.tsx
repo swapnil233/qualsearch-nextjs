@@ -1,8 +1,8 @@
 import FileCard from "@/components/card/file/FileCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
 import DeleteProjectModal from "@/components/modal/delete/DeleteProjectModal";
 import CreateFileModal from "@/components/modal/file/CreateFileModal";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { useFileCreation } from "@/hooks/useFileCreation";
@@ -273,5 +273,5 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
 export default FilesPage;
 
 FilesPage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };

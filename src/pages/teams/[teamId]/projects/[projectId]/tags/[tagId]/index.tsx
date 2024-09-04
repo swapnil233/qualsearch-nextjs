@@ -1,6 +1,6 @@
 import { TagDetails } from "@/components/card/tag/TagDetails";
 import PageHeading from "@/components/layout/heading/PageHeading";
-import PrimaryLayout from "@/components/layout/primary/PrimaryLayout";
+import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
@@ -158,5 +158,5 @@ const TagPage: NextPageWithLayout<ITagPage> = ({ tagWithNotes }) => {
 
 export default TagPage;
 TagPage.getLayout = (page) => {
-  return <PrimaryLayout>{page}</PrimaryLayout>;
+  return <DashboardLayout>{page}</DashboardLayout>;
 };
