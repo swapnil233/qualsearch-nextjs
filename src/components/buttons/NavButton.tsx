@@ -1,4 +1,4 @@
-import { Tooltip } from "@mantine/core";
+import { Tooltip, useMantineColorScheme } from "@mantine/core";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, ReactNode } from "react";
@@ -20,6 +20,8 @@ const NavButton: FC<NavButtonProps> = ({
 }) => {
   const router = useRouter();
   const isActive = router.asPath === href;
+  const { colorScheme } = useMantineColorScheme();
+  const isDarkMode = colorScheme === "dark";
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -35,8 +37,12 @@ const NavButton: FC<NavButtonProps> = ({
         isCollapsed ? "px-2" : "px-[13px]"
       } py-3 text-sm rounded-md ${
         isActive
-          ? "bg-gray-200 text-gray-900 font-semibold"
-          : "text-gray-600 hover:bg-gray-100"
+          ? isDarkMode
+            ? "bg-[#1a1b1e] font-semibold"
+            : "bg-[#e0f1ff] font-semibold"
+          : isDarkMode
+            ? "hover:bg-[#1a1b1e]"
+            : "hover:bg-[#e9ecef]"
       } ${isCollapsed && "justify-center"}`}
     >
       <span className={isCollapsed ? "" : "mr-3"}>{icon}</span>
