@@ -2,7 +2,7 @@ import Dots from "@/components/landing/Dots";
 import { Hero } from "@/components/landing/Hero";
 import HomePageLayout from "@/components/layout/home/HomePageLayout";
 import { NextPageWithLayout } from "@/pages/page";
-import { Image, useMantineColorScheme } from "@mantine/core";
+import { Container, Group, Image, useMantineColorScheme } from "@mantine/core";
 
 const QualSearch: NextPageWithLayout = () => {
   const { colorScheme } = useMantineColorScheme();
@@ -14,26 +14,29 @@ const QualSearch: NextPageWithLayout = () => {
 
   return (
     <>
-      <div className="relative pt-32 pb-20 lg:pt-28 lg:pb-16">
+      <Container
+        size={1400}
+        className="relative pt-[120px] pb-[80px] lg:pt-[80px] lg:pb-[60px]"
+      >
         <Dots
-          className="absolute text-gray-100 dark:text-gray-700"
+          className="absolute text-[#2c2e33] dark:text-[#f1f3f5]"
           style={{ left: 60, top: 0 }}
         />
         <Dots
-          className="absolute text-gray-100 dark:text-gray-700"
+          className="absolute text-[#2c2e33] dark:text-[#f1f3f5]"
           style={{ left: 0, top: 140 }}
         />
         <Dots
-          className="absolute text-gray-100 dark:text-gray-700"
+          className="absolute text-[gray-100] dark:text-[#f1f3f5]"
           style={{ right: 0, top: 60 }}
         />
 
         <Hero />
 
-        <div className="flex justify-center mt-16 w-full lg:w-3/4 mx-auto lg:mt-12">
+        <Group mt="xl" w="100%" justify="center">
           <Image src={demoImage} alt="Demo image" />
-        </div>
-      </div>
+        </Group>
+      </Container>
     </>
   );
 };
