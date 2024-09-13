@@ -7,7 +7,10 @@ import {
   Group,
   ScrollArea,
   Stack,
+  Switch,
   TextInput,
+  useMantineColorScheme,
+  useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -17,8 +20,10 @@ import {
   IconInbox,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconMoonStars,
   IconNote,
   IconSearch,
+  IconSun,
   IconTag,
   IconUser,
 } from "@tabler/icons-react";
@@ -39,6 +44,8 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
   const [newNotifications] = useState(false);
   const session = useSession();
   const [showProBanner, setShowProBanner] = useState<boolean | null>(true);
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const theme = useMantineTheme();
 
   const router = useRouter();
 
@@ -152,11 +159,33 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
             hiddenFrom="sm"
             size="sm"
           />
-          <Link href="/">
-            <Group align="center" wrap="nowrap" gap="sm">
-              <Image src="logo-light.svg" alt="Logo" height={38} width={160} />
-            </Group>
-          </Link>
+          <Group align="center" wrap="nowrap" gap="sm">
+            <Link href="/">
+              <Image
+                src={
+                  colorScheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"
+                }
+                alt="Logo"
+                height={38}
+                width={160}
+              />
+            </Link>
+            <Switch
+              checked={colorScheme === "dark"}
+              onChange={() => toggleColorScheme()}
+              size="md"
+              onLabel={
+                <IconSun color={theme.white} size="1.25rem" stroke={1.5} />
+              }
+              offLabel={
+                <IconMoonStars
+                  color={theme.colors.gray[6]}
+                  size="1.25rem"
+                  stroke={1.5}
+                />
+              }
+            />
+          </Group>
 
           <Group gap="xs" justify="flex-end" w="100%">
             <TextInput
@@ -179,7 +208,14 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
         w={{ base: 300, sm: desktopOpened ? 250 : 80 }}
         style={{ zIndex: 200 }}
       >
-        <AppShell.Section px="md" pt="md" pb={0} grow component={ScrollArea}>
+        <AppShell.Section
+          bg={colorScheme === "dark" ? "#25262b" : "#f9f9f8"}
+          px="md"
+          pt="md"
+          pb={0}
+          grow
+          component={ScrollArea}
+        >
           {renderNavButtons()}
         </AppShell.Section>
         <AppShell.Section px="md" py={"xs"} visibleFrom="sm">
@@ -200,7 +236,9 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
           </Stack>
         </AppShell.Section>
       </AppShell.Navbar>
-      <AppShell.Main bg="#f7fafd">{children}</AppShell.Main>
+      <AppShell.Main bg={colorScheme === "dark" ? "#141517" : "ffffff"}>
+        {children}
+      </AppShell.Main>
     </AppShell>
   );
 };
