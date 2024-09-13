@@ -1,24 +1,42 @@
-import fetcher from "@/lib/fetcher";
-import { ApiResponse, TeamWithMemberCount } from "@/types";
-import useSWR, { mutate } from "swr";
+import { ApiResponse, TeamWithMemberCount } from '@/types';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+const fetchTeams = async (): Promise<ApiResponse<TeamWithMemberCount[]>> => {
+  const response = await fetch('/api/teams');
+  const json = await response.json();
+
+  if (!response.ok) {
+    throw new Error(json.error.message || 'An error occurred while fetching the data');
+  }
+
+  return json as ApiResponse<TeamWithMemberCount[]>;
+};
 
 const useTeams = () => {
-  const url = `/api/teams`;
+  const queryClient = useQueryClient();
 
-  const { data, error, isLoading } = useSWR<ApiResponse<TeamWithMemberCount[]>>(
-    url,
-    fetcher
-  );
+  const {
+    data,
+    error,
+    isLoading,
+    isError,
+  } = useQuery<ApiResponse<TeamWithMemberCount[]>>({
+    queryKey: ['teams'],
+    queryFn: fetchTeams,
+  });
 
-  const mutateTeams = async () => {
-    mutate(url);
+  const invalidateTeams = () => {
+    queryClient.invalidateQueries({
+      queryKey: ['teams'],
+    });
   };
 
   return {
     isLoading,
-    isError: error,
+    isError: isError || Boolean(error),
     teams: data?.data,
-    mutateTeams,
+    apiError: error,
+    invalidateTeams,
   };
 };
 
