@@ -62,24 +62,16 @@ const PageHeading: FC<IPageHeading> = ({
     <section className="w-full pb-8">
       <Breadcrumbs mb={"sm"}>{breadcrumbItems}</Breadcrumbs>
       <Box className="flex justify-between flex-col md:flex-row">
-        {description ? (
-          <>
-            <Stack gap={0} mb={"1rem"} className="md:mb-0">
-              <Title order={1} size={"1.875rem"} fw={500} mb={"1rem"}>
-                {title}
-              </Title>
-              <Title order={2} size={"1rem"} lh={"1.5rem"} fw={"normal"}>
-                {description || ""}
-              </Title>
-            </Stack>
-          </>
-        ) : (
-          <>
-            <Title order={1} size={"1.875rem"} fw={500} mb={"1rem"}>
-              {title}
+        <Stack className="md:mb-0" mb={description ? "md" : 0}>
+          <Title order={1} size={"1.875rem"} fw={500}>
+            {title}
+          </Title>
+          {description && (
+            <Title order={2} size={"1rem"} lh={"1.5rem"} fw={"normal"}>
+              {description || ""}
             </Title>
-          </>
-        )}
+          )}
+        </Stack>
         <div className="flex">
           {primaryButtonText && primaryButtonAction && (
             <Button
