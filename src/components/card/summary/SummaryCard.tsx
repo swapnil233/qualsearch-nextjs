@@ -10,12 +10,17 @@ import {
 import { FC, memo } from "react";
 
 export interface ISummaryCard {
-  summary: String;
+  summary: string;
   dateSummarized: Date | string;
 }
 
 const SummaryCard: FC<ISummaryCard> = ({ summary, dateSummarized }) => {
   const { colorScheme } = useMantineColorScheme();
+
+  const formattedDate = dateSummarized
+    ? new Date(dateSummarized).toDateString()
+    : null;
+
   return (
     <Card
       withBorder
@@ -41,12 +46,10 @@ const SummaryCard: FC<ISummaryCard> = ({ summary, dateSummarized }) => {
             </>
           )}
         </Stack>
-        {dateSummarized !== "" ? (
-          <Text color="dimmed">{`Summarized by AI on ${new Date(
-            dateSummarized
-          ).toDateString()}`}</Text>
+        {formattedDate ? (
+          <Text c="dimmed">{`Summarized by AI on ${formattedDate}`}</Text>
         ) : (
-          <Skeleton height={11} width={200} radius={"xs"} />
+          <Skeleton height={11} width={200} radius="xs" />
         )}
       </Stack>
     </Card>
