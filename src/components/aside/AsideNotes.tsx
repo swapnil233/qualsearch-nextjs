@@ -93,143 +93,138 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
     <Stack gap={"lg"}>
       {notes.map((note) => (
         <Card key={note.id} withBorder>
-          <Stack align="flex-start" gap={"xl"}>
-            <Stack gap={"sm"} w={"100%"}>
-              <Stack justify="space-between" align="center" w={"100%"}>
-                <Group align="apart" w={"100%"}>
-                  <Link
-                    href={`/teams/${teamId}/people/${note.createdByUserId}`}
+          <Stack gap={"sm"} w={"100%"}>
+            <Stack justify="space-between" align="center" w={"100%"}>
+              <Group align="apart" w={"100%"}>
+                <Link
+                  href={`/teams/${teamId}/people/${note.createdByUserId}`}
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  <Group>
+                    <Avatar
+                      src={note.createdBy.image}
+                      alt={note.createdBy.name || ""}
+                      radius="xl"
+                    />
+                    <Stack gap={0}>
+                      <Text
+                        fz="md"
+                        truncate
+                        color={
+                          colorScheme === "dark"
+                            ? "white"
+                            : theme.colors.dark[9]
+                        }
+                      >
+                        {note.createdBy.name}
+                      </Text>
+                      <Text fz="xs" c="dimmed">
+                        {new Date(note.createdAt).toDateString()}
+                      </Text>
+                    </Stack>
+                  </Group>
+                </Link>
+
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <ActionIcon variant="transparent">
+                      <IconDots size="1rem" />
+                    </ActionIcon>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    <Menu.Item leftSection={<IconEdit size={14} />}>
+                      Edit
+                    </Menu.Item>
+                    <Menu.Item
+                      color="red"
+                      leftSection={<IconTrash size={14} />}
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </Group>
+            </Stack>
+            <Stack>
+              <Stack gap={"md"}>
+                <Stack gap={"xs"}>
+                  <Spoiler
+                    maxHeight={48}
+                    showLabel="Show more"
+                    hideLabel="Hide"
+                    pl={rem(8)}
+                    fz={"sm"}
                     style={{
-                      textDecoration: "none",
+                      fontStyle: "italic",
+                      color: "gray",
+                      borderLeft: `3px solid ${
+                        colorScheme === "light"
+                          ? theme.colors.gray[3]
+                          : theme.colors.dark[4]
+                      }`,
                     }}
                   >
-                    <Group>
-                      <Avatar
-                        src={note.createdBy.image}
-                        alt={note.createdBy.name || ""}
-                        radius="xl"
-                      />
-                      <Stack gap={0}>
-                        <Text
-                          fz="md"
-                          truncate
-                          color={
-                            colorScheme === "dark"
-                              ? "white"
-                              : theme.colors.dark[9]
-                          }
-                        >
-                          {note.createdBy.name}
-                        </Text>
-                        <Text fz="xs" c="dimmed">
-                          {new Date(note.createdAt).toDateString()}
-                        </Text>
-                      </Stack>
-                    </Group>
-                  </Link>
-
-                  <Menu shadow="md" width={200}>
-                    <Menu.Target>
-                      <ActionIcon variant="transparent">
-                        <IconDots size="1rem" />
-                      </ActionIcon>
-                    </Menu.Target>
-
-                    <Menu.Dropdown>
-                      <Menu.Item leftSection={<IconEdit size={14} />}>
-                        Edit
-                      </Menu.Item>
-                      <Menu.Item
-                        color="red"
-                        leftSection={<IconTrash size={14} />}
-                      >
-                        Delete
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Group>
-              </Stack>
-              <Stack>
-                <Stack gap={"md"}>
-                  <Stack gap={"xs"}>
-                    <Spoiler
-                      maxHeight={48}
-                      showLabel="Show more"
-                      hideLabel="Hide"
-                      pl={rem(8)}
-                      fz={"sm"}
-                      style={{
-                        fontStyle: "italic",
-                        color: "gray",
-                        borderLeft: `3px solid ${
-                          colorScheme === "light"
-                            ? theme.colors.gray[3]
-                            : theme.colors.dark[4]
-                        }`,
-                      }}
-                    >
-                      <HighlightSearch
-                        text={note.transcriptText.trim()}
-                        search={search}
-                      />
-                    </Spoiler>
-                    <Text fw={500} fz={"sm"}>
-                      <HighlightSearch
-                        text={note.text.trim()}
-                        search={search}
-                      />
-                    </Text>
-                  </Stack>
-                  <SimpleGrid
-                    w={"100%"}
-                    cols={2}
-                    spacing={"xs"}
-                    verticalSpacing={"xs"}
-                  >
-                    {note.tags.map((tag) => {
-                      return (
-                        <Link
-                          key={tag.id}
-                          href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
-                          style={{
-                            textDecoration: "none",
-                          }}
-                        >
-                          <Tooltip label={tag.name}>
-                            <Badge
-                              fullWidth
-                              radius="xs"
-                              // variant="filled"
-                              size="sm"
-                              color="blue"
-                            >
-                              {tag.name}
-                            </Badge>
-                          </Tooltip>
-                        </Link>
-                      );
-                    })}
-                  </SimpleGrid>
+                    <HighlightSearch
+                      text={note.transcriptText.trim()}
+                      search={search}
+                    />
+                  </Spoiler>
+                  <Text fw={500} fz={"sm"}>
+                    <HighlightSearch text={note.text.trim()} search={search} />
+                  </Text>
                 </Stack>
-                <Group grow>
-                  <Button
-                    size="compact-md"
-                    variant="default"
-                    leftSection={<IconPlayerPlay size={"1rem"} />}
-                    onClick={() => handlePlayClicked(note)}
-                  >
-                    Play
-                  </Button>
-                  <Button
-                    size="compact-md"
-                    variant="default"
-                    leftSection={<IconListSearch size={"1rem"} />}
-                    onClick={() => handleFindClicked(note)}
-                  >
-                    Find
-                  </Button>
-                </Group>
+                <SimpleGrid
+                  w={"100%"}
+                  cols={2}
+                  spacing={"xs"}
+                  verticalSpacing={"xs"}
+                >
+                  {note.tags.map((tag) => {
+                    return (
+                      <Link
+                        key={tag.id}
+                        href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
+                        style={{
+                          textDecoration: "none",
+                        }}
+                      >
+                        <Tooltip label={tag.name}>
+                          <Badge
+                            fullWidth
+                            radius="xs"
+                            // variant="filled"
+                            size="sm"
+                            color="blue"
+                          >
+                            {tag.name}
+                          </Badge>
+                        </Tooltip>
+                      </Link>
+                    );
+                  })}
+                </SimpleGrid>
               </Stack>
+              <Group grow>
+                <Button
+                  size="compact-md"
+                  variant="default"
+                  leftSection={<IconPlayerPlay size={"1rem"} />}
+                  onClick={() => handlePlayClicked(note)}
+                >
+                  Play
+                </Button>
+                <Button
+                  size="compact-md"
+                  variant="default"
+                  leftSection={<IconListSearch size={"1rem"} />}
+                  onClick={() => handleFindClicked(note)}
+                >
+                  Find
+                </Button>
+              </Group>
             </Stack>
           </Stack>
         </Card>
