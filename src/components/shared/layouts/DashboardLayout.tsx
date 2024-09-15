@@ -35,9 +35,10 @@ import { FC, ReactNode, useState } from "react";
 
 export interface IDashboardLayout {
   children: ReactNode;
+  aside?: ReactNode;
 }
 
-const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
+const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
   const [mobileOpened, { toggle: toggleMobile, close: closeMobile }] =
     useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
@@ -149,6 +150,15 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
         breakpoint: "sm",
         collapsed: { mobile: !mobileOpened, desktop: false },
       }}
+      {...(aside
+        ? {
+            aside: {
+              width: 300,
+              breakpoint: "md",
+              collapsed: { desktop: false, mobile: true },
+            },
+          }
+        : {})}
       padding="md"
     >
       <AppShell.Header>
@@ -236,6 +246,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children }) => {
           </Stack>
         </AppShell.Section>
       </AppShell.Navbar>
+      {aside && <AppShell.Aside p="md">{aside}</AppShell.Aside>}
       <AppShell.Main bg={colorScheme === "dark" ? "#141517" : "ffffff"}>
         {children}
       </AppShell.Main>

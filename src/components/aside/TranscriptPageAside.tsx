@@ -85,8 +85,6 @@ export const TranscriptPageAside: React.FC<ITranscriptPageAside> = ({
   return (
     <AppShellAside
       p="md"
-      hiddenFrom="sm"
-      // width={{ sm: 250, lg: 300 }}
       bg={colorScheme === "dark" ? theme.colors.dark[6] : "rgb(249, 249, 248)"}
     >
       <Stack>

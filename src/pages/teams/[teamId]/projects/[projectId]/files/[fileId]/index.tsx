@@ -46,7 +46,7 @@ import {
   IconWand,
   IconX,
 } from "@tabler/icons-react";
-import { GetServerSidePropsContext } from "next";
+import { GetServerSidePropsContext, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
@@ -174,11 +174,20 @@ interface IFilePage {
   user: User;
 }
 
-const FilePageContent: NextPageWithLayout<IFilePage> = ({
+const FilePageContent: NextPageWithLayout<
+  IFilePage & {
+    mediaRef: React.MutableRefObject<
+      HTMLAudioElement | HTMLVideoElement | null
+    >;
+    transcriptContainerDivRef: React.RefObject<HTMLDivElement>;
+  }
+> = ({
   file,
   transcript,
   mediaUrl,
   user,
+  mediaRef,
+  transcriptContainerDivRef,
 }) => {
   const { colorScheme } = useMantineColorScheme();
   const router = useRouter();
@@ -186,18 +195,10 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
 
   const theme = useMantineTheme();
 
-  const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
-
   const [summary, setSummary] = useState<Summary | null>(null);
   const [summaryHasLoaded, setSummaryHasLoaded] = useState<Boolean>(false);
 
-  // Tabs of the aside component
-  const [segment, setSegment] = useState<"tags" | "notes" | "ai">("notes");
-
   const words = transcript.words as TranscriptWord[];
-  const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
-
-  const largeScreen = useMediaQuery("(min-width: 60em)");
 
   const noteId = (
     Array.isArray(rawNoteId) ? rawNoteId[0] : rawNoteId
@@ -439,36 +440,42 @@ const FilePageContent: NextPageWithLayout<IFilePage> = ({
               transcriptId={transcript.id}
             />
           </Box>
-
-          {largeScreen && (
-            <TranscriptPageAside
-              segment={segment}
-              setSegment={setSegment}
-              mediaRef={mediaRef}
-              transcriptContainerDivRef={transcriptContainerDivRef}
-              user={user}
-              fileId={file.id}
-              transcriptId={transcript.id}
-            />
-          )}
         </Group>
       </div>
     </>
   );
 };
 
-const FilePage: NextPageWithLayout<IFilePage> = (props) => {
+const FilePage: NextPage<IFilePage> = (props) => {
+  const [segment, setSegment] = useState<"tags" | "notes" | "ai">("notes");
+  const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
+  const transcriptContainerDivRef = useRef<HTMLDivElement>(null);
+
   return (
     <NotesProvider initialNotes={props.initialNotes}>
       <TagsProvider initialTags={props.initialTags}>
-        <FilePageContent {...props} />
+        <DashboardLayout
+          aside={
+            <TranscriptPageAside
+              segment={segment}
+              setSegment={setSegment}
+              mediaRef={mediaRef}
+              transcriptContainerDivRef={transcriptContainerDivRef}
+              user={props.user}
+              fileId={props.file.id}
+              transcriptId={props.transcript.id}
+            />
+          }
+        >
+          <FilePageContent
+            {...props}
+            mediaRef={mediaRef}
+            transcriptContainerDivRef={transcriptContainerDivRef}
+          />
+        </DashboardLayout>
       </TagsProvider>
     </NotesProvider>
   );
 };
 
 export default FilePage;
-
-FilePage.getLayout = (page) => {
-  return <DashboardLayout>{page}</DashboardLayout>;
-};
