@@ -247,9 +247,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
         </AppShell.Section>
       </AppShell.Navbar>
       {aside && <AppShell.Aside p="md">{aside}</AppShell.Aside>}
-      <AppShell.Main bg={colorScheme === "dark" ? "#141517" : "ffffff"}>
-        {children}
-      </AppShell.Main>
+      <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
   );
 };
