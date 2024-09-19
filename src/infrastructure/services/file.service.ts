@@ -1,4 +1,3 @@
-import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
 import { FileWithoutTranscriptAndUri } from "@/types";
 
@@ -30,5 +29,5 @@ export async function getFilesWithoutTranscriptAndUriGivenProjectId(
     },
   });
 
-  return formatDatesToIsoString(file);
+  return file;
 }

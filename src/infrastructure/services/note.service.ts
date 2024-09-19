@@ -1,4 +1,3 @@
-import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
 import { NoteWithTagsAndCreator } from "@/types";
 
@@ -28,5 +27,5 @@ export async function getNotesWithTagsAndCreator(
     },
   });
 
-  return formatDatesToIsoString(notes);
+  return notes;
 }

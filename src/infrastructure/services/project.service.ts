@@ -1,4 +1,3 @@
-import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
 import { Project } from "@prisma/client";
 
@@ -9,7 +8,7 @@ export async function getProjectById(projectId: string): Promise<Project> {
     },
   });
 
-  return formatDatesToIsoString(project);
+  return project;
 }
 
 export async function createProject(
