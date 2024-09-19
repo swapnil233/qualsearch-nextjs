@@ -1,26 +1,37 @@
-import { AuthenticationForm } from "@/components/auth/AuthenticationForm";
+import { RegistrationForm } from "@/components/auth/RegistrationForm";
+import QuotesCard from "@/components/card/quotes/QuotesCard";
 import SharedHead from "@/components/shared/SharedHead";
-import { Stack, useMantineTheme } from "@mantine/core";
+import app from "@/lib/app";
+import { auth } from "@/lib/auth/auth";
 import { GetServerSidePropsContext } from "next";
-import { Provider } from "next-auth/providers";
-import { getCsrfToken, getProviders, getSession } from "next-auth/react";
+import { Provider } from "next-auth/providers/index";
+import { getProviders } from "next-auth/react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { req } = context;
-  const session = await getSession({ req });
+  const session = await auth(context.req, context.res);
 
   if (session) {
+    return {
+      redirect: {
+        destination: "/teams",
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const providers = await getProviders();
+
+    return {
+      props: {
+        providers,
+      },
+    };
+  } catch (error) {
     return {
       redirect: { destination: "/" },
     };
   }
-
-  return {
-    props: {
-      providers: await getProviders(),
-      csrfToken: await getCsrfToken(context),
-    },
-  };
 }
 
 interface IRegisterPage {
@@ -28,20 +39,23 @@ interface IRegisterPage {
 }
 
 const RegisterPage: React.FC<IRegisterPage> = ({ providers }) => {
-  const theme = useMantineTheme();
   return (
     <>
-      <SharedHead title="Register" description="Register at QualSearch.io" />
-
-      <Stack
-        w={"100%"}
-        h={"100vh"}
-        justify="center"
-        align="center"
-        bg={theme.colors.dark[8]}
-      >
-        <AuthenticationForm providers={providers} type="register" />
-      </Stack>
+      <SharedHead
+        title="Register"
+        description={`Register an account for ${app.name}`}
+      />
+      <div className="flex md:h-screen">
+        <div
+          className="hidden md:flex md:justify-center md:content-center md:items-center w-[46%] bg-cover bg-center"
+          style={{ backgroundImage: "url('/register-half.jpeg')" }}
+        >
+          <QuotesCard />
+        </div>
+        <div className="w-full md:w-[54%] flex items-center justify-center">
+          <RegistrationForm providers={providers} />
+        </div>
+      </div>
     </>
   );
 };

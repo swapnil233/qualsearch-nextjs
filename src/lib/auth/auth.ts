@@ -1,11 +1,19 @@
-import { compare, hash } from "bcrypt";
+// This comes from
+// https://next-auth.js.org/configuration/nextjs#getserversession
 
-const SALT_ROUNDS = 10;
+import type {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
+import { getServerSession } from "next-auth";
+import { config } from "@/pages/api/auth/[...nextauth]";
 
-export async function hashPassword(password: string) {
-  return await hash(password, SALT_ROUNDS);
-}
-
-export async function verifyPassword(password: string, hashedPassword: string) {
-  return await compare(password, hashedPassword);
+export function auth(
+  ...args:
+    | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) {
+  return getServerSession(...args, config);
 }

@@ -1,26 +1,35 @@
-import { AuthenticationForm } from "@/components/auth/AuthenticationForm";
+import { LoginForm } from "@/components/auth/LoginForm";
 import SharedHead from "@/components/shared/SharedHead";
-import { Stack, useMantineTheme } from "@mantine/core";
+import app from "@/lib/app";
+import { auth } from "@/lib/auth/auth";
+import { Stack } from "@mantine/core";
 import { GetServerSidePropsContext } from "next";
-import { Provider } from "next-auth/providers";
-import { getCsrfToken, getProviders, getSession } from "next-auth/react";
+import { Provider } from "next-auth/providers/index";
+import { getProviders } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { req } = context;
-  const session = await getSession({ req });
-
+  const session = await auth(context.req, context.res);
   if (session) {
+    return {
+      redirect: {
+        destination: context.query.callbackUrl || "teams",
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    return {
+      props: {
+        providers: await getProviders(),
+      },
+    };
+  } catch (error) {
     return {
       redirect: { destination: "/" },
     };
   }
-
-  return {
-    props: {
-      providers: await getProviders(),
-      csrfToken: await getCsrfToken(context),
-    },
-  };
 }
 
 interface ISignInPage {
@@ -28,19 +37,14 @@ interface ISignInPage {
 }
 
 const SignInPage: React.FC<ISignInPage> = ({ providers }) => {
-  const theme = useMantineTheme();
+  const router = useRouter();
+  const callbackUrl = router.query.callbackUrl as string;
+
   return (
     <>
-      <SharedHead title="Sign In" description="Sign in to QualSearch.io" />
-
-      <Stack
-        w={"100%"}
-        h={"100vh"}
-        justify="center"
-        align="center"
-        bg={theme.colors.dark[8]}
-      >
-        <AuthenticationForm providers={providers} type="login" />
+      <SharedHead title="Sign in" description={`Sign into ${app.name}`} />
+      <Stack justify="center" align="center">
+        <LoginForm providers={providers} callbackUrl={callbackUrl} />
       </Stack>
     </>
   );
