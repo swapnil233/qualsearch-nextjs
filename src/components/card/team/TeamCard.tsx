@@ -61,7 +61,7 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
 
         <Group justify="space-between">
           <Avatar.Group spacing="sm">
-            {team.users.slice(0, 3).map((user) => (
+            {(team.users || []).slice(0, 3).map((user) => (
               <Tooltip
                 key={user.id}
                 label={`${user.name}, ${user.email}`}
@@ -72,7 +72,7 @@ const TeamCard: FC<ITeamCard> = ({ team }) => {
                 <Avatar src={user.image} radius="xl" variant="filled" />
               </Tooltip>
             ))}
-            {team.users.length > 3 && (
+            {team.users && team.users.length > 3 && (
               <Tooltip
                 label={
                   team.users.length - 3 > 1
