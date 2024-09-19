@@ -1,5 +1,5 @@
 import { ApiResponse, TeamWithMemberCount } from '@/types';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from 'react-query';
 
 const fetchTeams = async (): Promise<ApiResponse<TeamWithMemberCount[]>> => {
   const response = await fetch('/api/teams');
