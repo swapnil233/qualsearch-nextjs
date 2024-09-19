@@ -9,9 +9,9 @@ import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
 import { ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
 import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
-import { requireAuthentication } from "@/lib/auth/requireAuthentication";
+import { getUser } from "@/infrastructure/services/user.service";
+import { auth } from "@/lib/auth/auth";
 import { HttpStatus } from "@/lib/constants/HttpStatus";
-import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
@@ -36,62 +36,76 @@ import { useState } from "react";
 
 // Page /teams/[teamId]/projects
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (session: any) => {
-    const { teamId } = context.query;
-    const user = session.user;
+  const { teamId } = context.query;
 
-    try {
-      let team = await getTeamAndUsersByTeamId(teamId as string);
+  const session = await auth(context.req, context.res);
 
-      // If the current user isn't in the team, return a 404
-      if (!team?.users.some((x) => x.id === user.id)) {
-        console.log("User not in team");
-        return {
-          notFound: true,
-        };
-      }
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/signin`,
+        permanent: false,
+      },
+    };
+  }
 
-      // Include counts for files, notes and tags to display in card.
-      let projects = await prisma.project.findMany({
-        where: {
-          teamId: teamId as string,
-        },
-        include: {
-          _count: {
-            select: {
-              files: true,
-              notes: true,
-              tags: true,
-            },
-          },
-        },
-      });
+  try {
+    const user = await getUser({ id: session.user.id });
 
-      // If the team doesn't exist, return a 404
-      if (team === null) {
-        return {
-          notFound: true,
-        };
-      }
-
-      // Turn the dates into ISO strings otherwise Next.js will throw errors
-      team = formatDatesToIsoString(team);
-      projects = formatDatesToIsoString(projects);
-
+    if (!user) {
       return {
-        props: {
-          user,
-          team,
-          projects,
+        redirect: {
+          destination: `/signin`,
+          permanent: false,
         },
       };
-    } catch (error) {
-      console.log(error);
+    }
+
+    const team = await getTeamAndUsersByTeamId(teamId as string);
+
+    if (!team) {
       return {
         notFound: true,
       };
     }
-  });
+
+    // If the current user isn't in the team, return a 404
+    if (!team?.users.some((x) => x.id === user.id)) {
+      console.log("User not in team");
+      return {
+        notFound: true,
+      };
+    }
+
+    // Include counts for files, notes and tags to display in card.
+    const projects = await prisma.project.findMany({
+      where: {
+        teamId: teamId as string,
+      },
+      include: {
+        _count: {
+          select: {
+            files: true,
+            notes: true,
+            tags: true,
+          },
+        },
+      },
+    });
+
+    return {
+      props: {
+        user: JSON.parse(JSON.stringify(user)),
+        team: JSON.parse(JSON.stringify(team)),
+        projects: JSON.parse(JSON.stringify(projects)),
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      notFound: true,
+    };
+  }
 }
 
 interface IProjectsPage {

@@ -4,9 +4,8 @@ import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
-import { requireAuthentication } from "@/lib/auth/requireAuthentication";
+import { auth } from "@/lib/auth/auth";
 import { exportToExcel } from "@/lib/export/exportToExcel";
-import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import { host } from "@/lib/host";
 import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
@@ -18,45 +17,50 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (session: any) => {
-    const { tagId, teamId } = context.query;
-
-    // Check if the user is in the team
-    await validateUserIsTeamMember(teamId as string, session.user.id);
-
-    let tagWithNotes: TagWithNotesAndURIs = await prisma.tag.findUniqueOrThrow({
-      where: {
-        id: tagId as string,
+  const { tagId, teamId } = context.query;
+  const session = await auth(context.req, context.res);
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/signin`,
+        permanent: false,
       },
-      include: {
-        notes: {
-          include: {
-            file: {
-              select: {
-                uri: true,
-                type: true,
-              },
+    };
+  }
+
+  // Check if the user is in the team
+  await validateUserIsTeamMember(teamId as string, session.user.id);
+
+  const tagWithNotes: TagWithNotesAndURIs = await prisma.tag.findUniqueOrThrow({
+    where: {
+      id: tagId as string,
+    },
+    include: {
+      notes: {
+        include: {
+          file: {
+            select: {
+              uri: true,
+              type: true,
             },
-            createdBy: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-              },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
             },
           },
         },
       },
-    });
-
-    tagWithNotes = formatDatesToIsoString(tagWithNotes);
-
-    return {
-      props: {
-        tagWithNotes,
-      },
-    };
+    },
   });
+
+  return {
+    props: {
+      tagWithNotes: JSON.parse(JSON.stringify(tagWithNotes)),
+    },
+  };
 }
 
 interface ITagPage {

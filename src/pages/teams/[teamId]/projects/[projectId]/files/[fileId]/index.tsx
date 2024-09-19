@@ -8,10 +8,9 @@ import Transcript from "@/components/transcript/Transcript";
 import { NotesProvider, useNotes } from "@/contexts/NotesContext";
 import { TagsProvider } from "@/contexts/TagsContext";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
-import { getUserById } from "@/infrastructure/services/user.service";
-import { requireAuthentication } from "@/lib/auth/requireAuthentication";
+import { getUser } from "@/infrastructure/services/user.service";
+import { auth } from "@/lib/auth/auth";
 import { getSignedUrl } from "@/lib/aws/aws";
-import { formatDatesToIsoString } from "@/lib/formatDatesToIsoString";
 import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
 import {
@@ -51,118 +50,123 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  return requireAuthentication(context, async (session: any) => {
-    const { fileId, projectId } = context.query;
-    const user = await getUserById(session.user.id);
+  const { fileId, projectId } = context.query;
 
-    if (!user) {
+  const session = await auth(context.req, context.res);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/signin`,
+        permanent: false,
+      },
+    };
+  }
+
+  const user = await getUser({ id: session.user.id });
+
+  if (!user) {
+    return {
+      notFound: true,
+    };
+  }
+
+  try {
+    type BatchRequest = [
+      file: File,
+      transcript: PrismaTranscript,
+      notes: NoteWithTagsAndCreator[],
+      tags: TagWithNoteIds[],
+    ];
+
+    const [file, transcript, notes, tags]: BatchRequest = await Promise.all([
+      prisma.file.findUniqueOrThrow({
+        where: {
+          id: fileId as string,
+        },
+      }),
+
+      prisma.transcript.findUniqueOrThrow({
+        where: {
+          fileId: fileId as string,
+        },
+      }),
+
+      // Get all the notes in this file
+      prisma.note.findMany({
+        where: {
+          fileId: fileId as string,
+        },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+          tags: true,
+          file: {
+            select: {
+              participantName: true,
+              participantOrganization: true,
+              dateConducted: true,
+            },
+          },
+        },
+      }),
+
+      // Get all the tags available in this project
+      prisma.tag.findMany({
+        where: {
+          projectId: projectId as string,
+        },
+        include: {
+          createdBy: {
+            select: {
+              id: true,
+            },
+          },
+          notes: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const teamId = file.teamId;
+
+    // Check if the user is in the team
+    await validateUserIsTeamMember(teamId, user.id);
+
+    // GET /api/aws/getSignedUrl?key={URI} endpoint to get the signed URL for the file
+    const mediaUrl = await getSignedUrl(file.uri);
+
+    if (mediaUrl) {
+      return {
+        props: {
+          user: JSON.parse(JSON.stringify(user)),
+          file: JSON.parse(JSON.stringify(file)),
+          initialNotes: JSON.parse(JSON.stringify(notes)),
+          initialTags: JSON.parse(JSON.stringify(tags)),
+          transcript: JSON.parse(JSON.stringify(transcript)),
+          mediaUrl,
+        },
+      };
+    } else {
+      console.error("Could not get signed URL for file");
       return {
         notFound: true,
       };
     }
-
-    try {
-      type BatchRequest = [
-        file: File,
-        transcript: PrismaTranscript,
-        notes: NoteWithTagsAndCreator[],
-        tags: TagWithNoteIds[],
-      ];
-
-      let [file, transcript, notes, tags]: BatchRequest = await Promise.all([
-        prisma.file.findUniqueOrThrow({
-          where: {
-            id: fileId as string,
-          },
-        }),
-
-        prisma.transcript.findUniqueOrThrow({
-          where: {
-            fileId: fileId as string,
-          },
-        }),
-
-        // Get all the notes in this file
-        prisma.note.findMany({
-          where: {
-            fileId: fileId as string,
-          },
-          include: {
-            createdBy: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-              },
-            },
-            tags: true,
-            file: {
-              select: {
-                participantName: true,
-                participantOrganization: true,
-                dateConducted: true,
-              },
-            },
-          },
-        }),
-
-        // Get all the tags available in this project
-        prisma.tag.findMany({
-          where: {
-            projectId: projectId as string,
-          },
-          include: {
-            createdBy: {
-              select: {
-                id: true,
-              },
-            },
-            notes: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        }),
-      ]);
-
-      file = formatDatesToIsoString(file);
-      transcript = formatDatesToIsoString(transcript);
-      notes = formatDatesToIsoString(notes);
-      tags = formatDatesToIsoString(tags);
-
-      const teamId = file.teamId;
-
-      // Check if the user is in the team
-      await validateUserIsTeamMember(teamId, user.id);
-
-      // GET /api/aws/getSignedUrl?key={URI} endpoint to get the signed URL for the file
-      const mediaUrl = await getSignedUrl(file.uri);
-
-      if (mediaUrl) {
-        return {
-          props: {
-            user,
-            file,
-            initialNotes: notes,
-            initialTags: tags,
-            transcript,
-            mediaUrl,
-          },
-        };
-      } else {
-        console.error("Could not get signed URL for file");
-        return {
-          notFound: true,
-        };
-      }
-    } catch (error) {
-      console.error(error);
-      return {
-        notFound: true,
-      };
-    }
-  });
+  } catch (error) {
+    console.error(error);
+    return {
+      notFound: true,
+    };
+  }
 }
 
 interface IFilePage {

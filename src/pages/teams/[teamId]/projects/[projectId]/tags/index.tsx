@@ -1,12 +1,22 @@
 import PageHeading from "@/components/layout/heading/PageHeading";
 import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
+import { auth } from "@/lib/auth/auth";
 import { NextPageWithLayout } from "@/pages/page";
 import { GetServerSidePropsContext } from "next";
 import router from "next/router";
 
 // Page /teams/[teamId]/projects/[projectId]/tags/index.tsx
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await auth(context.req, context.res);
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/signin`,
+        permanent: false,
+      },
+    };
+  }
   return {
     props: {},
   };

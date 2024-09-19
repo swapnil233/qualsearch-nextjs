@@ -10,7 +10,8 @@ import InvitationsTable, {
 import useTeamCreation from "@/hooks/useTeamCreation";
 import useTeamInvitation from "@/hooks/useTeamInvitation";
 import { getTeamsByUserAndOrder } from "@/infrastructure/services/team.service";
-import { requireAuthentication } from "@/lib/auth/requireAuthentication";
+import { getUser } from "@/infrastructure/services/user.service";
+import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/prisma";
 import { NextPageWithLayout } from "@/pages/page";
 import { TeamWithUsers } from "@/types";
@@ -25,17 +26,30 @@ import { useState } from "react";
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  return requireAuthentication(context, async (session: any) => {
-    const user: User = session.user;
+  const session = await auth(context.req, context.res);
 
-    let teams = await getTeamsByUserAndOrder(user.id, "desc");
+  if (!session) {
+    return {
+      redirect: {
+        destination: `/signin`,
+        permanent: false,
+      },
+    };
+  }
 
-    // @ts-ignore
-    teams = teams.map((team) => ({
-      ...team,
-      createdAt: team.createdAt.toISOString(),
-      updatedAt: team.updatedAt.toISOString(),
-    }));
+  try {
+    const user = await getUser({ id: session.user.id });
+
+    if (!user) {
+      return {
+        redirect: {
+          destination: `/signin`,
+          permanent: false,
+        },
+      };
+    }
+
+    const teams = await getTeamsByUserAndOrder(user.id, "desc");
 
     // Get user's invitations
     let invitationResponse: (Invitation & {
@@ -66,12 +80,20 @@ export const getServerSideProps: GetServerSideProps = async (
 
     return {
       props: {
-        user,
-        teams,
+        user: JSON.parse(JSON.stringify(user)),
+        teams: JSON.parse(JSON.stringify(teams)),
         invitations,
       },
     };
-  });
+  } catch (error) {
+    console.log(error);
+    return {
+      redirect: {
+        destination: `/signin`,
+        permanent: false,
+      },
+    };
+  }
 };
 
 interface ITeamsPage {
@@ -192,6 +214,5 @@ const TeamsPage: NextPageWithLayout<ITeamsPage> = ({ teams, invitations }) => {
 
 export default TeamsPage;
 TeamsPage.getLayout = (page) => {
-  // return <DashboardLayout>{page}</DashboardLayout>;
   return <DashboardLayout>{page}</DashboardLayout>;
 };

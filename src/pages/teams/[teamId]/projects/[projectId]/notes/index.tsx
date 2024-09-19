@@ -10,23 +10,24 @@ import { useNoteDeletion } from "@/hooks/useNoteDeletion";
 import { getNotesWithTagsAndCreator } from "@/infrastructure/services/note.service";
 import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { auth } from "@/lib/auth/auth";
 import { NextPageWithLayout } from "@/pages/page";
 import { NoteWithTagsAndCreator } from "@/types";
 import { ActionIcon, Affix, Box, Popover, rem } from "@mantine/core";
 import { Project } from "@prisma/client";
 import { IconMessage } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
-import { getSession } from "next-auth/react";
 import { useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { teamId, projectId } = context.query;
-  const session = await getSession(context);
+
+  const session = await auth(context.req, context.res);
 
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: `/signin`,
         permanent: false,
       },
     };
@@ -49,8 +50,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
     return {
       props: {
-        project,
-        initialNotes: notes,
+        project: JSON.parse(JSON.stringify(project)),
+        initialNotes: JSON.parse(JSON.stringify(notes)),
       },
     };
   } catch (error) {

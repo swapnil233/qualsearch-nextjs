@@ -10,6 +10,7 @@ import { useProjectDeletion } from "@/hooks/useProjectDeletion";
 import { getFilesWithoutTranscriptAndUriGivenProjectId } from "@/infrastructure/services/file.service";
 import { getProjectById } from "@/infrastructure/services/project.service";
 import { validateUserIsTeamMember } from "@/infrastructure/services/team.service";
+import { auth } from "@/lib/auth/auth";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri } from "@/types";
 import { Box, Group, Select, SimpleGrid, Stack } from "@mantine/core";
@@ -22,27 +23,25 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
-import { getSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-// /teams/[teamId]/projects/[projectId]/files
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { projectId, teamId } = context.query;
-  const session = await getSession(context);
+
+  const session = await auth(context.req, context.res);
 
   if (!session) {
     return {
       redirect: {
-        destination: "/signin",
+        destination: `/signin`,
         permanent: false,
       },
     };
   }
 
-  const user = session.user;
-
   // Validate if the user is a member of the team that the project belongs to
   try {
+    const user = session.user;
     await validateUserIsTeamMember(teamId as string, user.id);
   } catch (error) {
     return {
@@ -58,8 +57,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
     return {
       props: {
-        project,
-        files,
+        project: JSON.parse(JSON.stringify(project)),
+        files: JSON.parse(JSON.stringify(files)),
       },
     };
   } catch (error) {
