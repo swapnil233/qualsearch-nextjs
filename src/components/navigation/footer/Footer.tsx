@@ -1,3 +1,4 @@
+import app from "@/lib/app";
 import {
   ActionIcon,
   Container,
@@ -131,7 +132,7 @@ const Footer: FC<IFooter> = () => {
             size="sm"
             className="text-gray-500 dark:text-gray-400"
           >
-            © 2023 Transcribe. All rights reserved.
+            © 2024 {app.name}. All rights reserved.
           </Text>
           <Group gap={0} className="flex space-x-2 mt-1 sm:mt-0">
             <ActionIcon size="lg">
