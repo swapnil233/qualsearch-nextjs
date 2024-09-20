@@ -5,41 +5,51 @@ import { FC, ReactNode } from "react";
 
 interface NavButtonProps {
   href: string;
+  as?: string;
   icon: ReactNode;
   label: string;
   isCollapsed: boolean;
   closeMobileNav: () => void;
+  nested?: boolean;
+  children?: ReactNode;
 }
 
 const NavButton: FC<NavButtonProps> = ({
   href,
+  as,
   icon,
   label,
   isCollapsed,
   closeMobileNav,
+  nested = false,
+  children,
 }) => {
   const router = useRouter();
-  const isActive = router.asPath === href;
+  const currentPath = router.pathname;
+  const navPath = href;
+
+  const isActive =
+    currentPath === navPath || currentPath.startsWith(navPath + "/");
+
   const { colorScheme } = useMantineColorScheme();
   const isDarkMode = colorScheme === "dark";
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
+  const handleClick = () => {
     closeMobileNav();
-    router.push(href);
   };
 
   const linkContent = (
     <Link
       href={href}
+      as={as}
       onClick={handleClick}
       className={`flex ${
-        isCollapsed ? "px-2" : "px-[13px]"
+        isCollapsed ? "px-2" : nested ? "pl-6" : "px-[13px]"
       } py-3 text-sm rounded-md ${
         isActive
           ? isDarkMode
-            ? "bg-[#1a1b1e] font-semibold"
-            : "bg-[#e0f1ff] font-semibold"
+            ? "bg-[#1a1b1e]"
+            : "bg-[#e0f1ff]"
           : isDarkMode
             ? "hover:bg-[#1a1b1e]"
             : "hover:bg-[#e9ecef]"
@@ -50,10 +60,18 @@ const NavButton: FC<NavButtonProps> = ({
     </Link>
   );
 
-  return isCollapsed ? (
-    <Tooltip label={label}>{linkContent}</Tooltip>
-  ) : (
-    linkContent
+  return (
+    <div>
+      {isCollapsed ? (
+        <Tooltip label={label}>{linkContent}</Tooltip>
+      ) : (
+        linkContent
+      )}
+      {children && !isCollapsed && (
+        // Indentation for nested children
+        <div className="pl-4 pt-2">{children}</div>
+      )}
+    </div>
   );
 };
 

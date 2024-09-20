@@ -16,6 +16,8 @@ import { useDisclosure } from "@mantine/hooks";
 import {
   IconChartBar,
   IconFiles,
+  IconFolder,
+  IconFolders,
   IconHome,
   IconInbox,
   IconLayoutSidebarLeftCollapse,
@@ -44,7 +46,6 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
   const [newNotifications] = useState(false);
   const session = useSession();
-  const [showProBanner, setShowProBanner] = useState<boolean | null>(true);
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
 
@@ -53,40 +54,43 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
   const handleCollapseClick = () => {
     toggleDesktop();
     closeMobile();
-
-    if (showProBanner) {
-      setShowProBanner(false);
-    }
   };
 
   const renderNavButtons = () => {
-    if (router.pathname.startsWith("/teams/[teamId]/projects/[projectId]/")) {
-      const { teamId, projectId } = router.query;
+    const { pathname, query } = router;
+    const { teamId, projectId } = query;
+
+    if (pathname.startsWith("/teams/[teamId]/projects/[projectId]")) {
+      // On a project page or any of its subpages (files, notes, tags, etc.)
       return (
         <Stack h="100%">
           <NavButton
-            href={`/teams/${teamId}/projects/${projectId}/dashboard`}
+            href="/teams/[teamId]/projects/[projectId]/dashboard"
+            as={`/teams/${teamId}/projects/${projectId}/dashboard`}
             icon={<IconHome size={20} />}
             label="Dashboard"
             isCollapsed={!desktopOpened}
             closeMobileNav={closeMobile}
           />
           <NavButton
-            href={`/teams/${teamId}/projects/${projectId}/files`}
+            href="/teams/[teamId]/projects/[projectId]/files"
+            as={`/teams/${teamId}/projects/${projectId}/files`}
             icon={<IconFiles size={20} />}
             label="Files"
             isCollapsed={!desktopOpened}
             closeMobileNav={closeMobile}
           />
           <NavButton
-            href={`/teams/${teamId}/projects/${projectId}/notes`}
+            href="/teams/[teamId]/projects/[projectId]/notes"
+            as={`/teams/${teamId}/projects/${projectId}/notes`}
             icon={<IconNote size={20} />}
             label="Notes"
             isCollapsed={!desktopOpened}
             closeMobileNav={closeMobile}
           />
           <NavButton
-            href={`/teams/${teamId}/projects/${projectId}/tags`}
+            href="/teams/[teamId]/projects/[projectId]/tags"
+            as={`/teams/${teamId}/projects/${projectId}/tags`}
             icon={<IconTag size={20} />}
             label="Tags"
             isCollapsed={!desktopOpened}
@@ -94,12 +98,43 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
           />
         </Stack>
       );
-    } else if (router.pathname.startsWith("/teams")) {
+    } else if (pathname.startsWith("/teams/[teamId]/projects")) {
+      // On a team's projects list page
       return (
         <Stack h="100%">
           <NavButton
             href="/teams"
-            icon={<IconChartBar size={20} />}
+            icon={<IconFolder size={20} />}
+            label="Teams"
+            isCollapsed={!desktopOpened}
+            closeMobileNav={closeMobile}
+          >
+            <NavButton
+              href="/teams/[teamId]/projects"
+              as={`/teams/${teamId}/projects`}
+              icon={<IconFolders size={20} />}
+              label="Projects"
+              isCollapsed={!desktopOpened}
+              closeMobileNav={closeMobile}
+              nested // Pass nested to indent
+            />
+          </NavButton>
+          <NavButton
+            href="/profile"
+            icon={<IconUser size={20} />}
+            label="Profile"
+            isCollapsed={!desktopOpened}
+            closeMobileNav={closeMobile}
+          />
+        </Stack>
+      );
+    } else if (pathname.startsWith("/teams")) {
+      // On the teams page
+      return (
+        <Stack h="100%">
+          <NavButton
+            href="/teams"
+            icon={<IconFolder size={20} />}
             label="Teams"
             isCollapsed={!desktopOpened}
             closeMobileNav={closeMobile}
@@ -114,12 +149,13 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
         </Stack>
       );
     } else {
+      // Default navigation for any other pages
       return (
         <Stack h="100%">
           <NavButton
-            href="/dashboard"
+            href="/teams"
             icon={<IconHome size={20} />}
-            label="Home"
+            label="Teams"
             isCollapsed={!desktopOpened}
             closeMobileNav={closeMobile}
           />
@@ -219,7 +255,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
         style={{ zIndex: 200 }}
       >
         <AppShell.Section
-          bg={colorScheme === "dark" ? "#25262b" : "#f9f9f8"}
+          // bg={colorScheme === "dark" ? "#25262b" : "#f9f9f8"}
           px="md"
           pt="md"
           pb={0}
@@ -228,7 +264,12 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
         >
           {renderNavButtons()}
         </AppShell.Section>
-        <AppShell.Section px="md" py={"xs"} visibleFrom="sm">
+        <AppShell.Section
+          px="md"
+          py={"xs"}
+          visibleFrom="sm"
+          // bg={colorScheme === "dark" ? "#25262b" : "#f9f9f8"}
+        >
           <Stack>
             <NavButton
               href="#"
