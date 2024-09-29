@@ -4,13 +4,12 @@ import { FC } from "react";
 
 interface StatsGridProps {
   stats: Stat[];
-  columns?: number;
 }
 
-const StatsGrid: FC<StatsGridProps> = ({ stats, columns }) => {
+const StatsGrid: FC<StatsGridProps> = ({ stats }) => {
   return (
     <Box mt="lg">
-      <SimpleGrid cols={{ base: columns || 4, md: 2, xs: 1 }}>
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
         {stats.map((stat) => (
           <Paper key={stat.title} withBorder p="md">
             <Group justify="space-between">
