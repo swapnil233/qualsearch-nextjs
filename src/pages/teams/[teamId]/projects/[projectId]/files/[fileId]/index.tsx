@@ -50,10 +50,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const { fileId, projectId } = context.query;
-
   const session = await auth(context.req, context.res);
-
   if (!session) {
     return {
       redirect: {
@@ -72,6 +69,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   try {
+    const { fileId, projectId } = context.query;
+
     type BatchRequest = [
       file: File,
       transcript: PrismaTranscript,
@@ -234,7 +233,7 @@ const FilePageContent: NextPageWithLayout<
       value:
         mediaRef.current && mediaRef.current.duration
           ? `${Math.floor(mediaRef.current.duration / 60)} minutes`
-          : "Error",
+          : "Loading...",
       icon: <IconHourglass {...statsGridIconStyles} />,
     },
     {
@@ -270,9 +269,6 @@ const FilePageContent: NextPageWithLayout<
   // Fetch summary if it exists, else create one.
   useEffect(() => {
     const fetchSummary = async () => {
-      console.log(
-        `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/summaries?transcriptId=${transcript.id}`
-      );
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL}/api/summaries?transcriptId=${transcript.id}`
@@ -407,13 +403,13 @@ const FilePageContent: NextPageWithLayout<
           />
         )}
 
-        <StatsGrid columns={3} stats={userInterviewStats} />
-        <StatsGrid columns={3} stats={stats} />
+        <StatsGrid stats={userInterviewStats} />
+        <StatsGrid stats={stats} />
 
         <Box mt={"lg"} id="summary-box">
           {summary ? (
             <SummaryCard
-              summary={summary.content}
+              summary={summary.content || ""}
               dateSummarized={summary.createdAt}
             />
           ) : (
