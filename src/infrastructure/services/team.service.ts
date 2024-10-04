@@ -209,7 +209,6 @@ export async function getTeamById(teamId: string): Promise<Team | null> {
  * Retrieves all teams that a user is a part of.
  *
  * @param userId The ID of the user.
- * @param orderBy "asc" or "desc"
  * @returns A Promise resolving to the list of teams.
  */
 export async function getTeamsByUser(userId: string): Promise<Team[]> {
