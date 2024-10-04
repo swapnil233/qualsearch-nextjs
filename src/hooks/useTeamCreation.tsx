@@ -45,7 +45,7 @@ const useTeamCreation = (
       });
 
       if (response.status === 200) {
-        const data = await response.json();
+        const { data } = await response.json();
         notifications.show({
           title: "Team created",
           message: "Your team has been created successfully.",

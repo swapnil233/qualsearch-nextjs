@@ -37,6 +37,7 @@ const useTeams = () => {
     teams: data?.data,
     apiError: error,
     invalidateTeams,
+    mutateTeams: invalidateTeams,
   };
 };
 
