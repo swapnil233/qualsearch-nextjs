@@ -156,7 +156,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       : "",
     Tags: note.tags.map((tag) => tag.name).join(", "),
     "Date created": new Date(note.createdAt).toDateString(),
-    "Created by": note.createdBy.name,
+    "Created by": note.createdBy?.name || "Anonymous User",
     "File link": `${host}/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`,
   }));
 
@@ -164,7 +164,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     <div>
       <Group
         mb="md"
-        w={"100%"}
+        w="100%"
         justify="space-between"
         align="end"
         wrap={largeScreen ? "nowrap" : "wrap"}
@@ -181,7 +181,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         >
           <Input.Wrapper
             label="Filter by note"
-            w={"100%"}
+            w="100%"
             maw={largeScreen ? 400 : "100%"}
           >
             <Input
@@ -200,20 +200,19 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             data={tagsUsed}
             searchable
             clearable
-            leftSection={<IconTag size={"1.1rem"} />}
-            w={"100%"}
+            leftSection={<IconTag size="1.1rem" />}
+            w="100%"
             maw={largeScreen ? 400 : "100%"}
           />
 
           {participants.length > 0 && (
             <Select
-              leftSection={<IconUser size={"1.1rem"} />}
+              leftSection={<IconUser size="1.1rem" />}
               label="Filter by participant"
               value={filteredParticipants}
               onChange={(value) => setFilteredParticipants(value!)}
               data={participants}
-              // styles={{ rightSection: { pointerEvents: "none" } }}
-              w={"100%"}
+              w="100%"
               maw={largeScreen ? 400 : "100%"}
               clearable
             />
@@ -229,13 +228,12 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             data={selectOptions}
             rightSection={<IconChevronDown size="1rem" />}
             rightSectionWidth={30}
-            // styles={{ rightSection: { pointerEvents: "none" } }}
-            w={"100%"}
+            w="100%"
             maw={largeScreen ? 400 : "100%"}
           />
         </Box>
         <Button
-          leftSection={<IconDownload size={"1rem"} />}
+          leftSection={<IconDownload size="1rem" />}
           disabled={filteredNotes.length === 0}
           onClick={() =>
             exportToExcel({ data: exportData, filename: "export.xlsx" })
@@ -253,25 +251,36 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         <Table striped highlightOnHover withColumnBorders withRowBorders>
           <thead>
             <tr>
-              <th>Note</th>
-              <th>Quote</th>
-              <th>Participant</th>
-              <th>Organization</th>
-              <th>Date conducted</th>
-              <th>Tags</th>
-              <th>Created by</th>
-              <th>Date created</th>
-              <th>Actions</th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>Note</th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>Quote</th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>
+                Participant
+              </th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>
+                Organization
+              </th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>
+                Date conducted
+              </th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>Tags</th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>Created by</th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>
+                Date created
+              </th>
+              <th style={{ textAlign: "left", padding: "1rem" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentNotes.length > 0 ? (
-              currentNotes.map((note) => (
-                <tr key={note.id}>
-                  <td>
+              currentNotes.map((note, index) => (
+                <tr
+                  key={note.id}
+                  className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
+                >
+                  <td className="p-4 align-top">
                     <HighlightSearch text={note.text} search={search} />
                   </td>
-                  <td>
+                  <td className="p-4 align-top italic">
                     {`"`}
                     <HighlightSearch
                       text={note.transcriptText.trim()}
@@ -279,49 +288,57 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                     />
                     {`"`}
                   </td>
-                  <td>{note.file.participantName || "-"}</td>
-                  <td>{note.file.participantOrganization || "-"}</td>
-                  <td>
+                  <td className="p-4 align-top">
+                    {note.file.participantName || "-"}
+                  </td>
+                  <td className="p-4 align-top">
+                    {note.file.participantOrganization || "-"}
+                  </td>
+                  <td className="p-4 align-top">
                     {note.file.dateConducted
                       ? new Date(note.file.dateConducted).toDateString()
                       : "-"}
                   </td>
-                  <td>
-                    <Stack gap={"xs"}>
+                  <td className="p-4 align-top">
+                    <Stack gap="xs">
                       {note.tags.map((tag) => (
                         <Link
                           key={tag.id}
                           href={`/teams/${teamId}/projects/${projectId}/tags/${tag.id}`}
                           style={{ textDecoration: "none" }}
                         >
-                          <Badge radius="xs" variant="filled" mr="md">
+                          <Badge radius="xs" variant="filled" mr="md" fullWidth>
                             {tag.name}
                           </Badge>
                         </Link>
                       ))}
                     </Stack>
                   </td>
-                  <td>
+                  <td className="p-4 align-top">
                     <Link
                       href={`/teams/${teamId}/people/${note.createdByUserId}`}
                       style={{ textDecoration: "none" }}
                     >
                       <Group wrap="nowrap" align="center">
                         <Avatar
-                          src={note.createdBy.image}
-                          alt={note.createdBy.name || ""}
+                          src={note.createdBy?.image || "anonUser.png"}
+                          alt={note.createdBy?.name || "Anonymous User"}
                           radius="xl"
                           size={30}
                         />
                         <Stack gap={0}>
-                          <Text truncate>{note.createdBy.name}</Text>
+                          <Text truncate>
+                            {note.createdBy?.name || "Anonymous User"}
+                          </Text>
                         </Stack>
                       </Group>
                     </Link>
                   </td>
-                  <td>{new Date(note.createdAt).toDateString()}</td>
-                  <td>
-                    <Stack>
+                  <td className="p-4 align-top">
+                    {new Date(note.createdAt).toDateString()}
+                  </td>
+                  <td className="p-4 align-top" style={{ textAlign: "right" }}>
+                    <Stack align="flex-start">
                       <Link
                         href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`}
                         target="_blank"
@@ -356,7 +373,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               <tr>
                 <td colSpan={9} align="center">
                   <Box
-                    p={"1rem"}
+                    p="1rem"
                     style={(theme) => ({
                       color:
                         colorScheme === "dark"
@@ -365,7 +382,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                     })}
                   >
                     <IconDatabaseOff size={36} strokeWidth={1.5} />
-                    <Text size={"md"}>No notes found</Text>
+                    <Text size="md">No notes found</Text>
                   </Box>
                 </td>
               </tr>
@@ -374,7 +391,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
         </Table>
       </ScrollArea>
 
-      <Group mt={"md"} w={"100%"} align="right">
+      <Group w="100%" align="right">
         <Pagination
           value={currentPage}
           onChange={setCurrentPage}
