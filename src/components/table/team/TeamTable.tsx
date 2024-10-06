@@ -25,7 +25,7 @@ export interface ITeamTable {
 const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
   const rows = teamMembers.map((member) => (
     <tr key={member.id}>
-      <td>
+      <td className="py-4">
         <Group gap="sm">
           <Avatar size={40} src={member.image} radius={40} />
           <div>
@@ -41,8 +41,8 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
 
       <td>2 days ago</td>
 
-      <td>
-        <Group gap={0} align="right">
+      <td style={{ textAlign: "right" }}>
+        <Group p="right">
           <Menu
             transitionProps={{ transition: "pop" }}
             withArrow
@@ -50,8 +50,8 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
             withinPortal
           >
             <Menu.Target>
-              <ActionIcon>
-                <IconDots size="1rem" stroke={1.5} />
+              <ActionIcon variant="transparent" color="dark">
+                <IconDots size="1.6rem" stroke={1.5} />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
@@ -92,12 +92,12 @@ const TeamTable: FC<ITeamTable> = ({ currentUser, teamMembers }) => {
 
   return (
     <ScrollArea>
-      <Table miw={800} verticalSpacing="sm">
+      <Table miw={800}>
         <thead>
           <tr>
-            <th>Member</th>
-            <th>Last active</th>
-            <th align="right">Actions</th>
+            <th style={{ textAlign: "left" }}>Member</th>
+            <th style={{ textAlign: "left" }}>Last active</th>
+            <th style={{ textAlign: "left" }}>Actions</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
