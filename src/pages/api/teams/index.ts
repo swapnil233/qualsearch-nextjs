@@ -19,7 +19,9 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    return res.status(HttpStatus.Unauthorized).json({ error: ErrorMessages.Unauthorized });
+    return res
+      .status(HttpStatus.Unauthorized)
+      .json({ error: ErrorMessages.Unauthorized });
   }
 
   switch (req.method) {
@@ -31,15 +33,23 @@ export default async function handler(
       return handleDelete(req, res, session);
     default:
       res.setHeader("Allow", ["POST", "GET", "DELETE"]);
-      return res.status(HttpStatus.MethodNotAllowed).end(`Method ${req.method} Not Allowed`);
+      return res
+        .status(HttpStatus.MethodNotAllowed)
+        .end(`Method ${req.method} Not Allowed`);
   }
 }
 
-async function handlePost(req: NextApiRequest, res: NextApiResponse, session: Session) {
+async function handlePost(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+) {
   const { teamName, teamDescription } = req.body;
 
   if (!teamName) {
-    return res.status(HttpStatus.BadRequest).json({ error: ErrorMessages.BadRequest });
+    return res
+      .status(HttpStatus.BadRequest)
+      .json({ error: ErrorMessages.BadRequest });
   }
 
   try {
@@ -48,11 +58,17 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse, session: Se
     return res.status(HttpStatus.Ok).json({ data: team });
   } catch (error: any) {
     console.error(error);
-    return res.status(HttpStatus.InternalServerError).json({ error: ErrorMessages.InternalServerError });
+    return res
+      .status(HttpStatus.InternalServerError)
+      .json({ error: ErrorMessages.InternalServerError });
   }
 }
 
-async function handleGet(req: NextApiRequest, res: NextApiResponse, session: Session) {
+async function handleGet(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+) {
   const { teamId } = req.query;
 
   if (!teamId) {
@@ -62,7 +78,9 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, session: Ses
       return res.status(HttpStatus.Ok).json({ data: teams });
     } catch (error: any) {
       console.error(error);
-      return res.status(HttpStatus.InternalServerError).json({ error: error.message });
+      return res
+        .status(HttpStatus.InternalServerError)
+        .json({ error: error.message });
     }
   }
 
@@ -78,20 +96,30 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse, session: Ses
   }
 }
 
-async function handleDelete(req: NextApiRequest, res: NextApiResponse, session: Session) {
+async function handleDelete(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  session: Session
+) {
   const { teamId } = req.query;
 
   if (!teamId) {
-    return res.status(HttpStatus.BadRequest).json({ error: ErrorMessages.MissingTeamId });
+    return res
+      .status(HttpStatus.BadRequest)
+      .json({ error: ErrorMessages.MissingTeamId });
   }
 
   try {
     const userId = session.user.id;
     await validateUserIsTeamMember(teamId as string, userId);
     await deleteTeam(teamId as string);
-    return res.status(HttpStatus.Ok).json({ message: "Team deleted successfully." });
+    return res
+      .status(HttpStatus.Ok)
+      .json({ message: "Team deleted successfully." });
   } catch (error: any) {
     console.error(error);
-    return res.status(HttpStatus.InternalServerError).json({ error: ErrorMessages.InternalServerError });
+    return res
+      .status(HttpStatus.InternalServerError)
+      .json({ error: ErrorMessages.InternalServerError });
   }
 }

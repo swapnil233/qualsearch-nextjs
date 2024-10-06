@@ -4,11 +4,10 @@ const app = {
   version: packageInfo.version,
   author: "Hasan Iqbal",
   name: "QualSearch",
-  description:
-    "Qualitative research analysis platform.",
+  description: "Qualitative research analysis platform.",
   logoUrl: {
     dark: "/logo-dark.svg",
-    light: "/logo-light.svg"
+    light: "/logo-light.svg",
   },
   logoUrlAlt: "QualSearch logo",
 };

@@ -30,8 +30,9 @@ export default async function handler(
 
   try {
     // Parse and validate the request body
-    const { id, ...preferencesData } =
-      updateUserPreferencesSchema.parse(req.body);
+    const { id, ...preferencesData } = updateUserPreferencesSchema.parse(
+      req.body
+    );
 
     // Update the user preferences in the database
     const updatedPreferences = await updateUserPreferences(id, preferencesData);

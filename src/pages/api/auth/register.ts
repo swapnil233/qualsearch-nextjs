@@ -1,5 +1,8 @@
 import { sendVerificationEmail } from "@/infrastructure/services/email.service";
-import { createUserWithEmailAndPassword, getUser } from "@/infrastructure/services/user.service";
+import {
+  createUserWithEmailAndPassword,
+  getUser,
+} from "@/infrastructure/services/user.service";
 import { createNewVerificationToken } from "@/infrastructure/services/verification.service";
 import { hash } from "bcrypt";
 import { NextApiRequest, NextApiResponse } from "next";

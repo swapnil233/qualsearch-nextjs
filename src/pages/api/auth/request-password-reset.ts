@@ -1,5 +1,10 @@
 import { sendPasswordResetEmail } from "@/infrastructure/services/email.service";
-import { createPasswordResetToken, deletePasswordResetToken, getUser, getUserAccount } from "@/infrastructure/services/user.service";
+import {
+  createPasswordResetToken,
+  deletePasswordResetToken,
+  getUser,
+  getUserAccount,
+} from "@/infrastructure/services/user.service";
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -40,7 +45,9 @@ export default async function handler(
 
     if (account?.type === "oauth") {
       return res.status(400).json({
-        error: `You cannot reset your password if you registered via ${account.provider.charAt(0).toUpperCase() + account.provider.slice(1)}. If you no longer have access to your account, please contact support.`,
+        error: `You cannot reset your password if you registered via ${
+          account.provider.charAt(0).toUpperCase() + account.provider.slice(1)
+        }. If you no longer have access to your account, please contact support.`,
       });
     }
 

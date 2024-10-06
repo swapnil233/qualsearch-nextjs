@@ -8,20 +8,23 @@ import { TagWithNoteIds } from "@/types";
  * @param projectId {string} The project ID where the tag is located.
  * @returns {Promise<TagWithNoteIds | null>} The existing tag or null if not found.
  */
-export async function findExistingTag(tagName: string, projectId: string): Promise<TagWithNoteIds | null> {
-    return await prisma.tag.findFirst({
-        where: {
-            projectId,
-            name: {
-                equals: tagName,
-                mode: "insensitive", // Case-insensitive match
-            },
-        },
-        include: {
-            createdBy: { select: { id: true } },
-            notes: { select: { id: true } },
-        },
-    });
+export async function findExistingTag(
+  tagName: string,
+  projectId: string
+): Promise<TagWithNoteIds | null> {
+  return await prisma.tag.findFirst({
+    where: {
+      projectId,
+      name: {
+        equals: tagName,
+        mode: "insensitive", // Case-insensitive match
+      },
+    },
+    include: {
+      createdBy: { select: { id: true } },
+      notes: { select: { id: true } },
+    },
+  });
 }
 
 /**
@@ -32,16 +35,20 @@ export async function findExistingTag(tagName: string, projectId: string): Promi
  * @param createdByUserId {string} The ID of the user who created the tag.
  * @returns {Promise<TagWithNoteIds>} The newly created tag.
  */
-export async function createNewTag(tagName: string, projectId: string, createdByUserId: string): Promise<TagWithNoteIds> {
-    return await prisma.tag.create({
-        data: {
-            name: tagName,
-            projectId,
-            createdByUserId,
-        },
-        include: {
-            createdBy: { select: { id: true } },
-            notes: { select: { id: true } },
-        },
-    });
+export async function createNewTag(
+  tagName: string,
+  projectId: string,
+  createdByUserId: string
+): Promise<TagWithNoteIds> {
+  return await prisma.tag.create({
+    data: {
+      name: tagName,
+      projectId,
+      createdByUserId,
+    },
+    include: {
+      createdBy: { select: { id: true } },
+      notes: { select: { id: true } },
+    },
+  });
 }

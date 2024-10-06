@@ -1,4 +1,7 @@
-import { createNewTag, findExistingTag } from "@/infrastructure/services/tag.service";
+import {
+  createNewTag,
+  findExistingTag,
+} from "@/infrastructure/services/tag.service";
 import { ErrorMessages } from "@/lib/constants/ErrorMessages";
 import { HttpStatus } from "@/lib/constants/HttpStatus";
 import prisma from "@/lib/prisma";
@@ -21,7 +24,9 @@ export default async function handler(
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    return res.status(HttpStatus.Unauthorized).json({ error: ErrorMessages.Unauthorized });
+    return res
+      .status(HttpStatus.Unauthorized)
+      .json({ error: ErrorMessages.Unauthorized });
   }
 
   switch (req.method) {
@@ -38,7 +43,12 @@ export default async function handler(
 }
 
 async function handleCreateTags(req: NextApiRequest, res: NextApiResponse) {
-  const { newTagNames, projectId, createdByUserId }: { newTagNames: string[], projectId: string, createdByUserId: string } = req.body;
+  const {
+    newTagNames,
+    projectId,
+    createdByUserId,
+  }: { newTagNames: string[]; projectId: string; createdByUserId: string } =
+    req.body;
 
   try {
     const createdTags: TagWithNoteIds[] = [];
@@ -62,7 +72,9 @@ async function handleCreateTags(req: NextApiRequest, res: NextApiResponse) {
     return res.status(HttpStatus.Ok).json(createdTags);
   } catch (error) {
     console.error("Error creating tags:", error);
-    return res.status(HttpStatus.InternalServerError).json({ error: "Failed to create tags." });
+    return res
+      .status(HttpStatus.InternalServerError)
+      .json({ error: "Failed to create tags." });
   }
 }
 
@@ -70,7 +82,9 @@ async function handleFetchTags(req: NextApiRequest, res: NextApiResponse) {
   const { projectId } = req.query;
 
   if (!projectId) {
-    return res.status(HttpStatus.BadRequest).json({ error: "Missing project ID." });
+    return res
+      .status(HttpStatus.BadRequest)
+      .json({ error: "Missing project ID." });
   }
 
   try {
@@ -82,7 +96,9 @@ async function handleFetchTags(req: NextApiRequest, res: NextApiResponse) {
     return res.status(HttpStatus.Ok).json(tags);
   } catch (error) {
     console.error("Error fetching tags:", error);
-    return res.status(HttpStatus.InternalServerError).json({ error: "Failed to fetch tags." });
+    return res
+      .status(HttpStatus.InternalServerError)
+      .json({ error: "Failed to fetch tags." });
   }
 }
 
