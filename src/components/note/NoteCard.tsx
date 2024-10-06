@@ -108,12 +108,12 @@ export function NoteCard({ position, note, mediaRef }: INoteCardProps) {
                   <Group justify="space-between" w={"100%"}>
                     <Group>
                       <Avatar
-                        src={note.createdBy.image}
-                        alt={note.createdBy.name || ""}
+                        src={note.createdBy?.image || "anonUser.png"}
+                        alt={note.createdBy?.name || "Anonymous User"}
                         radius="xl"
                       />
                       <Stack gap={0}>
-                        <Text fz="md">{note.createdBy.name}</Text>
+                        <Text fz="md">{note.createdBy?.name}</Text>
                         <Text fz="xs" c="dimmed">
                           {new Date(note.createdAt).toDateString()}
                         </Text>

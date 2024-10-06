@@ -4,8 +4,8 @@ import {
   Box,
   Button,
   Group,
-  MultiSelect,
   Stack,
+  TagsInput,
   Text,
   Textarea,
   useMantineColorScheme,
@@ -16,29 +16,30 @@ import { User } from "@prisma/client";
 import { IconTag } from "@tabler/icons-react";
 import { FC, useEffect, useState } from "react";
 
-interface ICreateNotePopover {
+interface CreateNotePopoverProps {
   user: User;
   tags: TagWithNoteIds[];
   onClose: () => void;
   noteIsCreating: boolean;
-  onSubmit: (_note: string, _tags: string[], _newTags: string[]) => void;
+  onSubmit: (
+    _note: string,
+    _selectedTagIds: string[],
+    _newTagNames: string[]
+  ) => void;
   position: { top: number; left: number };
 }
 
-interface IFormValues {
+interface FormValues {
   note: string;
-  tags: string[];
+  tags: string[]; // Array of selected tag IDs
 }
 
-type MultiSelectData = {
-  // values are IDs
-  value: string;
-
-  // labels are the names
-  label: string;
+type TagsInputOption = {
+  value: string; // tag ID
+  label: string; // tag name
 };
 
-export const CreateNotePopover: FC<ICreateNotePopover> = ({
+export const CreateNotePopover: FC<CreateNotePopoverProps> = ({
   user,
   tags,
   onClose,
@@ -49,35 +50,40 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
 
-  const [multiSelectDataset, setMultiSelectDataset] = useState<
-    MultiSelectData[]
-  >([]);
+  // Holds the tags that can be selected in the TagsInput component (ID and name pairs).
+  const [selectableTags, setSelectableTags] = useState<TagsInputOption[]>([]);
 
-  // Array of just the new tag's names
-  const [newTags, setNewTags] = useState<string[]>([]);
+  // Holds names of new tags created by the user that do not already exist in 'tags'.
+  const [newTagNames, setNewTagNames] = useState<string[]>([]);
 
-  // Iterate through tags prop, transform each to multiSelectDataset
+  // Transform the tags prop into a format suitable for the TagsInput component.
   useEffect(() => {
-    const transformTags = () => {
-      tags.map((tag) => {
-        setMultiSelectDataset((prevTags) => [
-          ...prevTags,
-          {
-            label: tag.name,
-            value: tag.id,
-          },
-        ]);
-      });
+    const populateSelectableTags = () => {
+      const uniqueTags = new Set<string>();
+      const transformedTags = tags
+        .map((tag) => ({
+          label: tag.name,
+          value: tag.id,
+        }))
+        .filter((tag) => {
+          // Ensure each tag is unique by its ID
+          if (!uniqueTags.has(tag.value)) {
+            uniqueTags.add(tag.value);
+            return true;
+          }
+          return false;
+        });
+      setSelectableTags(transformedTags);
     };
 
-    transformTags();
+    populateSelectableTags();
   }, [tags]);
 
-  // Form for the note creation submission.
-  const form = useForm<IFormValues>({
+  // Form for creating a new note.
+  const form = useForm<FormValues>({
     initialValues: {
       note: "",
-      tags: [],
+      tags: [], // Initially no tags are selected
     },
   });
 
@@ -99,9 +105,10 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
           <Avatar src={user.image || ""} alt={user.name || ""} radius="xl" />
           <Text fz="md">{user.name}</Text>
         </Group>
+
         <form
           onSubmit={form.onSubmit((values) =>
-            onSubmit(values.note, values.tags, newTags)
+            onSubmit(values.note, values.tags, newTagNames)
           )}
         >
           <Stack mb={"lg"}>
@@ -109,28 +116,35 @@ export const CreateNotePopover: FC<ICreateNotePopover> = ({
               {...form.getInputProps("note")}
               placeholder="E.g., The user found the report creation process confusing..."
               label="Note"
-              minRows={3}
+              minRows={4}
+              resize="vertical"
+              required
             />
-            <MultiSelect
-              {...form.getInputProps("tags")}
-              label="Select tags"
-              data={multiSelectDataset}
-              // clearSearchOnBlur
-              searchable
-              clearable
-              leftSection={<IconTag size={"1.1rem"} />}
-              // creatable
-              // getCreateLabel={(query: any) => `+ Create ${query}`}
-              // onCreate={(query: any) => {
-              //   const item = { value: query, label: query };
-              //   setNewTags((prevTags) => [...prevTags, query]);
-              //   setMultiSelectDataset((current) => [...current, item]);
 
-              //   return item;
-              // }}
+            {/* TagsInput for selecting or creating tags */}
+            <TagsInput
+              value={form.values.tags}
+              onChange={(selectedTags) => {
+                // Update the form with the selected tag IDs
+                form.setFieldValue("tags", selectedTags);
+
+                // Detect new tag names that aren't part of existing tags
+                const newTagsFromInput = selectedTags.filter(
+                  (tagId) =>
+                    !selectableTags.some((option) => option.value === tagId)
+                );
+                setNewTagNames(newTagsFromInput);
+              }}
+              label="Select or create tags"
+              data={selectableTags}
+              clearable
+              description="Press Enter to create a new tag, or select an existing one."
+              leftSection={<IconTag size={"1.1rem"} />}
+              placeholder="Enter or select tags"
             />
           </Stack>
 
+          {/* Action buttons for cancelling or submitting the note */}
           <Group justify="space-between">
             <Button
               disabled={noteIsCreating}

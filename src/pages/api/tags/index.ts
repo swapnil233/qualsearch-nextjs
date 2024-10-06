@@ -1,3 +1,4 @@
+import { createNewTag, findExistingTag } from "@/infrastructure/services/tag.service";
 import { ErrorMessages } from "@/lib/constants/ErrorMessages";
 import { HttpStatus } from "@/lib/constants/HttpStatus";
 import prisma from "@/lib/prisma";
@@ -7,14 +8,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]";
 
 /**
- * Handler for the '/api/tags' API endpoint.
- * This function is responsible for performing various tags-related operations,
- * depending on the HTTP method of the request:
- * 1. POST: Create a new tag or tags.
- * 2. GET: Fetch all tags of a project.
- * 3. DELETE: Delete a tag.
- *
- * For all operations, the client must be authenticated.
+ * API handler for '/api/tags' endpoint.
+ * Supports creating tags (POST), fetching project tags (GET), and deleting tags (DELETE).
  *
  * @param req {NextApiRequest} The HTTP request object.
  * @param res {NextApiResponse} The HTTP response object.
@@ -23,100 +18,60 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Get the server session and authenticate the request.
   const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
-    return res.status(HttpStatus.Unauthorized).send(ErrorMessages.Unauthorized);
+    return res.status(HttpStatus.Unauthorized).json({ error: ErrorMessages.Unauthorized });
   }
 
-  // Handle the request depending on its HTTP method.
   switch (req.method) {
     case "POST":
-      return handlePost(req, res);
+      return handleCreateTags(req, res);
     case "GET":
-      return handleGet(req, res);
+      return handleFetchTags(req, res);
     case "DELETE":
-      return handleDelete(req, res, session);
+      return handleDeleteTag(req, res);
     default:
       res.setHeader("Allow", ["POST", "GET", "DELETE"]);
-      res.status(405).end(`Method ${req.method} Not Allowed`);
+      return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
 
-/**
- * Handler for POST requests to '/api/tags'.
- * This function creates new tag(s) given an array of tags
- *
- * @param req {NextApiRequest} The HTTP request object.
- * @param res {NextApiResponse} The HTTP response object.
- */
-async function handlePost(req: NextApiRequest, res: NextApiResponse) {
-  interface IPostBody {
-    newTagNames: string[];
-    createdByUserId: string;
-    projectId: string;
-  }
-
-  const { newTagNames, projectId, createdByUserId }: IPostBody = req.body;
+async function handleCreateTags(req: NextApiRequest, res: NextApiResponse) {
+  const { newTagNames, projectId, createdByUserId }: { newTagNames: string[], projectId: string, createdByUserId: string } = req.body;
 
   try {
-    let newTags: TagWithNoteIds[] = [];
+    const createdTags: TagWithNoteIds[] = [];
+    const existingTagIds = new Set<string>();
 
-    const checkIfTagExistsOrCreateTag = async (tagName: string) => {
-      // Check if there's a tag with that name in the project scope.
-      const tagCount = await prisma.tag.count({
-        where: {
-          projectId: projectId,
-          name: {
-            contains: tagName,
-            mode: "insensitive",
-          },
-        },
-      });
+    // Iterate over the new tag names and either find or create them
+    for (const tagName of newTagNames) {
+      const existingTag = await findExistingTag(tagName, projectId);
 
-      // If the tag doesn't exist, create it.
-      if (tagCount === 0) {
-        const newTag = await prisma.tag.create({
-          data: {
-            name: tagName,
-            projectId: projectId,
-            createdByUserId: createdByUserId,
-          },
-          include: {
-            createdBy: {
-              select: {
-                id: true,
-              },
-            },
-            notes: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        });
-
-        newTags.push(newTag);
-      } else {
-        console.log(`Tag ${tagName} already exists.`);
-        res.status(409).send(`Tag ${tagName} already exists.`);
+      if (existingTag && !existingTagIds.has(existingTag.id)) {
+        // Add the existing tag to the response if not already added
+        createdTags.push(existingTag);
+        existingTagIds.add(existingTag.id);
+      } else if (!existingTag) {
+        // If the tag does not exist, create a new one
+        const newTag = await createNewTag(tagName, projectId, createdByUserId);
+        createdTags.push(newTag);
       }
-    };
+    }
 
-    await Promise.all(
-      newTagNames.map((tagName) => checkIfTagExistsOrCreateTag(tagName))
-    );
-
-    res.status(HttpStatus.Ok).send(newTags);
+    return res.status(HttpStatus.Ok).json(createdTags);
   } catch (error) {
-    console.error("Error creating note:", error);
-    res.status(500).json({ error: "Failed to create tags." });
+    console.error("Error creating tags:", error);
+    return res.status(HttpStatus.InternalServerError).json({ error: "Failed to create tags." });
   }
 }
 
-async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+async function handleFetchTags(req: NextApiRequest, res: NextApiResponse) {
   const { projectId } = req.query;
+
+  if (!projectId) {
+    return res.status(HttpStatus.BadRequest).json({ error: "Missing project ID." });
+  }
 
   try {
     const tags = await prisma.tag.findMany({
@@ -124,19 +79,15 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
         projectId: projectId as string,
       },
     });
-
-    console.log(tags);
-    res.status(HttpStatus.Ok).send(tags);
+    return res.status(HttpStatus.Ok).json(tags);
   } catch (error) {
     console.error("Error fetching tags:", error);
-    res.status(500).json({ error: "Failed to fetch tags." });
+    return res.status(HttpStatus.InternalServerError).json({ error: "Failed to fetch tags." });
   }
 }
 
-async function handleDelete(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  session: any
-) {
-  console.log("DELETE");
+async function handleDeleteTag(req: NextApiRequest, res: NextApiResponse) {
+  // Placeholder for delete logic
+  console.log("DELETE handler called");
+  return res.status(HttpStatus.Ok).json({ message: "DELETE handler called" });
 }
