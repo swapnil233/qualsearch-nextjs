@@ -6,7 +6,7 @@ import { FC } from "react";
  * This component will be used in /teams to show the invitations a user has to join other teams.
  * Team name
  * Team description (trunc)
- * Date the invitation was recieved
+ * Date the invitation was received
  * Actions: accept, decline
  */
 
@@ -31,34 +31,32 @@ const InvitationsTable: FC<IInvitationsTable> = ({
   const rows = invitations.map((invitation) => (
     <tr key={invitation.id}>
       {/* Team name */}
-      <td>
-        <Text size="sm">{invitation.teamName}</Text>
+      <td className="py-4">
+        <Text size="sm" fw={500}>
+          {invitation.teamName}
+        </Text>
       </td>
 
       {/* Description */}
-      <td>
+      <td className="py-4">
         <Text size="sm">
           {invitation.teamDescription !== null &&
           invitation.teamDescription !== "" ? (
             <>{invitation.teamDescription}</>
           ) : (
-            <>
-              <Text fs="italic" size="sm">
-                -
-              </Text>
-            </>
+            <Text fs="italic" size="sm">
+              -
+            </Text>
           )}
         </Text>
       </td>
 
-      {/* Recieved */}
-      <td>
-        <Text size="sm">{invitation.createdAt}</Text>
-      </td>
+      {/* Received */}
+      <td className="py-4">{invitation.createdAt}</td>
 
       {/* Actions */}
-      <td>
-        <Group gap={"xs"}>
+      <td className="py-4" style={{ textAlign: "right" }}>
+        <Group gap="xs" p="right">
           <Button
             leftSection={<IconCheck size={"1.2rem"} />}
             variant="light"
@@ -81,13 +79,13 @@ const InvitationsTable: FC<IInvitationsTable> = ({
 
   return (
     <ScrollArea>
-      <Table miw={800} verticalSpacing="sm">
+      <Table miw={800}>
         <thead>
           <tr>
-            <th>Team name</th>
-            <th>Description</th>
-            <th>Recieved</th>
-            <th>Actions</th>
+            <th style={{ textAlign: "left" }}>Team name</th>
+            <th style={{ textAlign: "left" }}>Description</th>
+            <th style={{ textAlign: "left" }}>Received</th>
+            <th style={{ textAlign: "left" }}>Actions</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
