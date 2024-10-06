@@ -1,7 +1,7 @@
 import { FileWithoutTranscriptAndUri } from "@/types";
 import { Button, Group, Text } from "@mantine/core";
 import { IconBuilding, IconCalendar, IconUser } from "@tabler/icons-react";
-import router from "next/router";
+import Link from "next/link";
 
 interface IFileMetadataProps {
   file: FileWithoutTranscriptAndUri;
@@ -45,13 +45,12 @@ const FileMetadata: React.FC<IFileMetadataProps> = ({ file }) => {
       <Button
         disabled={file.status === "PROCESSING"}
         variant="default"
-        onClick={() => {
+        component={Link}
+        href={
           file.status === "COMPLETED"
-            ? router.push(
-                `/teams/${file.teamId}/projects/${file.projectId}/files/${file.id}`
-              )
-            : "";
-        }}
+            ? `/teams/${file.teamId}/projects/${file.projectId}/files/${file.id}`
+            : ""
+        }
       >
         {file.status === "PROCESSING" ? "Transcribing" : "View"}
       </Button>
