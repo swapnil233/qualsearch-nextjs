@@ -5,22 +5,13 @@ import {
   Text,
   UnstyledButton,
   useMantineColorScheme,
-  useMantineTheme,
 } from "@mantine/core";
-import {
-  IconFolder,
-  IconLogout,
-  IconSelector,
-  IconUserCircle,
-} from "@tabler/icons-react";
-import { signOut, useSession } from "next-auth/react";
+import { IconFolder, IconSelector } from "@tabler/icons-react";
 import { useRouter } from "next/router";
 
 export const TeamDropdown = () => {
   const router = useRouter();
   const { teams } = useTeams();
-  const { data } = useSession();
-  const theme = useMantineTheme();
 
   const currentTeam = (teams || []).find(
     (team) => team.id === router.query.teamId
@@ -28,13 +19,12 @@ export const TeamDropdown = () => {
   const { colorScheme } = useMantineColorScheme();
 
   return (
-    <Menu width={"90%"}>
+    <Menu>
       <Menu.Target>
         <UnstyledButton
+          p="md"
+          w="100%"
           style={(theme) => ({
-            display: "block",
-            width: "100%",
-            padding: `${theme.spacing.sm} ${theme.spacing.md}`,
             borderRadius: theme.radius.sm,
             border: `1px solid ${
               colorScheme === "dark"
@@ -53,7 +43,7 @@ export const TeamDropdown = () => {
         >
           <Group justify="space-between">
             <Text size="sm" fw={700}>
-              {currentTeam?.name || data?.user?.name || "Select team"}
+              {currentTeam?.name || "Select a team"}
             </Text>
 
             {<IconSelector size="1.1rem" />}
@@ -77,25 +67,6 @@ export const TeamDropdown = () => {
             No teams
           </Menu.Item>
         )}
-
-        <Menu.Divider />
-
-        <Menu.Label>Profile</Menu.Label>
-        <Menu.Item
-          leftSection={<IconUserCircle size="1.1rem" />}
-          onClick={() => router.push("/profile")}
-        >
-          {data?.user?.name}
-        </Menu.Item>
-        <Menu.Item
-          onClick={() => {
-            signOut({ callbackUrl: "/" });
-          }}
-          leftSection={<IconLogout size="1.1rem" />}
-          color={colorScheme === "dark" ? theme.white : theme.black}
-        >
-          Log out
-        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );
