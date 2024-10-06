@@ -5,8 +5,9 @@ datasource db {
 }
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+  previewFeatures = ["strictUndefinedChecks", "omitApi"]
 }
 
 model User {
@@ -137,7 +138,7 @@ model TeamMember {
   userId String
   teamId String
   role   Role   @default(MEMBER)
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
   @@id([userId, teamId])
@@ -273,10 +274,39 @@ model Summary {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  content   String
+  content   String?
 
   // 1-1: a Summary belongs to 1 Transcript.
   Transcript Transcript?
+
+  // 1-n: a Summary can have many insights
+  insights SummaryInsight[]
+
+  // 1-1: a Summary can have 1 overview
+  overview SummaryOverview?
+}
+
+model SummaryInsight {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  insight   String
+  quote     String?
+
+  // 1-1: a SummaryInsight belongs to 1 Summary.
+  summary   Summary @relation(fields: [summaryId], references: [id], onDelete: Cascade)
+  summaryId String
+}
+
+model SummaryOverview {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  overview  String
+
+  // 1-1: a SummaryOverview belongs to 1 Summary.
+  summary   Summary? @relation(fields: [summaryId], references: [id], onDelete: Cascade)
+  summaryId String   @unique
 }
 
 model TranscriptMetadata {
@@ -304,8 +334,8 @@ model Speaker {
   email     String?
 
   // A speaker can also be a user in the team
-  teamMemberId String?
-  user         User?   @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // 1-n -> Speaker can belong to 1 file
   file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
@@ -353,8 +383,8 @@ model Note {
   tags Tag[]
 
   // 1-1 -> A note is created by a user
-  createdBy       User   @relation(fields: [createdByUserId], references: [id])
-  createdByUserId String
+  createdBy       User?   @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdByUserId String?
 }
 
 model Tag {
@@ -363,16 +393,19 @@ model Tag {
   updatedAt DateTime @updatedAt
   name      String
 
-  // m-n -> A tag can belong to many notes
+  // m-n -> A tag can have many notes, a note can have many tags.
   notes Note[]
 
-  // 1-1 -> A tag is created by a user
-  createdBy       User   @relation(fields: [createdByUserId], references: [id])
-  createdByUserId String
+  // 1-1 -> A tag is created by a user, but can be null if the user is deleted.
+  createdBy       User?   @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdByUserId String?
 
-  // 1-n -> A tag must belong to a project
+  // 1-n -> A tag can belong to 1 project, a project can have many tags.
   Project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
+
+  // Tag names are unique within a project
+  @@unique([name, projectId])
 }
 
 enum InvitationStatus {
