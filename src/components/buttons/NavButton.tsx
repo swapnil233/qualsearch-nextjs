@@ -9,9 +9,10 @@ interface NavButtonProps {
   icon: ReactNode;
   label: string;
   isCollapsed: boolean;
-  closeMobileNav: () => void;
+  closeMobileSidebarNav: () => void;
   nested?: boolean;
   children?: ReactNode;
+  dontPrefetch?: boolean;
 }
 
 const NavButton: FC<NavButtonProps> = ({
@@ -20,9 +21,10 @@ const NavButton: FC<NavButtonProps> = ({
   icon,
   label,
   isCollapsed,
-  closeMobileNav,
+  closeMobileSidebarNav,
   nested = false,
   children,
+  dontPrefetch,
 }) => {
   const router = useRouter();
   const currentPath = router.pathname;
@@ -35,13 +37,15 @@ const NavButton: FC<NavButtonProps> = ({
   const isDarkMode = colorScheme === "dark";
 
   const handleClick = () => {
-    closeMobileNav();
+    closeMobileSidebarNav();
   };
 
   const linkContent = (
     <Link
       href={href}
+      prefetch={false}
       as={as}
+      {...(dontPrefetch === true && { prefetch: false })}
       onClick={handleClick}
       className={`flex ${
         isCollapsed ? "px-2" : nested ? "pl-6" : "px-[13px]"

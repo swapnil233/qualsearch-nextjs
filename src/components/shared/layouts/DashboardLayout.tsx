@@ -33,7 +33,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
+import { TeamDropdown } from "../TeamDropdown";
 
 export interface IDashboardLayout {
   children: ReactNode;
@@ -41,9 +42,11 @@ export interface IDashboardLayout {
 }
 
 const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
-  const [mobileOpened, { toggle: toggleMobile, close: closeMobile }] =
-    useDisclosure();
-  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
+  const [
+    mobileSidebarWasExpanded,
+    { toggle: expandMobileSidebar, close: closeMobileSidebar },
+  ] = useDisclosure();
+  const [sidebarWasExpanded, { toggle: expandSidebar }] = useDisclosure(true);
   const [newNotifications] = useState(false);
   const session = useSession();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -52,8 +55,8 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
   const router = useRouter();
 
   const handleCollapseClick = () => {
-    toggleDesktop();
-    closeMobile();
+    expandSidebar();
+    closeMobileSidebar();
   };
 
   const renderNavButtons = () => {
@@ -69,32 +72,36 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             as={`/teams/${teamId}/projects/${projectId}/dashboard`}
             icon={<IconHome size={20} />}
             label="Dashboard"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
+            dontPrefetch={true}
           />
           <NavButton
             href="/teams/[teamId]/projects/[projectId]/files"
             as={`/teams/${teamId}/projects/${projectId}/files`}
             icon={<IconFiles size={20} />}
             label="Files"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
+            dontPrefetch={true}
           />
           <NavButton
             href="/teams/[teamId]/projects/[projectId]/notes"
             as={`/teams/${teamId}/projects/${projectId}/notes`}
             icon={<IconNote size={20} />}
             label="Notes"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
+            dontPrefetch={true}
           />
           <NavButton
             href="/teams/[teamId]/projects/[projectId]/tags"
             as={`/teams/${teamId}/projects/${projectId}/tags`}
             icon={<IconTag size={20} />}
             label="Tags"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
+            dontPrefetch={true}
           />
         </Stack>
       );
@@ -106,16 +113,16 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             href="/teams"
             icon={<IconFolder size={20} />}
             label="Teams"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           >
             <NavButton
               href="/teams/[teamId]/projects"
               as={`/teams/${teamId}/projects`}
               icon={<IconFolders size={20} />}
               label="Projects"
-              isCollapsed={!desktopOpened}
-              closeMobileNav={closeMobile}
+              isCollapsed={!sidebarWasExpanded}
+              closeMobileSidebarNav={closeMobileSidebar}
               nested // Pass nested to indent
             />
           </NavButton>
@@ -123,8 +130,8 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             href="/profile"
             icon={<IconUser size={20} />}
             label="Profile"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           />
         </Stack>
       );
@@ -136,15 +143,15 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             href="/teams"
             icon={<IconFolder size={20} />}
             label="Teams"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           />
           <NavButton
             href="/profile"
             icon={<IconUser size={20} />}
             label="Profile"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           />
         </Stack>
       );
@@ -156,35 +163,49 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             href="/teams"
             icon={<IconHome size={20} />}
             label="Teams"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           />
           <NavButton
             href="/inbox"
             icon={<IconInbox size={20} />}
             label="Inbox"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           />
           <NavButton
             href="/reports"
             icon={<IconChartBar size={20} />}
             label="Reports"
-            isCollapsed={!desktopOpened}
-            closeMobileNav={closeMobile}
+            isCollapsed={!sidebarWasExpanded}
+            closeMobileSidebarNav={closeMobileSidebar}
           />
         </Stack>
       );
     }
   };
 
+  useEffect(() => {
+    if (mobileSidebarWasExpanded) {
+      console.log("Mobile sidebar was expanded", mobileSidebarWasExpanded);
+    }
+
+    if (sidebarWasExpanded) {
+      console.log("Sidebar expanded", sidebarWasExpanded);
+    }
+
+    if (!mobileSidebarWasExpanded) {
+      console.log("Mobile sidebar was collapsed", mobileSidebarWasExpanded);
+    }
+  }, [mobileSidebarWasExpanded, sidebarWasExpanded]);
+
   return (
     <AppShell
       header={{ height: 70 }}
       navbar={{
-        width: { base: 300, sm: desktopOpened ? 250 : 80 },
+        width: { base: 300, sm: sidebarWasExpanded ? 250 : 80 },
         breakpoint: "sm",
-        collapsed: { mobile: !mobileOpened, desktop: false },
+        collapsed: { mobile: !mobileSidebarWasExpanded, desktop: false },
       }}
       {...(aside
         ? {
@@ -200,22 +221,26 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Burger
-            opened={mobileOpened}
-            onClick={toggleMobile}
+            opened={mobileSidebarWasExpanded}
+            onClick={expandMobileSidebar}
             hiddenFrom="sm"
             size="sm"
           />
           <Group align="center" wrap="nowrap" gap="sm">
-            <Link href="/">
-              <Image
-                src={
-                  colorScheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg"
-                }
-                alt="Logo"
-                height={38}
-                width={160}
-              />
-            </Link>
+            {!mobileSidebarWasExpanded && (
+              <Link href="/">
+                <Image
+                  src={
+                    colorScheme === "dark"
+                      ? "/logo-dark.svg"
+                      : "/logo-light.svg"
+                  }
+                  alt="Logo"
+                  height={38}
+                  width={160}
+                />
+              </Link>
+            )}
             <Switch
               checked={colorScheme === "dark"}
               onChange={() => toggleColorScheme()}
@@ -251,7 +276,7 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
       </AppShell.Header>
 
       <AppShell.Navbar
-        w={{ base: 300, sm: desktopOpened ? 250 : 80 }}
+        w={{ base: 300, sm: sidebarWasExpanded ? 250 : 80 }}
         style={{ zIndex: 200 }}
       >
         <AppShell.Section
@@ -262,7 +287,10 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
           grow
           component={ScrollArea}
         >
-          {renderNavButtons()}
+          <Stack>
+            {sidebarWasExpanded && <TeamDropdown />}
+            {renderNavButtons()}
+          </Stack>
         </AppShell.Section>
         <AppShell.Section
           px="md"
@@ -274,15 +302,15 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             <NavButton
               href="#"
               icon={
-                desktopOpened ? (
+                sidebarWasExpanded ? (
                   <IconLayoutSidebarLeftCollapse size={20} />
                 ) : (
                   <IconLayoutSidebarLeftExpand size={20} />
                 )
               }
               label="Collapse"
-              isCollapsed={!desktopOpened}
-              closeMobileNav={handleCollapseClick}
+              isCollapsed={!sidebarWasExpanded}
+              closeMobileSidebarNav={handleCollapseClick}
             />
           </Stack>
         </AppShell.Section>
