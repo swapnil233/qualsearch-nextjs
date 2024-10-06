@@ -104,8 +104,8 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                 >
                   <Group>
                     <Avatar
-                      src={note.createdBy.image}
-                      alt={note.createdBy.name || ""}
+                      src={note.createdBy?.image || "anonUser.png"}
+                      alt={note.createdBy?.name || "Anonymous User"}
                       radius="xl"
                     />
                     <Stack gap={0}>
@@ -118,7 +118,7 @@ export const AsideNotes: React.FC<IAsideNotes> = ({
                             : theme.colors.dark[9]
                         }
                       >
-                        {note.createdBy.name}
+                        {note.createdBy?.name || "Anonymous User"}
                       </Text>
                       <Text fz="xs" c="dimmed">
                         {new Date(note.createdAt).toDateString()}
