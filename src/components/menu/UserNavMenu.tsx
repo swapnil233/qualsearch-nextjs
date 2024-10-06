@@ -31,20 +31,10 @@ const UserNavMenu: FC<IUserNavMenu> = ({ image, name, email }) => {
         style={{
           boxShadow:
             "rgba(0, 0, 0, 0.1) 0px 1px 3px, rgba(0, 0, 0, 0.06) 0px 4px 8px",
-          border: "1px solid rgb(194, 197, 205)",
           boxSizing: "border-box",
         }}
       >
-        <Stack
-          py="md"
-          px="xl"
-          bg="#f6f8fc"
-          style={{
-            borderBottom: "1px solid var(--mantine-colors-gray-3)",
-          }}
-          justify="center"
-          align="center"
-        >
+        <Stack py="md" px="xl" justify="center" align="center">
           <Avatar
             src={image}
             alt="User avatar"
@@ -61,6 +51,7 @@ const UserNavMenu: FC<IUserNavMenu> = ({ image, name, email }) => {
             </Text>
           </Stack>
         </Stack>
+        <MenuDivider m={0} p={0} />
         <Stack py="sm" gap={"xs"}>
           <Menu.Item
             leftSection={
