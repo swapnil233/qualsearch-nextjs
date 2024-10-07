@@ -270,36 +270,33 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
               <th style={{ textAlign: "left", padding: "1rem" }}>Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <Table.Tbody>
             {currentNotes.length > 0 ? (
-              currentNotes.map((note, index) => (
-                <tr
-                  key={note.id}
-                  className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-                >
-                  <td className="p-4 align-top">
+              currentNotes.map((note) => (
+                <Table.Tr key={note.id}>
+                  <Table.Td className="p-4 align-top">
                     <HighlightSearch text={note.text} search={search} />
-                  </td>
-                  <td className="p-4 align-top italic">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top italic">
                     {`"`}
                     <HighlightSearch
                       text={note.transcriptText.trim()}
                       search={search}
                     />
                     {`"`}
-                  </td>
-                  <td className="p-4 align-top">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top">
                     {note.file.participantName || "-"}
-                  </td>
-                  <td className="p-4 align-top">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top">
                     {note.file.participantOrganization || "-"}
-                  </td>
-                  <td className="p-4 align-top">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top">
                     {note.file.dateConducted
                       ? new Date(note.file.dateConducted).toDateString()
                       : "-"}
-                  </td>
-                  <td className="p-4 align-top">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top">
                     <Stack gap="xs">
                       {note.tags.map((tag) => (
                         <Link
@@ -313,8 +310,8 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                         </Link>
                       ))}
                     </Stack>
-                  </td>
-                  <td className="p-4 align-top">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top">
                     <Link
                       href={`/teams/${teamId}/people/${note.createdByUserId}`}
                       style={{ textDecoration: "none" }}
@@ -333,11 +330,14 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                         </Stack>
                       </Group>
                     </Link>
-                  </td>
-                  <td className="p-4 align-top">
+                  </Table.Td>
+                  <Table.Td className="p-4 align-top">
                     {new Date(note.createdAt).toDateString()}
-                  </td>
-                  <td className="p-4 align-top" style={{ textAlign: "right" }}>
+                  </Table.Td>
+                  <Table.Td
+                    className="p-4 align-top"
+                    style={{ textAlign: "right" }}
+                  >
                     <Stack align="flex-start">
                       <Link
                         href={`/teams/${teamId}/projects/${projectId}/files/${note.fileId}/?noteId=${note.id}`}
@@ -366,8 +366,8 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                         </ActionIcon>
                       </Tooltip>
                     </Stack>
-                  </td>
-                </tr>
+                  </Table.Td>
+                </Table.Tr>
               ))
             ) : (
               <tr>
@@ -387,11 +387,11 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
                 </td>
               </tr>
             )}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </ScrollArea>
 
-      <Group w="100%" align="right">
+      <Group w="100%" align="right" mt="md">
         <Pagination
           value={currentPage}
           onChange={setCurrentPage}
