@@ -17,7 +17,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "emails": "email dev --dir components/emails --port 3001",
-    "reset": "rm -rf node_modules .next/ && npm i && npm run postinstall && npm run dev"
+    "reset": "rm -rf node_modules .next/ && npm i && npm run dev"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.5.0",
