@@ -383,10 +383,6 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
           value={currentPage}
           onChange={setCurrentPage}
           total={totalPages}
-          onNextPage={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          onPreviousPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
         />
       </Group>
     </div>
