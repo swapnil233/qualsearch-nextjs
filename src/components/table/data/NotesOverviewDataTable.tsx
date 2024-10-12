@@ -21,7 +21,6 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { Tag } from "@prisma/client";
 import {
   IconChevronDown,
   IconDatabaseOff,
@@ -106,37 +105,30 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   const largeScreen = useMediaQuery("(min-width: 60em)");
 
   const tagsUsed = useMemo(() => {
-    return notes
-      .reduce<Tag[]>((acc, note) => {
-        note.tags.forEach((tag) => {
-          if (!acc.some((existingTag) => existingTag.id === tag.id)) {
-            acc.push(tag);
-          }
-        });
-        return acc;
-      }, [])
-      .map((tag) => ({
-        value: tag.id,
-        label: tag.name,
-      }));
+    const tagMap = new Map<string, string>();
+    notes.forEach((note) => {
+      note.tags.forEach((tag) => {
+        tagMap.set(tag.id, tag.name);
+      });
+    });
+
+    return Array.from(tagMap).map(([id, name]) => ({ value: id, label: name }));
   }, [notes]);
 
+  // Using Set to get unique participants
   const participants = useMemo(() => {
-    return (
-      notes
-        .reduce<string[]>((acc, note) => {
-          const participantName = note.file.participantName;
-          // participantName can be null since the schema made it optional, so check for that
-          if (participantName && !acc.includes(participantName)) {
-            acc.push(participantName);
-          }
-          return acc;
-        }, [])
-        .map((participant) => ({
-          value: participant,
-          label: participant,
-        })) || []
-    );
+    const participantSet = new Set<string>();
+    notes.forEach((note) => {
+      if (note.file.participantName) {
+        participantSet.add(note.file.participantName);
+      }
+    });
+
+    // Convert Set to array of objects for Mantine's Select component
+    return Array.from(participantSet).map((participant) => ({
+      value: participant,
+      label: participant,
+    }));
   }, [notes]);
 
   // Export filtered notes to Excel
