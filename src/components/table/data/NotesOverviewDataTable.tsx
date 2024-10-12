@@ -139,7 +139,8 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     );
   }, [notes]);
 
-  const exportData = notes.map((note) => ({
+  // Export filtered notes to Excel
+  const exportData = filteredNotes.map((note) => ({
     Note: note.text,
     Quote: note.transcriptText,
     Participant: note.file.participantName || "",
