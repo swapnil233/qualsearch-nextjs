@@ -2,7 +2,6 @@ import { useNotes } from "@/contexts/NotesContext";
 import { exportToExcel } from "@/lib/export/exportToExcel";
 import HighlightSearch from "@/lib/highlightSearchTerm";
 import { host } from "@/lib/host";
-import { NoteWithTagsAndCreator } from "@/types";
 import {
   ActionIcon,
   Avatar,
@@ -26,16 +25,16 @@ import { Tag } from "@prisma/client";
 import {
   IconChevronDown,
   IconDatabaseOff,
-  IconDownload,
   IconExternalLink,
   IconListSearch,
   IconShare,
+  IconTable,
   IconTag,
   IconTrash,
   IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 interface INotesOverviewDataTable {
   teamId: string;
@@ -52,8 +51,6 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   const { notes } = useNotes();
   // Search and filter states
   const [search, setSearch] = useState("");
-  const [filteredNotes, setFilteredNotes] =
-    useState<NoteWithTagsAndCreator[]>(notes);
   const [filteredTags, setFilteredTags] = useState<string[]>([]);
   const [filteredParticipants, setFilteredParticipants] = useState<string>("");
 
@@ -61,6 +58,32 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const itemsPerPageOptions = [5, 10, 20, 50, 100];
+
+  const filteredNotes = useMemo(() => {
+    const searchLower = search.toLowerCase();
+
+    return notes.filter((note) => {
+      // Search filter
+      const matchesSearch =
+        note.text.toLowerCase().includes(searchLower) ||
+        note.transcriptText.toLowerCase().includes(searchLower);
+
+      // Tag filter
+      const matchesTags =
+        filteredTags.length === 0 ||
+        filteredTags.every((tagId) =>
+          note.tags.some((tag) => tag.id === tagId)
+        );
+
+      // Participant filter
+      const matchesParticipants =
+        !filteredParticipants ||
+        note.file.participantName?.toLowerCase() ===
+          filteredParticipants.toLowerCase();
+
+      return matchesSearch && matchesTags && matchesParticipants;
+    });
+  }, [search, filteredTags, filteredParticipants, notes]);
 
   // Total pages
   const totalPages = useMemo(() => {
@@ -116,36 +139,6 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
     );
   }, [notes]);
 
-  // Combined filtering logic
-  useEffect(() => {
-    const searchLower = search.toLowerCase();
-
-    const filteredNotes = notes.filter((note) => {
-      // Search filter
-      const matchesSearch =
-        note.text.toLowerCase().includes(searchLower) ||
-        note.transcriptText.toLowerCase().includes(searchLower);
-
-      // Tag filter
-      const matchesTags =
-        filteredTags.length === 0 ||
-        filteredTags.every((tagId) =>
-          note.tags.some((tag) => tag.id === tagId)
-        );
-
-      // Participant filter
-      const matchesParticipants =
-        !filteredParticipants ||
-        note.file
-          .participantName!.toLowerCase()
-          .includes(filteredParticipants.toLowerCase());
-
-      return matchesSearch && matchesTags && matchesParticipants;
-    });
-
-    setFilteredNotes(filteredNotes);
-  }, [search, filteredTags, filteredParticipants, notes]);
-
   const exportData = notes.map((note) => ({
     Note: note.text,
     Quote: note.transcriptText,
@@ -185,7 +178,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             maw={largeScreen ? 400 : "100%"}
           >
             <Input
-              placeholder="Start typing to filter notes..."
+              placeholder="Start typing..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               leftSection={<IconListSearch />}
@@ -194,7 +187,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
 
           <MultiSelect
             label="Filter by tags"
-            placeholder="Notes with all selected tags..."
+            placeholder="Select tag(s)..."
             value={filteredTags}
             onChange={setFilteredTags}
             data={tagsUsed}
@@ -209,6 +202,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
             <Select
               leftSection={<IconUser size="1.1rem" />}
               label="Filter by participant"
+              placeholder="Select participant"
               value={filteredParticipants}
               onChange={(value) => setFilteredParticipants(value!)}
               data={participants}
@@ -233,13 +227,13 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
           />
         </Box>
         <Button
-          leftSection={<IconDownload size="1rem" />}
+          leftSection={<IconTable size="1rem" />}
           disabled={filteredNotes.length === 0}
           onClick={() =>
             exportToExcel({ data: exportData, filename: "export.xlsx" })
           }
         >
-          Export to Excel
+          Export
         </Button>
       </Group>
 
