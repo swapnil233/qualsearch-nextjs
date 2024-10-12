@@ -192,6 +192,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
 
           {participants.length > 0 && (
             <Select
+              searchable
               leftSection={<IconUser size="1.1rem" />}
               label="Filter by participant"
               placeholder="Select participant"
