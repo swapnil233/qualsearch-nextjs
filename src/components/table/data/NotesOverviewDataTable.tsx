@@ -231,7 +231,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       </Group>
 
       <Text size="sm">
-        Showing {currentNotes.length} of {notes.length} notes
+        Showing {currentNotes.length} of {filteredNotes.length} notes
       </Text>
 
       <ScrollArea>
