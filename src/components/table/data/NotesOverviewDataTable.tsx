@@ -77,8 +77,7 @@ const NotesOverviewDataTable: React.FC<INotesOverviewDataTable> = ({
       // Participant filter
       const matchesParticipants =
         !filteredParticipants ||
-        note.file.participantName?.toLowerCase() ===
-          filteredParticipants.toLowerCase();
+        note.file.participantName === filteredParticipants;
 
       return matchesSearch && matchesTags && matchesParticipants;
     });
