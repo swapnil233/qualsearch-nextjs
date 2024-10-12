@@ -13,17 +13,19 @@ import { validateUserIsTeamMember } from "@/infrastructure/services/team.service
 import { auth } from "@/lib/auth/auth";
 import { NextPageWithLayout } from "@/pages/page";
 import { FileWithoutTranscriptAndUri } from "@/types";
-import { Box, Group, Select, SimpleGrid, Stack } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { Box, Group, Input, Select, SimpleGrid, Stack } from "@mantine/core";
+import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { Project } from "@prisma/client";
 import {
   IconChevronDown,
   IconFilePlus,
+  IconListSearch,
   IconPencil,
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSidePropsContext } from "next";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { projectId, teamId } = context.query;
@@ -73,13 +75,61 @@ interface IFilesPage {
   files: FileWithoutTranscriptAndUri[];
 }
 
+const fileSortingOptions = [
+  { value: "nameAtoZ", label: "Name (A-Z)" },
+  { value: "nameZtoA", label: "Name (Z-A)" },
+  { value: "dateConducted", label: "Date conducted" },
+  { value: "createdAt", label: "Upload date" },
+];
+
 const FilesPage: NextPageWithLayout<IFilesPage> = ({
   project,
   files: initialFiles,
 }) => {
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebouncedValue(search, 500);
+
+  useEffect(() => {
+    if (router.query.search) {
+      setSearch(router.query.search as string);
+    }
+  }, [router.query.search]);
+
+  useEffect(() => {
+    const { pathname, query } = router;
+    const newQuery = { ...query, search: debouncedSearch } as Record<
+      string,
+      string | undefined
+    >;
+
+    if (!debouncedSearch) {
+      delete newQuery.search;
+    }
+
+    router.replace(
+      {
+        pathname,
+        query: newQuery,
+      },
+      undefined,
+      { shallow: true }
+    );
+  }, [debouncedSearch]);
+
   const [opened, { open, close }] = useDisclosure(false);
   const [files, setFiles] =
     useState<FileWithoutTranscriptAndUri[]>(initialFiles);
+
+  const filteredFiles = useMemo(() => {
+    if (!search) {
+      return files;
+    }
+    const searchLower = search.toLowerCase();
+    return files.filter((file) =>
+      file.name.toLowerCase().includes(searchLower)
+    );
+  }, [files, search]);
 
   const [projectDeletionModalOpened, setProjectDeletionModalOpened] =
     useState(false);
@@ -106,43 +156,21 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
     setDeletingProject
   );
 
-  // Options for sorting files
-  const fileSortingOptions = [
-    {
-      value: "nameAtoZ",
-      label: "Name (A-Z)",
-    },
-    {
-      value: "nameZtoA",
-      label: "Name (Z-A)",
-    },
-    {
-      value: "dateConducted",
-      label: "Date conducted",
-    },
-    {
-      value: "createdAt",
-      label: "Upload date",
-    },
-  ];
-
   // Select options for items per page
-  const selectOptions = fileSortingOptions.map((option) => ({
-    value: option.value,
-    label: option.label,
-  }));
+  const selectOptions = useMemo(() => fileSortingOptions, []);
 
   // Sort files when the sortFilesBy state changes
-  useEffect(() => {
+  // Inside your component
+  const sortedFiles = useMemo(() => {
     const sortFiles = (
-      files: FileWithoutTranscriptAndUri[],
+      filesToSort: FileWithoutTranscriptAndUri[],
       sortBy: string
     ): FileWithoutTranscriptAndUri[] => {
       // Create a new array for sorting
-      const filesToSort = [...files];
+      const filesCopy = [...filesToSort];
 
       // Sort the files by the selected option
-      return filesToSort.sort((a, b) => {
+      return filesCopy.sort((a, b) => {
         if (sortBy === "dateConducted") {
           return (
             new Date(a.dateConducted).getTime() -
@@ -161,14 +189,14 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
       });
     };
 
-    setFiles(sortFiles(files, sortFilesBy));
-  }, [sortFilesBy]);
+    return sortFiles(filteredFiles, sortFilesBy);
+  }, [filteredFiles, sortFilesBy]);
 
   return (
     <>
       <SharedHead
         title={`Files - ${project.name}`}
-        description={project.description || ""}
+        description={project.description ?? ""}
       />
 
       <PageHeading
@@ -214,34 +242,40 @@ const FilesPage: NextPageWithLayout<IFilesPage> = ({
           primaryButtonAction={open}
         />
       ) : (
-        <>
-          <Stack w={"100%"}>
-            <Group>
-              <Select
-                value={sortFilesBy}
-                onChange={(value) => setSortFilesBy(value as string)}
-                data={selectOptions}
-                rightSection={<IconChevronDown size="1rem" />}
-                rightSectionWidth={30}
-              />
-            </Group>
-            <SimpleGrid
-              type="container"
-              cols={{
-                "1900px": 4,
-                "1300px": 3,
-                "966px": 2,
-                "320px": 1,
-              }}
-              spacing={"md"}
-              verticalSpacing={"md"}
-            >
-              {files.map((file) => (
-                <FileCard key={file.id} file={file} />
-              ))}
-            </SimpleGrid>
-          </Stack>
-        </>
+        <Stack w={"100%"}>
+          <Group mb="md" w="100%" align="center" wrap="wrap">
+            <Input
+              placeholder="Search files"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              leftSection={<IconListSearch size="1rem" />}
+            />
+            <Select
+              value={sortFilesBy}
+              onChange={(value) =>
+                setSortFilesBy((value as string) ?? "nameAtoZ")
+              }
+              data={selectOptions}
+              rightSection={<IconChevronDown size="1rem" />}
+              rightSectionWidth={30}
+            />
+          </Group>
+          <SimpleGrid
+            type="container"
+            cols={{
+              "1900px": 4,
+              "1300px": 3,
+              "966px": 2,
+              "320px": 1,
+            }}
+            spacing={"md"}
+            verticalSpacing={"md"}
+          >
+            {sortedFiles.map((file) => (
+              <FileCard key={file.id} file={file} />
+            ))}
+          </SimpleGrid>
+        </Stack>
       )}
 
       <Box
