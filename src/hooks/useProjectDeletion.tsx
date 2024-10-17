@@ -5,7 +5,8 @@ import { useRouter } from "next/router";
 export const useProjectDeletion = (
   projectId: string,
   teamId: string,
-  setDeletingProject: React.Dispatch<React.SetStateAction<boolean>>
+  setDeletingProject: React.Dispatch<React.SetStateAction<boolean>>,
+  onSuccess?: () => void
 ) => {
   const router = useRouter();
 
@@ -15,7 +16,7 @@ export const useProjectDeletion = (
     try {
       setDeletingProject(true);
 
-      // Delete the note
+      // Delete the project
       const response = await fetch(
         `/api/projects?teamId=${teamId}&projectId=${projectId}`,
         {
@@ -35,7 +36,11 @@ export const useProjectDeletion = (
           icon: <IconCheck />,
         });
 
-        router.push(`/teams/${teamId}`);
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push(`/teams/${teamId}/projects`);
+        }
       }
     } catch (error) {
       console.error(error);

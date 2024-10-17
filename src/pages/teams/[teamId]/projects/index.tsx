@@ -1,5 +1,6 @@
 import ProjectCard from "@/components/card/project/ProjectCard";
 import PageHeading from "@/components/layout/heading/PageHeading";
+import DeleteProjectModal from "@/components/modal/delete/DeleteProjectModal";
 import TeamDeletionConfirmationModal from "@/components/modal/delete/TeamDeletionConfirmationModal";
 import NewInvitationModal from "@/components/modal/invitation/NewInvitationModal";
 import CreateProjectModal from "@/components/modal/projects/CreateProjectModal";
@@ -7,6 +8,7 @@ import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import EmptyState from "@/components/states/empty/EmptyState";
 import TeamTable from "@/components/table/team/TeamTable";
+import { useProjectDeletion } from "@/hooks/useProjectDeletion";
 import { ICreateInvitationsPayload } from "@/infrastructure/services/invitation.service";
 import { getTeamAndUsersByTeamId } from "@/infrastructure/services/team.service";
 import { getUser } from "@/infrastructure/services/user.service";
@@ -19,7 +21,7 @@ import { SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, Project, User } from "@prisma/client";
 import {
   IconAlertCircle,
   IconCheck,
@@ -127,13 +129,43 @@ interface IProjectsPage {
 const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
   user,
   team,
-  projects,
+  projects: initialProjects,
 }) => {
   const router = useRouter();
+  const [projects, setProjects] = useState(initialProjects);
   const [creating, setCreating] = useState(false);
 
   // Modals
   const [opened, { open, close }] = useDisclosure(false);
+
+  // Delete Modal
+  const [teamDeletionModalOpened, teamDeletionModalControls] =
+    useDisclosure(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Project Deletion
+  const [projectDeletionModalOpened, setProjectDeletionModalOpened] =
+    useState<boolean>(false);
+  const [deletingProject, setDeletingProject] = useState<boolean>(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const { handleDeleteProject } = useProjectDeletion(
+    projectToDelete?.id || "",
+    team.id,
+    setDeletingProject,
+
+    // onSuccess, remove the project from the list, close the modal and reset the projectToDelete state
+    () => {
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== projectToDelete?.id)
+      );
+      setProjectDeletionModalOpened(false);
+      setProjectToDelete(null);
+    }
+  );
+  const openProjectDeletionModal = (project: Project) => {
+    setProjectToDelete(project);
+    setProjectDeletionModalOpened(true);
+  };
 
   // Invitation Modal
   const [inviteOpened, inviteControls] = useDisclosure(false);
@@ -147,10 +179,6 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
       ],
     },
   });
-
-  // Delete Modal
-  const [deleteOpened, deleteControls] = useDisclosure(false);
-  const [deleting, setDeleting] = useState(false);
 
   // POST /api/invitation/create
   const handleCreateNewInvitation = async (
@@ -227,7 +255,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
     },
   });
 
-  // POST /api/projects
+  // Create new project - POST /api/projects
   const handleCreateNewProject = async (
     values: { projectName: string; projectDescription: string },
     event?: React.FormEvent
@@ -259,7 +287,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
         });
 
         const newProject = data;
-        projects.push(newProject); // Update projects with the new project
+        setProjects((prevProjects) => [...prevProjects, newProject]);
 
         form.reset();
         setCreating(false);
@@ -282,7 +310,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
     console.log("Edit");
   };
 
-  // DELETE /api/teams
+  // Delete team - DELETE /api/teams
   const handleDelete = async (teamId: string) => {
     try {
       setDeleting(true);
@@ -303,7 +331,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
         });
 
         setDeleting(false);
-        deleteControls.close();
+        teamDeletionModalControls.close();
         router.push("/teams");
       }
     } catch (error: any) {
@@ -341,7 +369,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
           },
           {
             title: "Delete team",
-            action: deleteControls.open,
+            action: teamDeletionModalControls.open,
             icon: <IconTrash size={14} />,
           },
         ]}
@@ -389,6 +417,7 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
                   fileCount={project._count.files}
                   noteCount={project._count.notes}
                   tagCount={project._count.tags}
+                  onDelete={openProjectDeletionModal}
                 />
               ))}
             </SimpleGrid>
@@ -425,11 +454,18 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
       />
 
       <TeamDeletionConfirmationModal
-        opened={deleteOpened}
-        close={deleteControls.close}
+        opened={teamDeletionModalOpened}
+        close={teamDeletionModalControls.close}
         isDeleting={deleting}
         teamName={team.name}
         handleDelete={() => handleDelete(team.id)}
+      />
+
+      <DeleteProjectModal
+        opened={projectDeletionModalOpened}
+        close={() => setProjectDeletionModalOpened(false)}
+        handleDelete={() => handleDeleteProject()}
+        deleting={deletingProject}
       />
     </>
   );

@@ -24,6 +24,7 @@ export interface IProjectCard {
   fileCount: number;
   noteCount: number;
   tagCount: number;
+  onDelete: (_project: Project) => void;
 }
 
 const ProjectCard: FC<IProjectCard> = ({
@@ -31,6 +32,7 @@ const ProjectCard: FC<IProjectCard> = ({
   fileCount,
   noteCount,
   tagCount,
+  onDelete,
 }) => {
   const { colorScheme } = useMantineColorScheme();
   const menuOptions = useMemo(
@@ -44,10 +46,10 @@ const ProjectCard: FC<IProjectCard> = ({
         option: "Delete",
         color: "red",
         icon: <IconTrash size={"1rem"} />,
-        onClick: () => {},
+        onClick: () => onDelete(project),
       },
     ],
-    []
+    [onDelete, project]
   );
 
   return (
