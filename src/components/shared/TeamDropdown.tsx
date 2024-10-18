@@ -7,6 +7,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { IconFolder, IconSelector } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 
 export const TeamDropdown = () => {
@@ -57,7 +58,8 @@ export const TeamDropdown = () => {
             <Menu.Item
               key={team.id}
               leftSection={<IconFolder size="1.1rem" />}
-              onClick={() => router.push(`/teams/${team.id}/projects`)}
+              component={Link}
+              href={`/teams/${team.id}/projects`}
             >
               {team.name}
             </Menu.Item>

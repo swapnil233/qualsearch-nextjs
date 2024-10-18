@@ -34,7 +34,7 @@ import {
 import { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
 import fetch from "node-fetch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Page /teams/[teamId]/projects
 export async function getServerSideProps(context: GetServerSidePropsContext) {
@@ -134,6 +134,12 @@ const ProjectsPage: NextPageWithLayout<IProjectsPage> = ({
   const router = useRouter();
   const [projects, setProjects] = useState(initialProjects);
   const [creating, setCreating] = useState(false);
+
+  // Update projects state when page is loaded
+  // Without this, the projects state does not update when user uses teams dropdown to switch teams
+  useEffect(() => {
+    setProjects(initialProjects);
+  }, [initialProjects]);
 
   // Modals
   const [opened, { open, close }] = useDisclosure(false);
