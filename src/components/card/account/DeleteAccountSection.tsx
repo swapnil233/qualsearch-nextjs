@@ -15,10 +15,10 @@ const DeleteAccountSection = ({
     <Grid gutter="xl">
       <Grid.Col span={{ base: 12, md: 4 }}>
         <Stack gap="xs">
-          <Text fw={500} size="lg" c="#333333">
+          <Text fw={500} size="lg">
             Delete account
           </Text>
-          <Text c="#7D7D7D">Deleting your account is irreversible.</Text>
+          <Text c="dimmed">Deleting your account is irreversible.</Text>
         </Stack>
       </Grid.Col>
       <Grid.Col span={{ base: 12, md: 8 }}>

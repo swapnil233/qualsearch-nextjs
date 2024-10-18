@@ -6,10 +6,10 @@ const Integrations = () => {
     <Grid gutter="xl">
       <Grid.Col span={{ base: 12, md: 4 }}>
         <Stack gap="xs">
-          <Text fw={500} size="lg" c="#333333">
+          <Text fw={500} size="lg">
             Integrations
           </Text>
-          <Text c="#7D7D7D">
+          <Text c="dimmed">
             Easily set up integrations with just a few clicks.
           </Text>
         </Stack>

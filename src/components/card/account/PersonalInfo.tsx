@@ -55,10 +55,10 @@ const PersonalInfo = ({ user, preferences }: PersonalInfoProps) => {
     <Grid gutter="xl">
       <Grid.Col span={{ base: 12, md: 4 }}>
         <Stack gap="xs">
-          <Text fw={500} size="lg" c="#333333">
+          <Text fw={500} size="lg">
             Personal information
           </Text>
-          <Text c="#7D7D7D">
+          <Text c="dimmed">
             This information may be viewable by other users of this application.
           </Text>
         </Stack>

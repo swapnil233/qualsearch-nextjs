@@ -17,17 +17,17 @@ interface ChangePasswordProps {
 }
 
 const ChangePassword = ({ account }: ChangePasswordProps) => {
-  const { register, handleSubmit, errors, onSubmit, isLoading } =
+  const { register, handleSubmit, onSubmit, isLoading } =
     useChangePasswordForm(account);
 
   return (
     <Grid gutter="xl">
       <Grid.Col span={{ base: 12, md: 4 }}>
         <Stack gap="xs">
-          <Text fw={500} size="lg" c="#333333">
+          <Text fw={500} size="lg">
             Change your password
           </Text>
-          <Text c="#7D7D7D">
+          <Text c="dimmed">
             If you think your password may have been compromised, you may change
             it here.
           </Text>

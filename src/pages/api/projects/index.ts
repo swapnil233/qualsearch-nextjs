@@ -42,8 +42,6 @@ export default async function handler(
   switch (req.method) {
     case "POST":
       return handlePost(req, res);
-    case "GET":
-      return handleGet(req, res, session);
     case "DELETE":
       return handleDelete(req, res, session);
     default:
@@ -90,14 +88,6 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
       .status(HttpStatus.InternalServerError)
       .send(ErrorMessages.InternalServerError);
   }
-}
-
-async function handleGet(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  session: any
-) {
-  console.log("GET");
 }
 
 // Delete a project
