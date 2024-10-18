@@ -14,12 +14,10 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-  IconChartBar,
   IconFiles,
   IconFolder,
   IconFolders,
   IconHome,
-  IconInbox,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconMoonStars,
@@ -127,9 +125,9 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             />
           </NavButton>
           <NavButton
-            href="/profile"
+            href="/account"
             icon={<IconUser size={20} />}
-            label="Profile"
+            label="Account"
             isCollapsed={!sidebarWasExpanded}
             closeMobileSidebarNav={closeMobileSidebar}
           />
@@ -147,9 +145,9 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
             closeMobileSidebarNav={closeMobileSidebar}
           />
           <NavButton
-            href="/profile"
+            href="/account"
             icon={<IconUser size={20} />}
-            label="Profile"
+            label="Account"
             isCollapsed={!sidebarWasExpanded}
             closeMobileSidebarNav={closeMobileSidebar}
           />
@@ -161,22 +159,15 @@ const DashboardLayout: FC<IDashboardLayout> = ({ children, aside }) => {
         <Stack h="100%">
           <NavButton
             href="/teams"
-            icon={<IconHome size={20} />}
+            icon={<IconFolder size={20} />}
             label="Teams"
             isCollapsed={!sidebarWasExpanded}
             closeMobileSidebarNav={closeMobileSidebar}
           />
           <NavButton
-            href="/inbox"
-            icon={<IconInbox size={20} />}
-            label="Inbox"
-            isCollapsed={!sidebarWasExpanded}
-            closeMobileSidebarNav={closeMobileSidebar}
-          />
-          <NavButton
-            href="/reports"
-            icon={<IconChartBar size={20} />}
-            label="Reports"
+            href="/account"
+            icon={<IconUser size={20} />}
+            label="Account"
             isCollapsed={!sidebarWasExpanded}
             closeMobileSidebarNav={closeMobileSidebar}
           />
