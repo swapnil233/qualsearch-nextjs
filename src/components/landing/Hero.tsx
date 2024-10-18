@@ -8,7 +8,7 @@ import {
   useMantineColorScheme,
   useMantineTheme,
 } from "@mantine/core";
-import { IconPlayerPlay } from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
@@ -44,14 +44,16 @@ export const Hero = () => {
       <Group mt="md" justify="center">
         <Button
           size="lg"
-          variant="default"
-          leftSection={<IconPlayerPlay size={20} />}
+          rightSection={<IconArrowRight size={20} />}
+          component={Link}
+          href="/request-demo"
         >
-          Demo
+          Book a Demo
         </Button>
         <Button
           size="lg"
           component={Link}
+          variant="outline"
           href={status === "unauthenticated" ? "/signin" : teamRedirectUrl}
         >
           Get started
