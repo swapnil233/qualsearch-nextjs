@@ -2,6 +2,7 @@ import ChangePassword from "@/components/card/account/ChangePassword";
 import DeleteAccountSection from "@/components/card/account/DeleteAccountSection";
 import Integrations from "@/components/card/account/Integrations";
 import PersonalInfo from "@/components/card/account/PersonalInfo";
+import PageHeading from "@/components/layout/heading/PageHeading";
 import DashboardLayout from "@/components/shared/layouts/DashboardLayout";
 import SharedHead from "@/components/shared/SharedHead";
 import {
@@ -11,7 +12,6 @@ import {
 } from "@/infrastructure/services/user.service";
 import { auth } from "@/lib/auth/auth";
 import { NextPageWithLayout } from "@/pages/page";
-import { Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { Account, User, UserPreferences } from "@prisma/client";
 import { GetServerSidePropsContext } from "next";
@@ -110,9 +110,12 @@ const AccountPage: NextPageWithLayout<IAccountPageProps> = ({
   return (
     <>
       <SharedHead title="Account" description="View your account details" />
-      <Title order={2} mb={32}>
-        Account
-      </Title>
+
+      <PageHeading
+        title="Account"
+        description="View and manage your account details."
+        breadcrumbs={[{ title: "Home", href: "/" }]}
+      />
 
       <PersonalInfo user={user} preferences={preferences} />
       <ChangePassword account={account} />
